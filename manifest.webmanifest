@@ -1,6 +1,6 @@
 {
-  "name": "せきがえ",
-  "short_name": "せきがえ",
+  "name": "マネジメント教室",
+  "short_name": "マネ教室",
   "description": "頼み方が、相手の席からどう見えるかを確かめる、教室の形をしたマネジメントのアプリ",
   "lang": "ja",
   "start_url": "./",
@@ -9,8 +9,23 @@
   "background_color": "#104925",
   "theme_color": "#eef2ef",
   "icons": [
-    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
