@@ -1,0 +1,2240 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="頼み方が、相手の席からどう見えるかを確かめる、教室の形をしたページ。黒板に頼みごとを書いて、生徒の目線に切り替えて見る">
+<meta name="theme-color" content="#eef2ef">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="せきがえ">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>せきがえ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+/* Layout: 教室を上から見た図。上に黒板（前）、その下に先生と教卓、床に机の列（前・中ほど・後ろ）。机を押すと、その席からの眺め（生徒の目線）にふわっと切り替わる */
+:root {
+  --bg: #eef2ef; --fg: #1d2a24; --muted: #56685f; --line: #c8d3cc;
+  --surface: #ffffff; --surface-2: #f4f7f5; --chip: #e4ebe6; --sel-bg: #e2efe8;
+  --wall: #e2e9e4; --wall-2: #d3dcd6; --floor: #e9dcc6; --floor-line: #dfcfb4; --floor-ink: #6b5a43;
+  --board: #24493c; --board-hi: #2e5a4a; --board-frame: #8b6a47; --board-frame-2: #6c5136;
+  --chalk: #f4f2e9; --chalk-dim: #c3cfc4; --chalk-yellow: #f3d77b; --chalk-pink: #f3a596; --chalk-blue: #a4d0ea; --chalk-glow: rgba(244, 242, 233, .35);
+  --desk: #dcbb8a; --desk-edge: #a9824f; --desk-empty: #e2d3bb; --desk-empty-edge: #d2c09f;
+  --tag-bg: #fffdf6; --tag-fg: #2a2f2b; --tag-muted: #6d6a60; --kid-ring: #ffffff; --kid-hair: #3b2f29; --kid-line: #fffaf0;
+  --heads: #8f9d95; --heads-2: #b4bfb8;
+  --primary: #2e5c4b; --primary-press: #264e40; --primary-edge: #183a2d; --on-primary: #ffffff;
+  --btn-face: #ffffff; --btn-edge: #b2bfb7; --btn-drop: rgba(29, 42, 36, .16);
+  --focus: #1f63c6; --focus-ring: rgba(31, 99, 198, .25); --err: #b3261e;
+  --warn-bg: #fff0d2; --warn-fg: #694300; --good-bg: #e1f1e6; --good-fg: #1f5c39; --ask-bg: #fff5d6; --ask-fg: #4b3900;
+  --scrim: rgba(18, 30, 25, .42); --bar-bg: rgba(238, 242, 239, .92); --shadow: rgba(20, 32, 27, .22);
+  --sheet-shadow: 0 -10px 34px rgba(20, 40, 30, .18); --card-shadow: 0 16px 44px rgba(20, 40, 30, .24);
+  --toast-bg: #1d2a24; --toast-fg: #eef4f0;
+  --skin: #f2d4b9; --skin-2: #e6bd9b; --hair: #3a2e28; --shirt: #5d7c96; --shirt-2: #4b6780; --face-ink: #2b2420;
+  --mouth: #8a3e35; --cheek: rgba(236, 120, 108, .4); --sweat: #78b4e6; --anger: #d0453a; --paper: #ffffff; --paper-line: #c9d2cc;
+  --q-hands: #ebe9e3; --q-kind: #e3eef6; --q-strict: #f6e6e1; --q-warm: #e2f0e5; --dot: #2e5c4b;
+  --k1: #e8806f; --k2: #4fa3a5; --k3: #d9a93f; --k4: #9b86c9; --k5: #5b9bd5; --k6: #d97aa0; --k7: #8aa05a; --k8: #e39a4f;
+  --font-chalk: "Klee One", "UD Digi Kyokasho N-R", "UD デジタル 教科書体 N-R", "YuKyokasho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-round: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", system-ui, sans-serif;
+  --font-body: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121815; --fg: #e3ebe6; --muted: #9db0a6; --line: #2e3b35;
+    --surface: #19221e; --surface-2: #1f2a25; --chip: #25312b; --sel-bg: #213a30;
+    --wall: #1b2420; --wall-2: #222d28; --floor: #2a231b; --floor-line: #312920; --floor-ink: #c9b391;
+    --board: #1b3a2f; --board-hi: #234839; --board-frame: #5e4630; --board-frame-2: #4a3624;
+    --chalk: #ebe9df; --chalk-dim: #a9b8ad; --chalk-yellow: #e9cd70; --chalk-pink: #eb9a8b; --chalk-blue: #97c4df; --chalk-glow: rgba(235, 233, 223, .28);
+    --desk: #6f5536; --desk-edge: #4a3822; --desk-empty: #2f281f; --desk-empty-edge: #3a3126;
+    --tag-bg: #ece8dc; --tag-fg: #24231f; --tag-muted: #5f5b51; --kid-ring: #1b2420; --kid-hair: #6e5442; --kid-line: #4d4235;
+    --heads: #3c4a43; --heads-2: #2d3833;
+    --primary: #3f7c63; --primary-press: #356a54; --primary-edge: #1c3d30; --on-primary: #ffffff;
+    --btn-face: #22302a; --btn-edge: #0d1411; --btn-drop: rgba(0, 0, 0, .45);
+    --focus: #8fb8ff; --focus-ring: rgba(143, 184, 255, .3); --err: #ff9d8f;
+    --warn-bg: #43361a; --warn-fg: #ffd98a; --good-bg: #1d3a2a; --good-fg: #a6e2bd; --ask-bg: #3a3115; --ask-fg: #ffe5a0;
+    --scrim: rgba(0, 0, 0, .6); --bar-bg: rgba(18, 24, 21, .92); --shadow: rgba(0, 0, 0, .5);
+    --sheet-shadow: 0 -10px 34px rgba(0, 0, 0, .5); --card-shadow: 0 16px 44px rgba(0, 0, 0, .55);
+    --toast-bg: #e3ebe6; --toast-fg: #121815;
+    --skin: #e9c8aa; --skin-2: #d7ad8a; --hair: #2a201b; --shirt: #4c6a84; --shirt-2: #3d566c; --face-ink: #241d19;
+    --mouth: #7d362e; --cheek: rgba(236, 120, 108, .38); --sweat: #8cc2ee; --anger: #ff7b6e; --paper: #e9e6dc; --paper-line: #a9aea8;
+    --q-hands: #24282a; --q-kind: #1c2a33; --q-strict: #33241f; --q-warm: #1c3326; --dot: #8fd1b0;
+    --k1: #e98c7c; --k2: #5fb3b4; --k3: #ddb04e; --k4: #a894d3; --k5: #6aa8de; --k6: #de88ab; --k7: #98ae68; --k8: #e8a65e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121815; --fg: #e3ebe6; --muted: #9db0a6; --line: #2e3b35;
+  --surface: #19221e; --surface-2: #1f2a25; --chip: #25312b; --sel-bg: #213a30;
+  --wall: #1b2420; --wall-2: #222d28; --floor: #2a231b; --floor-line: #312920; --floor-ink: #c9b391;
+  --board: #1b3a2f; --board-hi: #234839; --board-frame: #5e4630; --board-frame-2: #4a3624;
+  --chalk: #ebe9df; --chalk-dim: #a9b8ad; --chalk-yellow: #e9cd70; --chalk-pink: #eb9a8b; --chalk-blue: #97c4df; --chalk-glow: rgba(235, 233, 223, .28);
+  --desk: #6f5536; --desk-edge: #4a3822; --desk-empty: #2f281f; --desk-empty-edge: #3a3126;
+  --tag-bg: #ece8dc; --tag-fg: #24231f; --tag-muted: #5f5b51; --kid-ring: #1b2420; --kid-hair: #6e5442; --kid-line: #4d4235;
+  --heads: #3c4a43; --heads-2: #2d3833;
+  --primary: #3f7c63; --primary-press: #356a54; --primary-edge: #1c3d30; --on-primary: #ffffff;
+  --btn-face: #22302a; --btn-edge: #0d1411; --btn-drop: rgba(0, 0, 0, .45);
+  --focus: #8fb8ff; --focus-ring: rgba(143, 184, 255, .3); --err: #ff9d8f;
+  --warn-bg: #43361a; --warn-fg: #ffd98a; --good-bg: #1d3a2a; --good-fg: #a6e2bd; --ask-bg: #3a3115; --ask-fg: #ffe5a0;
+  --scrim: rgba(0, 0, 0, .6); --bar-bg: rgba(18, 24, 21, .92); --shadow: rgba(0, 0, 0, .5);
+  --sheet-shadow: 0 -10px 34px rgba(0, 0, 0, .5); --card-shadow: 0 16px 44px rgba(0, 0, 0, .55);
+  --toast-bg: #e3ebe6; --toast-fg: #121815;
+  --skin: #e9c8aa; --skin-2: #d7ad8a; --hair: #2a201b; --shirt: #4c6a84; --shirt-2: #3d566c; --face-ink: #241d19;
+  --mouth: #7d362e; --cheek: rgba(236, 120, 108, .38); --sweat: #8cc2ee; --anger: #ff7b6e; --paper: #e9e6dc; --paper-line: #a9aea8;
+  --q-hands: #24282a; --q-kind: #1c2a33; --q-strict: #33241f; --q-warm: #1c3326; --dot: #8fd1b0;
+  --k1: #e98c7c; --k2: #5fb3b4; --k3: #ddb04e; --k4: #a894d3; --k5: #6aa8de; --k6: #de88ab; --k7: #98ae68; --k8: #e8a65e;
+  color-scheme: dark;
+}
+
+/* ---- 土台 ---- */
+html { box-sizing: border-box; -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.6;
+  -webkit-tap-highlight-color: transparent;
+}
+html.is-locked, html.is-locked body { overflow: hidden; }
+[hidden] { display: none !important; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; touch-action: manipulation; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+h1, h2, h3 { text-wrap: balance; }
+@supports (word-break: auto-phrase) { h1, h2, h3, .tag-n, .q-text, .voice, .ask-q { word-break: auto-phrase; } }
+/* 左右の余白は、帯ごとの内側の .wrap 1か所で取る（教室の壁と床は画面の端まで塗る） */
+.wrap {
+  max-width: 1080px; margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+/* ---- 上の帯と画面のタブ ---- */
+.top-in { display: flex; align-items: center; gap: 12px; padding-block: 14px 4px; }
+.brand { flex: 1; min-width: 0; }
+.brand h1 { margin: 0; display: flex; align-items: center; gap: 10px; font: 700 23px/1.2 var(--font-round); letter-spacing: .06em; }
+/* 見出しの印：アプリのアイコン（黒板の緑に、チョークと、かすれて消える線）。tools/make_icons.py の logo-64.png を埋め込み */
+.logo { flex: none; width: 32px; height: 32px; border-radius: 8px; background: var(--board) url("data:image/png;base64,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") center / cover no-repeat; box-shadow: 0 1px 2px var(--btn-drop); }
+.brand-sub { margin: 3px 0 0; font-size: 12.5px; color: var(--muted); }
+.tabs { display: flex; gap: 2px; margin-top: 6px; border-bottom: 1.5px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+.tab {
+  flex: none; border: 0; background: none; padding: 10px 14px 9px; margin-bottom: -1.5px;
+  border-bottom: 3px solid transparent; border-radius: 8px 8px 0 0;
+  font: 700 15px/1.2 var(--font-round); color: var(--muted);
+}
+.tab[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--primary); }
+.tab:focus-visible { outline-offset: -3px; }
+
+/* ---- 押すと沈む立体ボタン：下に同じ形の厚み（--edge）とやわらかい影。
+   乗せると少し浮き、押すと沈み、離すとばねで戻る。文字のリンク・タブ・スイッチ・選択肢は平らなまま。机も同じ動きで沈む ---- */
+.btn, .icon-btn, .chip-btn {
+  --edge: var(--btn-edge); --lift: 4px;
+  border: 1.5px solid var(--line); background: var(--btn-face); color: var(--fg);
+  transform: translateY(calc(var(--lift) * -1));
+  box-shadow: 0 var(--lift) 0 var(--edge), 0 calc(var(--lift) + 2px) 10px var(--btn-drop);
+  transition: transform .6s cubic-bezier(.3, .7, .4, 1), box-shadow .6s cubic-bezier(.3, .7, .4, 1), filter .25s;
+}
+@media (hover: hover) {
+  .btn:hover, .icon-btn:hover, .chip-btn:hover {
+    transform: translateY(calc(var(--lift) * -1.5));
+    box-shadow: 0 calc(var(--lift) * 1.5) 0 var(--edge), 0 calc(var(--lift) * 1.5 + 3px) 14px var(--btn-drop); filter: brightness(1.04);
+    transition-duration: .25s; transition-timing-function: cubic-bezier(.3, .7, .4, 1.5);
+  }
+}
+.btn:active, .icon-btn:active, .chip-btn:active {
+  transform: translateY(calc(var(--lift) * -.5)); box-shadow: 0 calc(var(--lift) * .5) 0 var(--edge), 0 3px 4px var(--btn-drop);
+  transition-duration: .034s; background: var(--chip);
+}
+.btn { min-height: 48px; padding: 10px 16px; border-radius: 14px; font: 700 16px/1.3 var(--font-round); text-align: center; }
+.btn-primary { --edge: var(--primary-edge); background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.btn-primary:active { background: var(--primary-press); border-color: var(--primary-press); }
+.btn-small { --lift: 3px; min-height: 40px; padding: 6px 14px; font-size: 14.5px; border-radius: 12px; }
+.btn-danger { color: var(--err); }
+.btn-danger.is-armed { background: var(--err); border-color: var(--err); color: var(--bg); }
+.icon-btn { --lift: 3px; flex: none; width: 40px; height: 40px; border-radius: 50%; padding: 0; display: grid; place-items: center; font: 700 18px/1 var(--font-round); }
+.chip-btn { --lift: 3px; min-height: 38px; padding: 6px 12px; border-radius: 999px; font: 700 13.5px/1.35 var(--font-round); text-align: left; }
+.link-btn {
+  border: 0; background: none; padding: 6px 4px; border-radius: 6px; color: var(--fg);
+  font: 700 13.5px var(--font-round); text-decoration: underline; text-underline-offset: 3px;
+}
+.link-btn.danger { color: var(--err); }
+
+/* ---- 教室：壁と黒板 ---- */
+.wall { background: linear-gradient(to bottom, var(--wall), var(--wall-2)); border-top: 1px solid var(--line); }
+.wall > .wrap { padding-block: 20px 0; }
+.board {
+  position: relative; max-width: 820px; margin: 0 auto; padding: 11px; border-radius: 8px;
+  background: linear-gradient(to bottom, var(--board-frame), var(--board-frame-2));
+  box-shadow: 0 5px 0 var(--board-frame-2), 0 14px 26px var(--shadow);
+}
+.board-face {
+  position: relative; min-height: 172px; padding: 18px 44px 28px 20px; border-radius: 3px;
+  background:
+    radial-gradient(ellipse 45% 55% at 28% 38%, var(--board-hi), transparent 70%),
+    radial-gradient(ellipse 35% 45% at 78% 72%, var(--board-hi), transparent 70%),
+    var(--board);
+  box-shadow: inset 0 0 34px var(--shadow);
+  color: var(--chalk); font-family: var(--font-chalk);
+}
+.chalk-text {
+  --fs: 22px; margin: 0; font-size: calc(var(--fs) * var(--scale, 1)); font-weight: 600; line-height: 1.75;
+  white-space: pre-wrap; overflow-wrap: anywhere; text-shadow: 0 0 1px var(--chalk-glow), 0 0 6px var(--chalk-glow);
+}
+.chalk-text.is-mid { --fs: 19px; }
+.chalk-text.is-long { --fs: 16.5px; }
+.chalk-text.is-empty { color: var(--chalk-dim); font-weight: 400; }
+.board-date { position: absolute; top: 14px; right: 12px; margin: 0; writing-mode: vertical-rl; font: 400 13px/1.3 var(--font-chalk); color: var(--chalk-dim); letter-spacing: .1em; }
+.tray { position: absolute; left: 12%; right: 12%; bottom: 2px; height: 9px; border-radius: 2px; background: var(--board-frame-2); box-shadow: 0 2px 0 var(--shadow); }
+.tray i { position: absolute; bottom: 5px; height: 6px; border-radius: 3px; }
+.tray .ch-w { left: 14%; width: 26px; background: var(--chalk); }
+.tray .ch-y { left: 24%; width: 18px; background: var(--chalk-yellow); }
+.tray .ch-p { left: 31%; width: 22px; background: var(--chalk-pink); }
+.tray .eraser { right: 12%; width: 40px; height: 12px; border-radius: 3px; background: linear-gradient(to bottom, var(--shirt-2) 0 45%, var(--paper-line) 45%); }
+.board-meta { max-width: 820px; margin: 10px auto 0; display: flex; align-items: center; flex-wrap: wrap; gap: 2px 12px; }
+.board-note { flex: 1; min-width: 0; margin: 0; font-size: 13px; color: var(--muted); }
+.board-links { display: flex; gap: 6px; }
+.tag { display: inline-block; padding: 0 7px; border-radius: 999px; font: 700 11px/1.7 var(--font-round); background: var(--chip); color: var(--muted); vertical-align: 1px; }
+.tag-now { background: var(--good-bg); color: var(--good-fg); }
+
+/* 先生と教卓（教室では、いつもの顔） */
+.lectern { position: relative; display: grid; justify-items: center; height: 118px; margin-top: 4px; }
+.teacher-slot { width: 92px; }
+.teacher { display: block; width: 100%; height: auto; overflow: visible; }
+.podium {
+  position: absolute; bottom: 0; left: 50%; width: 150px; height: 40px; transform: translateX(-50%);
+  border-radius: 6px 6px 2px 2px; background: linear-gradient(to bottom, var(--desk), var(--desk-edge));
+  box-shadow: 0 4px 0 var(--desk-edge), 0 8px 14px var(--shadow);
+}
+
+/* ---- 床と机 ---- */
+.floor { background: repeating-linear-gradient(90deg, var(--floor) 0 58px, var(--floor-line) 58px 60px); border-top: 3px solid var(--wall-2); }
+.floor > .wrap { padding-block: 18px calc(110px + env(safe-area-inset-bottom, 0px)); }
+.rows { display: grid; gap: 20px; max-width: 820px; margin: 0 auto; }
+.row-label { margin: 0 0 16px; font: 700 12px/1.3 var(--font-round); letter-spacing: .1em; color: var(--floor-ink); }
+.row-desks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 10px; }
+.desk {
+  --c: var(--k1); --lift: 4px; position: relative; display: grid; justify-items: center; align-content: start;
+  padding: 0; border: 0; background: none; color: inherit; text-align: center; border-radius: 10px;
+}
+.desk.e-wide { display: none; }
+@media (min-width: 760px) {
+  .row-desks { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px 14px; }
+  .desk.e-wide { display: grid; }
+}
+.desk-top {
+  width: 100%; min-height: 64px; display: grid; place-items: center; padding: 8px 6px 10px; border-radius: 8px;
+  background: var(--desk); transform: translateY(calc(var(--lift) * -1));
+  box-shadow: 0 var(--lift) 0 var(--desk-edge), 0 calc(var(--lift) + 3px) 8px var(--btn-drop);
+  transition: transform .6s cubic-bezier(.3, .7, .4, 1), box-shadow .6s cubic-bezier(.3, .7, .4, 1);
+}
+@media (hover: hover) {
+  button.desk:hover .desk-top {
+    transform: translateY(calc(var(--lift) * -1.5)); transition-duration: .25s;
+    box-shadow: 0 calc(var(--lift) * 1.5) 0 var(--desk-edge), 0 calc(var(--lift) * 1.5 + 3px) 12px var(--btn-drop);
+  }
+}
+button.desk:active .desk-top { transform: translateY(calc(var(--lift) * -.4)); box-shadow: 0 calc(var(--lift) * .4) 0 var(--desk-edge), 0 3px 4px var(--btn-drop); transition-duration: .034s; }
+.desk:focus-visible { outline-offset: 5px; }
+.desk-tag { display: grid; gap: 1px; max-width: 100%; padding: 4px 7px 5px; border-radius: 4px; background: var(--tag-bg); color: var(--tag-fg); box-shadow: 0 1px 0 var(--desk-edge); }
+.tag-k { font-size: 10px; line-height: 1.25; color: var(--tag-muted); }
+.tag-n { font: 700 12.5px/1.3 var(--font-round); overflow-wrap: anywhere; }
+/* 生徒：黒板のほうを向いて机に手をのせている姿を、後ろの上から見たところ（手が机のふちにかかる） */
+.kid { position: relative; z-index: 1; width: 68px; height: 55px; margin-top: -15px; }
+.kid svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.desk:not(.is-empty) .kid { filter: drop-shadow(0 2px 2px var(--btn-drop)); }
+.s-arm-line { fill: none; stroke: var(--kid-line); stroke-width: 12.5; stroke-linecap: round; }
+.s-arm { fill: none; stroke: var(--c); stroke-width: 9; stroke-linecap: round; }
+.s-body { fill: var(--c); stroke: var(--kid-line); stroke-width: 1.8; }
+.s-hand, .s-ear { fill: var(--skin); stroke: var(--kid-line); stroke-width: 1.2; }
+.s-hair { fill: var(--kid-hair); stroke: var(--kid-line); stroke-width: 1.6; }
+.s-chair { fill: var(--desk-empty); stroke: var(--desk-empty-edge); stroke-width: 1.5; }
+.desk-badges { position: absolute; top: -13px; left: -3px; right: -3px; z-index: 1; display: flex; flex-wrap: wrap; gap: 3px; pointer-events: none; }
+.badge { padding: 0 7px; border-radius: 999px; font: 700 10.5px/1.7 var(--font-round); background: var(--surface); color: var(--muted); border: 1px solid var(--line); }
+.badge-first { background: var(--chalk-yellow); color: var(--tag-fg); border-color: var(--chalk-yellow); }
+.badge-review { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-bg); }
+.desk.is-off { opacity: .55; }
+.desk.is-empty .desk-top { background: var(--desk-empty); box-shadow: 0 3px 0 var(--desk-empty-edge); transform: translateY(-3px); }
+.seat-note, .ex-note { max-width: 820px; margin: 18px auto 0; font-size: 13px; line-height: 1.75; color: var(--floor-ink); }
+.seat-tools { max-width: 820px; margin: 20px auto 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: 13px; line-height: 1.6; color: var(--floor-ink); }
+.ex-note { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 8px; color: var(--fg); }
+
+/* ---- 下の操作バー（画面の下の端に固定。左右と下は端末の安全領域ぶん足す） ---- */
+.bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  padding-top: 12px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--bar-bg); border-top: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.bar-in { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px; }
+
+/* ---- タブの中身（提出物・通知表・書き出す） ---- */
+.pane-in { max-width: 820px; padding-block: 18px calc(48px + env(safe-area-inset-bottom, 0px)); }
+.pane-title { margin: 0; font: 700 21px/1.4 var(--font-round); }
+.pane-lead { margin: 4px 0 18px; color: var(--muted); font-size: 14.5px; }
+.sub-title { margin: 28px 0 6px; font: 700 16px/1.5 var(--font-round); }
+.small { margin: 4px 0 0; font-size: 13.5px; color: var(--muted); }
+.lbl { display: block; margin: 0 0 6px; font: 700 12.5px/1.4 var(--font-round); letter-spacing: .06em; color: var(--muted); }
+/* ---- シート（スマホは下から、広い画面は右から） ---- */
+.scrim { position: fixed; inset: 0; z-index: 30; background: var(--scrim); }
+.scrim.is-clear { background: transparent; }
+.sheet { position: fixed; z-index: 40; background: var(--surface); color: var(--fg); overflow-y: auto; overscroll-behavior: contain; box-shadow: var(--sheet-shadow); }
+@media (max-width: 759.98px) {
+  .sheet {
+    left: 0; right: 0; bottom: 0; max-height: calc(100% - env(safe-area-inset-top, 0px) - 24px); border-radius: 22px 22px 0 0;
+    padding-top: 6px; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .sheet.is-low { max-height: 72%; }
+}
+@media (min-width: 760px) {
+  .sheet {
+    top: 0; right: 0; bottom: 0; width: min(460px, 100%); border-radius: 22px 0 0 22px;
+    padding-top: calc(20px + env(safe-area-inset-top, 0px)); padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    padding-left: 22px; padding-right: max(22px, env(safe-area-inset-right, 0px));
+  }
+  .grabber { display: none; }
+  body.has-drawer .app { margin-right: 460px; }
+}
+.grabber { width: 40px; height: 5px; margin: 4px auto 12px; border-radius: 3px; background: var(--line); }
+.sheet-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+.sheet-head h2 { flex: 1; min-width: 0; margin: 0; font: 700 21px/1.45 var(--font-round); }
+.sheet h2:focus, .view h2:focus { outline: none; }
+.row-btns { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; margin-top: 20px; }
+.row-btns.one { grid-template-columns: minmax(0, 360px); }
+.err { margin: 6px 2px 0; color: var(--err); font-size: 14px; font-weight: 700; }
+.field {
+  display: block; width: 100%; min-height: 46px; padding: 10px 12px; border-radius: 12px;
+  border: 1.5px solid var(--line); background: var(--surface-2); color: var(--fg); font-size: 16px; line-height: 1.6;
+}
+textarea.field { resize: vertical; }
+.field::placeholder { color: var(--muted); opacity: 1; }
+.field:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-ring); }
+.count { margin: 4px 2px 0; text-align: right; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+/* 黒板に書く欄（書いた字がそのまま黒板の字で映る） */
+.slate { padding: 9px; border-radius: 8px; background: linear-gradient(to bottom, var(--board-frame), var(--board-frame-2)); }
+.slate textarea {
+  display: block; width: 100%; min-height: 128px; padding: 12px 14px; border: 0; border-radius: 3px; resize: vertical;
+  background: var(--board); color: var(--chalk); font: 600 19px/1.7 var(--font-chalk); caret-color: var(--chalk-yellow);
+}
+.slate textarea::placeholder { color: var(--chalk-dim); opacity: 1; font-weight: 400; }
+.slate textarea:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+/* スイッチ（平ら） */
+.switch {
+  -webkit-appearance: none; appearance: none; flex: none; position: relative; margin: 0;
+  width: 46px; height: 28px; border-radius: 999px; background: var(--line); cursor: pointer; transition: background .15s;
+}
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 3px var(--shadow); transition: transform .15s; }
+.switch:checked { background: var(--primary); }
+.switch:checked::after { transform: translateX(18px); }
+/* だれに向けた頼み？ */
+.targets { margin: 18px 0 0; padding: 0; border: 0; min-width: 0; }
+.tgt { display: grid; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.tgt-who, .tgt-first { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tgt-who { font-weight: 700; }
+.tgt-who input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--primary); }
+.tgt-first { padding-left: 30px; font-size: 14px; color: var(--muted); }
+.dot { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--c, var(--k1)); }
+/* 生徒カード */
+.preface { margin: 0 0 6px; padding: 12px 14px; border-radius: 12px; background: var(--chip); font-size: 14.5px; line-height: 1.8; }
+.review-note { margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; background: var(--warn-bg); color: var(--warn-fg); font-weight: 700; font-size: 14px; }
+.q { margin: 22px 0 0; padding: 0; border: 0; min-width: 0; }
+.q legend { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 0 10px; padding: 0; margin-bottom: 8px; }
+.q-n { grid-row: span 2; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--board); color: var(--chalk); font: 600 13px/1 var(--font-chalk); }
+.q-text { font: 700 15.5px/1.5 var(--font-round); }
+.q-hint { font-size: 12px; line-height: 1.4; color: var(--muted); }
+.q-opts { display: grid; gap: 6px; }
+.q-opt { position: relative; display: block; }
+.q-opt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.q-opt span { position: relative; display: block; padding: 9px 12px 9px 38px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-size: 14.5px; line-height: 1.55; }
+.q-opt span::before { content: ""; position: absolute; left: 12px; top: 12px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); }
+.q-opt input:checked + span { border-color: var(--primary); background: var(--sel-bg); }
+.q-opt input:checked + span::before { border-color: var(--primary); background: radial-gradient(circle, var(--primary) 0 4px, var(--surface) 4.5px); }
+.q-opt input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
+.q-opt.is-unknown span { color: var(--muted); }
+.memo-lbl { margin-top: 22px; }
+.history { margin-top: 18px; font-size: 13.5px; color: var(--muted); }
+.history summary { cursor: pointer; font-weight: 700; color: var(--fg); }
+.history ul { margin: 6px 0 0; padding-left: 1.2em; line-height: 1.7; }
+.card-del { margin-top: 16px; text-align: right; }
+.help-body p { margin: 10px 0 0; line-height: 1.85; }
+
+/* ---- 生徒の目線（ふわっと：教室が少しぼけて薄くなり、こちらが少しぼけた状態から澄んで現れる。全体で約0.7秒） ---- */
+.app { transition: filter .38s ease, opacity .38s ease, transform .38s ease; transform-origin: 50% 25%; }
+.app.is-away { filter: blur(6px); opacity: .3; transform: scale(.985); }
+.view {
+  position: fixed; inset: 0; z-index: 35; overflow-y: auto; overscroll-behavior: contain; background: var(--bg);
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  opacity: 0; filter: blur(10px); transform: scale(1.03);
+  transition: opacity .45s ease .22s, filter .45s ease .22s, transform .45s ease .22s;
+}
+.view.is-in { opacity: 1; filter: blur(0); transform: none; }
+.view.is-settled { filter: none; }
+.view.is-leaving { transition-duration: .28s; transition-delay: 0s; }
+.view-top { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; padding-block: 14px 10px; }
+.view-head { flex: 1; min-width: 12em; }
+.view-k { margin: 0; font-size: 12.5px; color: var(--muted); }
+.view-head h2 { margin: 0; font: 700 20px/1.35 var(--font-round); }
+.view-pills { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; margin: 0; }
+.pill { padding: 2px 10px; border-radius: 999px; background: var(--chip); font: 700 12.5px/1.6 var(--font-round); color: var(--fg); }
+.pill-first { background: var(--chalk-yellow); color: var(--tag-fg); }
+.pill-off { background: var(--warn-bg); color: var(--warn-fg); }
+/* 席からの眺め：壁・黒板・先生・前の席の頭・自分の机 */
+.scene { --bw: 100%; --tw: 118px; background: linear-gradient(to bottom, var(--wall), var(--wall-2)); border-block: 1px solid var(--line); overflow: hidden; }
+.scene[data-seat="middle"] { --bw: 92%; --tw: 104px; }
+.scene[data-seat="back"] { --bw: 82%; --tw: 90px; }
+.scene-grid { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "a a" "board board" "teacher b"; align-items: start; gap: 10px 10px; padding-block: 16px 0; }
+@media (min-width: 860px) {
+  .scene-grid { grid-template-columns: minmax(150px, 1fr) minmax(0, 620px) minmax(150px, 1fr); grid-template-areas: "a board b" ". teacher ."; gap: 10px 20px; padding-block: 26px 0; }
+}
+.bub-a { grid-area: a; } .bub-b { grid-area: b; }
+.scene-board { grid-area: board; position: relative; }
+.scene-board .board { width: var(--bw); }
+.bub { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 8px; min-height: 8px; }
+.bub-b { justify-content: flex-start; padding-top: 18px; }
+@media (min-width: 860px) {
+  .bub { flex-direction: column; flex-wrap: nowrap; justify-content: center; gap: 14px; padding-top: 0; }
+  .bub-a { align-items: flex-end; } .bub-b { align-items: flex-start; }
+}
+.q-bubble {
+  --r: 0deg; position: relative; padding: 5px 12px; border-radius: 16px; background: var(--surface); color: var(--fg);
+  border: 2px solid var(--fg); font: 700 13px/1.3 var(--font-round); white-space: nowrap; transform: rotate(var(--r)); box-shadow: 0 3px 0 var(--shadow);
+}
+.q-bubble.s2 { font-size: 15px; padding: 6px 14px; }
+.q-bubble.s3 { font-size: 18px; padding: 8px 16px; border-width: 2.5px; }
+.q-bubble::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 11px; height: 11px; margin-left: -6px; background: var(--surface); border-right: 2px solid var(--fg); border-bottom: 2px solid var(--fg); transform: rotate(45deg); }
+.bub-b .q-bubble::after { bottom: auto; top: -7px; transform: rotate(225deg); }
+@media (min-width: 860px) {
+  .bub-a .q-bubble::after { left: auto; right: -7px; top: 50%; bottom: auto; margin: -6px 0 0; transform: rotate(-45deg); }
+  .bub-b .q-bubble::after { left: -7px; top: 50%; bottom: auto; margin: -6px 0 0; transform: rotate(135deg); }
+}
+.scene.is-entering .q-bubble { animation: pop .4s cubic-bezier(.3, .7, .4, 1.4) both; animation-delay: calc(.62s + var(--i, 0) * .07s); }
+@keyframes pop { from { opacity: 0; transform: scale(.5) rotate(var(--r)); } to { opacity: 1; transform: scale(1) rotate(var(--r)); } }
+.wall-clock { position: absolute; z-index: 2; right: calc((100% - var(--bw)) / 2 - 8px); top: -16px; width: 34px; }
+.wall-clock[data-size="2"] { width: 70px; top: -30px; right: calc((100% - var(--bw)) / 2 - 14px); }
+.wall-clock svg { display: block; width: 100%; height: auto; }
+.clock-face { fill: var(--paper); stroke: var(--board-frame-2); stroke-width: 3; }
+.wall-clock[data-size="2"] .clock-face { stroke: var(--anger); }
+.clock-tick { stroke: var(--paper-line); stroke-width: 2; stroke-linecap: round; }
+.clock-hand { stroke: var(--face-ink); stroke-width: 2.4; stroke-linecap: round; }
+.wall-clock[data-size="2"] .clock-min { transform-origin: 20px 20px; animation: tick 6s steps(12) infinite; }
+@keyframes tick { to { transform: rotate(360deg); } }
+.scene-board .board { margin-inline: auto; }
+.scene-teacher { grid-area: teacher; position: relative; z-index: 3; width: var(--tw); height: calc(var(--tw) * 1.1); margin-top: -46px; margin-left: 5%; }
+.scene-teacher .teacher { width: 100%; height: 100%; }
+.scene-teacher .podium { width: 136%; height: 30%; }
+.scene-grid { padding-bottom: 14px; }
+.scene-floor { position: relative; background: repeating-linear-gradient(90deg, var(--floor) 0 58px, var(--floor-line) 58px 60px); }
+.heads { position: relative; height: 62px; overflow: hidden; }
+.heads[data-rows="2"] { height: 88px; }
+.heads-row { position: absolute; left: 50%; bottom: -22px; display: flex; gap: 30px; transform: translateX(-50%); }
+.heads-row.far { bottom: 22px; gap: 44px; transform: translateX(calc(-50% + 38px)); }
+.head { position: relative; flex: none; width: 70px; height: 76px; }
+.far .head { width: 46px; height: 50px; }
+.head::before { content: ""; position: absolute; left: 50%; top: 0; width: 38px; height: 38px; margin-left: -19px; border-radius: 50%; background: var(--heads); }
+.far .head::before { width: 24px; height: 24px; margin-left: -12px; background: var(--heads-2); }
+.head::after { content: ""; position: absolute; left: 0; right: 0; top: 34px; bottom: 0; border-radius: 50% 50% 0 0 / 70% 70% 0 0; background: var(--heads); }
+.far .head::after { top: 21px; background: var(--heads-2); }
+.sub-none { margin-top: 12px; }
+.my-desk { height: 30px; background: linear-gradient(to bottom, var(--desk-edge) 0 4px, var(--desk) 4px); }
+/* 黒板の字の見え方（にじむ・大きくこわい・うすい・やわらぐ） */
+.m-blur { display: inline-block; filter: blur(var(--b, 2px)); opacity: .85; text-shadow: 0 0 8px var(--chalk); }
+.m-blame { color: var(--chalk-pink); }
+.m-blame.is-big { display: inline-block; font-size: 1.45em; line-height: 1.2; transform: rotate(-3deg); text-shadow: 0 0 10px var(--chalk-pink); }
+.m-push { text-decoration: underline wavy var(--chalk-pink) 1.5px; text-underline-offset: 6px; }
+.m-soft { opacity: .45; }
+.m-thanks { color: var(--chalk-yellow); }
+/* 先生（SVG。顔は data-face で切り替える） */
+.teacher .f, .teacher .anger { display: none; }
+.teacher[data-face="normal"] .f-normal, .teacher[data-face="stiff"] .f-stiff, .teacher[data-face="soft"] .f-soft, .teacher[data-face="busy"] .f-busy, .teacher[data-strong="1"] .anger { display: inline; }
+.t-body { fill: var(--shirt); } .t-collar { fill: var(--paper); } .t-neck, .t-ear { fill: var(--skin-2); } .t-head { fill: var(--skin); } .t-hair { fill: var(--hair); }
+.t-brow { fill: none; stroke: var(--hair); stroke-width: 3.2; stroke-linecap: round; }
+.t-eye { fill: var(--face-ink); }
+.t-line { fill: none; stroke: var(--face-ink); stroke-width: 2.8; stroke-linecap: round; }
+.t-mouth { fill: none; stroke: var(--mouth); stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+.t-mouth-open { fill: var(--mouth); }
+.t-cheek { fill: var(--cheek); }
+.t-sweat { fill: var(--sweat); }
+.t-anger { fill: none; stroke: var(--anger); stroke-width: 2.8; stroke-linecap: round; }
+.t-paper { fill: var(--paper); stroke: var(--paper-line); stroke-width: 1.5; }
+.t-motion { fill: none; stroke: var(--muted); stroke-width: 2.2; stroke-linecap: round; }
+/* 目線の下：心の声・本人に聞くなら・黒板に足すとよいもの */
+.view-body { display: grid; gap: 22px; max-width: 980px; padding-block: 18px calc(36px + env(safe-area-inset-bottom, 0px)); }
+@media (min-width: 860px) { .view-body { grid-template-columns: 1.1fr 1fr; align-items: start; } .view-body .span2 { grid-column: 1 / -1; } }
+.view-side { display: grid; gap: 22px; align-content: start; min-width: 0; }
+.face-why { margin: 0; font-size: 14px; color: var(--muted); }
+.face-why b { color: var(--fg); font-family: var(--font-round); }
+.voices { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.voice { position: relative; margin-left: 20px; padding: 10px 14px; border-radius: 20px; background: var(--surface); border: 1.5px solid var(--line); font: 700 15px/1.6 var(--font-round); }
+.voice::before, .voice::after { content: ""; position: absolute; border-radius: 50%; background: var(--surface); border: 1.5px solid var(--line); }
+.voice::before { left: -13px; bottom: 7px; width: 10px; height: 10px; }
+.voice::after { left: -21px; bottom: 1px; width: 6px; height: 6px; }
+.voice.is-strong, .voice.is-strong::before, .voice.is-strong::after { border-color: var(--err); border-width: 2px; }
+.voice.is-pos, .voice.is-pos::before, .voice.is-pos::after { background: var(--good-bg); border-color: var(--good-bg); }
+.voice.is-pos { color: var(--good-fg); }
+.ask { padding: 14px 16px; border-radius: 16px; background: var(--ask-bg); color: var(--ask-fg); }
+.ask .lbl { color: var(--ask-fg); }
+.ask-q { margin: 0; font: 700 18px/1.6 var(--font-round); }
+.ask-row { display: flex; justify-content: flex-end; margin-top: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 12px 8px; padding-top: 6px; }
+.view-note { margin: 0; font-size: 13px; line-height: 1.75; color: var(--muted); }
+.view-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+
+/* ---- 確かめ（ブラウザの確認ダイアログは使えないので画面の中で）とお知らせ ---- */
+.confirm { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: var(--scrim); }
+.confirm-card { width: min(100%, 380px); padding: 20px 18px 16px; border-radius: 18px; background: var(--surface); color: var(--fg); box-shadow: var(--card-shadow); }
+.confirm-title { margin: 0; font: 700 18px/1.45 var(--font-round); }
+.confirm-sub { margin: 8px 0 0; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+.confirm-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+.toast {
+  position: fixed; z-index: 70; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: calc(88px + env(safe-area-inset-bottom, 0px)); max-width: 460px; margin: 0 auto; padding: 12px 16px; border-radius: 14px;
+  background: var(--toast-bg); color: var(--toast-fg); box-shadow: var(--card-shadow); font-size: 15px; line-height: 1.5;
+  opacity: 0; transform: translateY(10px); visibility: hidden; pointer-events: none;
+  transition: opacity .18s, transform .18s, visibility 0s .18s;
+}
+.toast.is-on { opacity: 1; transform: none; visibility: visible; transition: opacity .18s, transform .18s; }
+.scene-floor { z-index: 4; }
+
+/* ---- 提出物 ---- */
+.subs { display: grid; gap: 22px; }
+.sub-card { padding: 16px; border-radius: 16px; background: var(--surface); border: 1.5px solid var(--line); }
+.sub-date { margin: 0 0 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font: 700 14px/1.5 var(--font-round); color: var(--muted); }
+.mini-board { padding: 7px; border-radius: 6px; background: linear-gradient(to bottom, var(--board-frame), var(--board-frame-2)); }
+.mini-board .chalk-text { --fs: 17px; padding: 10px 12px; border-radius: 3px; background: var(--board); color: var(--chalk); font-family: var(--font-chalk); text-shadow: none; }
+.sub-links { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 6px; }
+.crowd { margin: 14px 0 0; padding: 12px 14px; border-radius: 12px; background: var(--warn-bg); color: var(--warn-fg); font-size: 14.5px; line-height: 1.7; }
+.crowd b { display: block; font: 700 16px/1.5 var(--font-round); }
+.sub-row { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.sub-name { margin: 0 0 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font: 700 15px/1.5 var(--font-round); }
+.sub-name .k { font: 500 12px/1.5 var(--font-body); color: var(--muted); }
+.res-opts { display: flex; flex-wrap: wrap; gap: 8px 6px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.res { position: relative; }
+.res input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.res span { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 5px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); font: 700 13.5px/1.3 var(--font-round); }
+.res.is-good span small { font: 700 10.5px/1.4 var(--font-round); padding: 0 6px; border-radius: 999px; background: var(--good-bg); color: var(--good-fg); }
+.res input:checked + span { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.res input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
+.hypo { margin: 12px 0 0; padding: 12px 14px; border-radius: 12px; background: var(--chip); font-size: 14px; line-height: 1.7; }
+.hypo-t { margin: 0 0 6px; font: 700 14.5px/1.5 var(--font-round); }
+.hypo ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.hypo li { display: flex; align-items: baseline; gap: 8px; }
+.mk { flex: none; padding: 0 8px; border-radius: 999px; font: 700 11.5px/1.7 var(--font-round); }
+.mk-miss { background: var(--warn-bg); color: var(--warn-fg); }
+.mk-ok { background: var(--good-bg); color: var(--good-fg); }
+.hypo .small { margin-top: 8px; }
+.sub-fields { display: grid; gap: 12px; margin-top: 12px; }
+.ack { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; }
+.empty-state { margin: 0; padding: 22px 16px; border-radius: 16px; border: 1.5px dashed var(--line); color: var(--muted); text-align: center; }
+.sub-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.tag-done { background: var(--good-bg); color: var(--good-fg); }
+.tag-ack { background: var(--chip); }
+.sub-row.is-done .done-line { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 14.5px; line-height: 1.6; }
+.done-memo, .arc-memo { color: var(--muted); }
+/* これまでの提出物（締めた黒板） */
+.arc { display: grid; gap: 16px; margin-top: 8px; padding-top: 20px; border-top: 2px dashed var(--line); }
+.arc-title { margin: 0; font: 700 17px/1.4 var(--font-round); }
+.arc-empty { margin: 0; }
+.arc-card { background: var(--chip); }
+.arc-list { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; }
+.arc-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; font-size: 14px; line-height: 1.6; }
+.unsent { color: var(--warn-fg); font-weight: 700; }
+.arc-more { margin-top: 10px; }
+.arc-more summary { cursor: pointer; font: 700 13.5px/1.8 var(--font-round); color: var(--muted); }
+.arc-hint-n { margin: 10px 0 0; font: 700 13.5px/1.5 var(--font-round); }
+
+/* ---- 先生の通知表 ---- */
+.machine { margin: 6px 0 16px; padding: 10px 12px; border-radius: 12px; background: var(--chip); font-size: 13.5px; color: var(--muted); }
+.report-grid { display: grid; gap: 22px; }
+@media (min-width: 760px) { .report-grid { grid-template-columns: minmax(0, 400px) minmax(0, 1fr); align-items: start; } }
+.map { display: block; width: 100%; max-width: 420px; height: auto; }
+.map .q-hands { fill: var(--q-hands); } .map .q-kind { fill: var(--q-kind); } .map .q-strict { fill: var(--q-strict); } .map .q-warm { fill: var(--q-warm); }
+.map .axis { stroke: var(--muted); stroke-width: 1.5; }
+.map .mid { stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.map text { fill: var(--muted); font: 500 11px var(--font-body); }
+.map .ql { fill: var(--fg); font: 700 13px var(--font-round); }
+.map .pt { fill: var(--dot); stroke: var(--surface); stroke-width: 2; }
+.map .pt.ex { fill: var(--surface); stroke: var(--dot); stroke-width: 2; }
+.map .me-ring { fill: var(--surface); stroke: var(--fg); stroke-width: 2; }
+.map .me-label { fill: var(--fg); font: 700 12px var(--font-round); }
+.pos { margin: 0; font-size: 14.5px; color: var(--muted); }
+.pos b { display: block; color: var(--fg); font: 700 24px/1.35 var(--font-round); }
+.items { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(64px, 7em) 3.6em; align-items: center; gap: 10px; font-size: 14px; }
+.item-bar { position: relative; height: 10px; border-radius: 5px; background: var(--chip); overflow: hidden; }
+.item-bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; background: var(--dot); }
+.item-v { text-align: right; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.words { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.word { padding: 4px 12px; border-radius: 999px; background: var(--board); color: var(--chalk); font: 600 15px/1.5 var(--font-chalk); }
+.word b { margin-left: 6px; font: 700 12px var(--font-round); color: var(--chalk-yellow); }
+
+/* ---- 書き出す ---- */
+.export-text { min-height: 300px; font: 13.5px/1.65 ui-monospace, "Cascadia Mono", Consolas, "BIZ UDGothic", monospace; white-space: pre-wrap; }
+.data-btns { display: flex; flex-wrap: wrap; gap: 14px 12px; margin-top: 14px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; }
+  .btn, .icon-btn, .chip-btn, .desk-top, .switch, .switch::after, .toast { transition: none !important; }
+  .app, .view { transition: opacity .15s linear !important; filter: none !important; transform: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <div class="wrap top-in">
+      <div class="brand">
+        <h1><span class="logo" aria-hidden="true"></span>せきがえ</h1>
+        <p class="brand-sub">頼み方が、相手の席からどう見えるか</p>
+      </div>
+      <button class="icon-btn" id="btn-help" type="button" aria-label="考え方">？</button>
+    </div>
+    <div class="wrap">
+      <div class="tabs" role="tablist" aria-label="画面">
+        <button class="tab" role="tab" type="button" id="tab-room" aria-controls="pane-room" aria-selected="true">教室</button>
+        <button class="tab" role="tab" type="button" id="tab-subs" aria-controls="pane-subs" aria-selected="false" tabindex="-1">提出物</button>
+        <button class="tab" role="tab" type="button" id="tab-report" aria-controls="pane-report" aria-selected="false" tabindex="-1">通知表</button>
+        <button class="tab" role="tab" type="button" id="tab-export" aria-controls="pane-export" aria-selected="false" tabindex="-1">書き出す</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="pane pane-room" id="pane-room" role="tabpanel" aria-labelledby="tab-room">
+      <div class="wall">
+        <div class="wrap">
+          <div class="board" id="room-board">
+            <div class="board-face">
+              <p class="chalk-text" id="room-chalk"></p>
+              <p class="board-date" id="room-date"></p>
+            </div>
+            <div class="tray" aria-hidden="true"><i class="ch-w"></i><i class="ch-y"></i><i class="ch-p"></i><i class="eraser"></i></div>
+          </div>
+          <div class="board-meta">
+            <p class="board-note" id="room-note"></p>
+            <div class="board-links">
+              <button class="link-btn" type="button" id="room-edit">直す</button>
+              <button class="link-btn" type="button" id="room-copy">コピー</button>
+            </div>
+          </div>
+          <div class="lectern" aria-hidden="true">
+            <div class="teacher-slot" id="room-teacher"></div>
+            <div class="podium"></div>
+          </div>
+        </div>
+      </div>
+      <div class="floor">
+        <div class="wrap">
+          <div class="rows" id="room-rows" role="group" aria-label="生徒の席"></div>
+          <div class="seat-tools"><button class="btn btn-small" type="button" id="room-shuffle">席替え</button><span>前後は「慣れ」のまま、左右の席だけくじで入れ替えます</span></div>
+          <p class="seat-note">席の前後は、その人に言葉が届くのに必要なはっきりさ（カードの Q1「慣れ」）。出来の良し悪しではありません。机を押すと、その生徒の目線に切り替わります。</p>
+          <p class="ex-note" id="room-ex" hidden><span>見本の生徒と黒板が入っています。</span><button class="link-btn" type="button" id="room-ex-clear">見本をまとめて消す</button></p>
+        </div>
+      </div>
+    </section>
+    <section class="pane" id="pane-subs" role="tabpanel" aria-labelledby="tab-subs" hidden>
+      <div class="wrap pane-in">
+        <h2 class="pane-title">提出物</h2>
+        <p class="pane-lead">頼みごとごとに、返ってきたものを選んで「提出」する。相手全員がそろうか「締める」と、下の「これまでの提出物」に完結した形で残る。ずれたら、まず黒板の特徴を疑う（仮説）。</p>
+        <div class="subs" id="subs-list"></div>
+      </div>
+    </section>
+    <section class="pane" id="pane-report" role="tabpanel" aria-labelledby="tab-report" hidden>
+      <div class="wrap pane-in" id="report-body"></div>
+    </section>
+    <section class="pane" id="pane-export" role="tabpanel" aria-labelledby="tab-export" hidden>
+      <div class="wrap pane-in">
+        <h2 class="pane-title">書き出す</h2>
+        <p class="pane-lead">自分の癖と、生徒ごとの記録を Markdown の文にする。コピーして自分のメモに貼っておくと、あとで見返したり、AI に読ませて振り返ったりできる。</p>
+        <label class="lbl" for="export-text">書き出す文（行動の言葉だけ）</label>
+        <textarea class="field export-text" id="export-text" name="export-text" readonly></textarea>
+        <div class="row-btns one"><button class="btn btn-primary" type="button" id="export-copy">コピーする</button></div>
+        <h3 class="sub-title">データ</h3>
+        <p class="small">保存先：この端末のブラウザだけ。ほかの人や端末からは見えません。</p>
+        <div class="data-btns">
+          <button class="btn btn-small" type="button" id="export-ex-clear">見本をまとめて消す</button>
+          <button class="btn btn-small btn-danger" type="button" id="export-wipe">すべて消す</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="bar" id="bar" aria-label="操作">
+  <div class="bar-in">
+    <button class="btn" type="button" id="btn-add-student">生徒を迎える</button>
+    <button class="btn btn-primary" type="button" id="btn-write">黒板に書く</button>
+  </div>
+</nav>
+
+<div class="scrim" id="scrim" hidden></div>
+<section class="sheet is-low" id="sheet-write" role="dialog" aria-modal="true" aria-labelledby="write-title" hidden>
+  <div class="grabber" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <h2 id="write-title" tabindex="-1">黒板に書く</h2>
+    <button class="icon-btn" type="button" data-close aria-label="閉じる">×</button>
+  </div>
+  <form id="write-form" novalidate>
+    <label class="lbl" for="write-text">頼みごと（書いた字が黒板に映る）</label>
+    <div class="slate"><textarea id="write-text" name="write-text" maxlength="400" rows="4" autocomplete="off" placeholder="例：明日10時のゼミで使う図を、A4 1枚にまとめて。30分くらいで。途中で一度見せてね"></textarea></div>
+    <p class="count" id="write-count">0/400</p>
+    <p class="err" id="write-err" hidden>頼みごとを書いてね</p>
+    <fieldset class="targets">
+      <legend class="lbl">だれに向けた頼み？</legend>
+      <div id="write-targets"></div>
+    </fieldset>
+    <div class="row-btns">
+      <button class="btn" type="button" id="write-copy">コピー</button>
+      <button class="btn btn-primary" type="submit" id="write-submit">黒板に書く</button>
+    </div>
+  </form>
+</section>
+
+<section class="sheet" id="sheet-card" role="dialog" aria-modal="true" aria-labelledby="card-title" hidden>
+  <div class="grabber" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <h2 id="card-title" tabindex="-1">生徒を迎える</h2>
+    <button class="icon-btn" type="button" data-close aria-label="閉じる">×</button>
+  </div>
+  <form id="card-form" novalidate>
+    <p class="review-note" id="card-review" hidden>この像、まだ合ってる？ 最近の様子で答え直してみよう</p>
+    <p class="preface" id="card-preface"></p>
+    <label class="lbl memo-lbl" for="card-name">呼び名（この端末にだけ保存）</label>
+    <input class="field" id="card-name" name="card-name" type="text" maxlength="16" autocomplete="off" placeholder="例：Aさん（実名でなくていい）">
+    <p class="err" id="card-err" hidden>呼び名を書いてね</p>
+    <div id="card-qs"></div>
+    <label class="lbl memo-lbl" for="card-heard">本人から聞いたこと</label>
+    <textarea class="field" id="card-heard" name="card-heard" rows="2" maxlength="300" placeholder="好み・やりやすい連絡のしかた・本人が言っていたことなど"></textarea>
+    <label class="lbl memo-lbl" for="card-noticed">気づいたこと（本人が読んでも困らない書き方で）</label>
+    <textarea class="field" id="card-noticed" name="card-noticed" rows="2" maxlength="300" placeholder="行動で書く（例：締め切りの前日に質問が来た）"></textarea>
+    <details class="history" id="card-history" hidden><summary>前の答え</summary><ul id="card-history-list"></ul></details>
+    <div class="row-btns">
+      <button class="btn" type="button" data-close>やめる</button>
+      <button class="btn btn-primary" type="submit" id="card-submit">席に着いてもらう</button>
+    </div>
+    <p class="card-del" id="card-del-wrap" hidden><button class="link-btn danger" type="button" id="card-del">この生徒を消す</button></p>
+  </form>
+</section>
+
+<section class="sheet" id="sheet-help" role="dialog" aria-modal="true" aria-labelledby="help-title" hidden>
+  <div class="grabber" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <h2 id="help-title" tabindex="-1">せきがえの考え方</h2>
+    <button class="icon-btn" type="button" data-close aria-label="閉じる">×</button>
+  </div>
+  <div class="help-body">
+    <p>頼んだ自分には、頼みごとがはっきり見えている。でも、相手の席からは違って見えるかもしれない。せきがえは、その見え方を確かめる鏡です。</p>
+    <p><b>生徒は「あなたから見たその人」の仮の像</b>で、本人の評価ではありません。いつでも書き直せます。</p>
+    <p><b>席の前後</b>は、その人に言葉が届くのに必要なはっきりさ。出来の良し悪しではありません。</p>
+    <p><b>心の声は「〜かも」の仮説</b>です。相手の立場を想像するより、本人に聞いたほうが当たります。「本人に聞くなら」の一言で確かめよう。</p>
+    <p><b>通知表</b>は、黒板の文を言葉の一覧で機械的に数えた目安です。ずれたときは、まず黒板を疑う（何人もずれたら、なおさら）。</p>
+    <p>データはこの端末のブラウザにだけ保存されます。</p>
+  </div>
+</section>
+<section class="view" id="view" role="dialog" aria-modal="true" aria-labelledby="view-title" hidden>
+  <div class="wrap view-top">
+    <button class="btn btn-small" type="button" id="view-back">← 先生にもどる</button>
+    <div class="view-head">
+      <p class="view-k">あなたから見た</p>
+      <h2 id="view-title" tabindex="-1"></h2>
+    </div>
+    <p class="view-pills" id="view-pills"></p>
+  </div>
+  <div class="scene" id="scene" data-seat="middle">
+    <div class="wrap scene-grid">
+      <div class="bub bub-a" id="bub-a"></div>
+      <div class="scene-board">
+        <div class="wall-clock" id="view-clock" data-size="1" aria-hidden="true"></div>
+        <div class="board">
+          <div class="board-face"><p class="chalk-text" id="view-chalk"></p><p class="board-date" id="view-date"></p></div>
+          <div class="tray" aria-hidden="true"><i class="ch-w"></i><i class="ch-y"></i><i class="ch-p"></i><i class="eraser"></i></div>
+        </div>
+      </div>
+      <div class="scene-teacher" id="view-teacher" aria-hidden="true"></div>
+      <div class="bub bub-b" id="bub-b"></div>
+    </div>
+    <div class="scene-floor" id="view-floor" aria-hidden="true"></div>
+  </div>
+  <div class="wrap view-body">
+    <p class="face-why span2" id="view-face"></p>
+    <section aria-labelledby="voices-h">
+      <h3 class="lbl" id="voices-h">心の声（〜かも。仮説です）</h3>
+      <ul class="voices" id="view-voices"></ul>
+    </section>
+    <div class="view-side">
+      <section class="ask" aria-labelledby="ask-h">
+        <h3 class="lbl" id="ask-h">本人に聞くなら</h3>
+        <p class="ask-q" id="view-ask"></p>
+        <div class="ask-row"><button class="btn btn-small" type="button" id="view-ask-copy">この一言をコピー</button></div>
+      </section>
+      <section aria-labelledby="adds-h">
+        <h3 class="lbl" id="adds-h">黒板に足すとよいもの</h3>
+        <div class="chips" id="view-chips"></div>
+        <p class="small" id="view-chips-note">押すと、黒板の最後にひな形が入る。◯ はあとで書きかえてね</p>
+      </section>
+    </div>
+    <p class="view-note span2">見え方は、あなたが答えたカードから作った仮の像です。当たっているかは、本人に聞いて確かめよう。</p>
+    <div class="view-actions span2">
+      <button class="btn" type="button" id="view-back-2">先生にもどる</button>
+      <button class="link-btn" type="button" id="view-edit-board">黒板を直す</button>
+      <button class="link-btn" type="button" id="view-edit-card">この生徒のカードを直す</button>
+    </div>
+  </div>
+</section>
+
+<div class="confirm" id="confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-sub" hidden>
+  <div class="confirm-card">
+    <p class="confirm-title" id="confirm-title"></p>
+    <p class="confirm-sub" id="confirm-sub"></p>
+    <div class="confirm-btns">
+      <button class="btn" type="button" id="confirm-no">やめる</button>
+      <button class="btn btn-primary" type="button" id="confirm-yes">消す</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" aria-hidden="true"><span class="toast-msg" id="toast-msg"></span></div>
+<div class="sr-only" id="sr-live" aria-live="polite"></div>
+
+<script>
+// ENGINE START
+/* 判定エンジン：黒板の文を日本語の言葉の一覧で読み、生徒ごとの見え方・通知表の点数・書き出しを作る（AI は使わない）。
+   画面に触らない純粋な関数だけ。tools/test_engine.mjs が、この START〜END を切り出して node で試す */
+var SekigaeEngine = (function () {
+  'use strict';
+
+  /* ===== 小道具 ===== */
+  var NUM = '0-9０-９〇◯○一二三四五六七八九十百千半数';   // 数字（半角・全角・漢数字・ひな形の◯）
+  var STOP = /[\s、。，．,.!！?？「」『』（）()【】・…:：;；]/;
+  var DAY = 86400000;
+  function before(t, s, n) { return t.slice(Math.max(0, s - n), s); }
+  function after(t, e, n) { return t.slice(e, e + n); }
+  function atBoundary(t, s) { return s === 0 || STOP.test(t.charAt(s - 1)); }
+  function toHalf(w) { return String(w).replace(/[Ａ-Ｚ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }); }
+  function rule(cat, src, opt) {
+    opt = opt || {};
+    return { cat: cat, re: new RegExp(src, 'g'), skip: opt.skip || null, base: opt.base || '', type: opt.type || '' };
+  }
+
+  /* ===== あいまいな言葉 [ことば, まとめる見出し, 種類] 種類: level＝どのレベルか / time＝いつまでか / ref＝どれのことか ===== */
+  var VAGUE = [
+    ['簡単[になでめ]', '簡単に', 'level'], ['ざっと', 'ざっと', 'level'], ['ざっくり', 'ざっくり', 'level'],
+    ['(?:いい|良い|よい|イイ)感じ', 'いい感じに', 'level'], ['適当[にで]', '適当に', 'level'],
+    ['ちゃんと', 'ちゃんと', 'level'], ['しっかり', 'しっかり', 'level'], ['きちんと', 'きちんと', 'level'],
+    ['なるべく早く|なるべくはやく', 'なるべく早く', 'time'], ['なるべく', 'なるべく', 'level'],
+    ['できるだけ早く', 'できるだけ早く', 'time'], ['できるだけ', 'できるだけ', 'level'],
+    ['なるはや', 'なるはや', 'time'], ['早めに|早めで|早目に|はやめに', '早めに', 'time'],
+    ['早急に|至急|急ぎで|大急ぎ', '至急', 'time'], ['そのうち', 'そのうち', 'time'],
+    ['とりあえず', 'とりあえず', 'level'], ['一通り|ひと通り|ひととおり', '一通り', 'level'],
+    ['軽く|軽めに', '軽く', 'level'], ['適宜', '適宜', 'level'], ['うまく|上手く|うまいこと', 'うまく', 'level'],
+    ['それっぽ[くい]', 'それっぽく', 'level'], ['よしなに', 'よしなに', 'level'],
+    ['さくっと|サクッと|ささっと|ササッと|パパっと|ぱぱっと', 'さくっと', 'level'],
+    ['それなりに', 'それなりに', 'level'], ['ほどほどに', 'ほどほどに', 'level'], ['臨機応変', '臨機応変に', 'level'],
+    ['例の', '例の', 'ref'], ['あれ', 'あれ', 'ref'], ['いろいろ|色々|いろんな', 'いろいろ', 'ref'],
+    ['諸々|もろもろ', 'もろもろ', 'ref'], ['いつもの', 'いつもの', 'ref'], ['あの件', 'あの件', 'ref']
+  ];
+  var VAGUE_SKIP = {
+    'うまく': function (t, s, e) { return /^(?:いか|行か|いっ|行っ|いく|行く|いけ|行け|でき|出来)/.test(after(t, e, 2)); },
+    // 「あれ」は単独の指し示しのときだけ（「あれば」「あれこれ」は数えない）
+    'あれ': function (t, s, e) { return !atBoundary(t, s) || !/^(?:$|[をがはのもっ、。！？!?\s…,.])/.test(after(t, e, 1)); },
+    '例の': function (t, s, e) { return /^ように/.test(after(t, e, 3)); }
+  };
+  var COMMON_ABBR = /^(?:OK|NG|PC|PDF|URL|AI|ID|PW|SNS|LINE|TV|USB|QR|DM|OB|OG|TA|CD|DVD|PS|PPT|PPTX|FAQ|JP|EN|AM|PM)$/;
+
+  var RULES = [];
+  VAGUE.forEach(function (v) { RULES.push(rule('vague', v[0], { base: v[1], type: v[2], skip: VAGUE_SKIP[v[1]] })); });
+  RULES.push(
+    /* ① はっきりさ：目的 */
+    rule('purpose', '目的'),
+    rule('purpose', 'ため', { skip: function (t, s, e) {
+      return /(?:その|この|あの|どの)$/.test(before(t, s, 2)) || /^(?:し|ら|る|て|込|こ|息|いき|にな)/.test(after(t, e, 2)); } }),
+    rule('purpose', '使う|使います|使いたい|使えるよう|使用する'),
+    rule('purpose', '(?:発表|ゼミ|会議|報告|提出|説明|配布|共有|練習|確認|面談|授業|講義|学会|本番|打ち合わせ|打合せ|ミーティング)用'),
+    rule('purpose', '発表|会議'),
+    rule('purpose', 'ゼミ', { skip: function (t, s, e) { return after(t, e, 1) === '生'; } }),
+    rule('purpose', 'に出す|に出します|に出したい|へ出す|に提出|へ提出|に送る|に送ります|に見せる|に載せる|に載せます'),
+    /* 完成の目安（数＋単位・形・見本） */
+    rule('goal', '[' + NUM + ']+\\s*(?:枚|ページ|頁|件|個|行|字|文字|スライド|項目|点|本|つ|案|パターン|割|段落|章)', { skip: function (t, s, e, m) {
+      return m === '数字' || m === '十字' || /^一(?:本化|字一句|点張り)/.test(t.slice(s, s + 4)); } }),
+    rule('goal', '箇条書き|スライド|[AＡ][3-5３-５]|[BＢ][4-5４-５]|テンプレ|フォーマット|書式|たたき台|叩き台|下書き|ラフ|メモ程度|骨子|目次|一覧表|グラフ'),
+    rule('goal', '[表図](?:に|で|を|と|[0-9０-９])', { skip: function (t, s) { return /[発代公辞年時意地合縮略]/.test(t.charAt(s - 1) || ''); } }),
+    rule('goal', '見本|お手本|手本|サンプル|例えば|例[:：(（]|みたいに|と同じ(?:形|感じ|ように)|を参考に|参考資料'),
+    /* 見本・例（手厚さ④） */
+    rule('example', '見本|お手本|手本|サンプル|テンプレ|ひな形|雛形|例えば|例[:：(（]|みたいに|と同じ(?:形|感じ|ように)|を参考に|参考資料|(?:前回|去年|昨年|先輩)の[^。\\n]{0,10}?(?:を見|を参考|みたい|と同じ)'),
+    /* 期限（日付・時刻） */
+    rule('deadline', '今日|本日|明日|あした|明後日|あさって|今週|来週|今月|来月|週末|週明け|月末|今夜|今晩|午前中|午後|までに|締め切り|締切|〆切|しめきり|期限|[月火水木金土日]曜', {
+      skip: function (t, s, e, m) { return m === '明日' && after(t, e, 1) === '香'; } }),
+    rule('deadline', '[' + NUM + ']+\\s*月\\s*[' + NUM + ']+\\s*日'),
+    rule('deadline', '[' + NUM + ']+\\s*日\\s*(?:まで|中|に|の|朝|昼|夜)'),
+    rule('deadline', '[' + NUM + ']+\\s*時(?!間)', { skip: function (t, s, e, m) { return /^一時/.test(m) || /^(?:的|期|停|保|帰|休)/.test(after(t, e, 1)); } }),
+    rule('deadline', '[0-9０-９]{1,2}\\s*[:：]\\s*[0-9０-９]{2}'),
+    rule('deadline', '[0-9０-９]{1,2}\\s*[/／]\\s*[0-9０-９]{1,2}'),
+    /* かける時間（「十分」＝じゅうぶん・「半分」・「3分の1」は数えない） */
+    rule('timebox', '[' + NUM + ']+\\s*(?:分|時間|日間)', { skip: function (t, s, e, m) {
+      return m === '十分' || m === '半分' || after(t, e, 1) === '率' || /^の[0-9０-９一二三四五六七八九十]/.test(after(t, e, 2)); } }),
+    rule('timebox', '半日'),
+    /* 略語（英大文字2字以上。よく知られたものは除く） */
+    rule('abbr', '[A-ZＡ-Ｚ]{2,}', { skip: function (t, s, e, m) { return COMMON_ABBR.test(toHalf(m)); } }),
+    /* ② 言い切る：やわらげすぎ */
+    rule('soft', 'できれば|出来れば|もし(?:よかったら|良かったら|よければ|良ければ|可能なら|できたら)|よかったら|良かったら|よければ|良ければ|余裕が(?:あれば|あったら)|時間が(?:あれば|あったら)|手が空いたら|暇な(?:とき|時)|ひまな(?:とき|時)|気が向いたら|なんとなく|可能(?:なら|であれば)'),
+    rule('soft', 'かも', { skip: function (t, s, e) { return !/^(?:$|[。、！？!?…ー\s,.]|し|ね|で|よ|な)/.test(after(t, e, 1)); } }),
+    rule('soft', 'かな', { skip: function (t, s, e) { return !/^(?:$|[。、！？!?…ー\s,.]|と|ぁ|あ)/.test(after(t, e, 1)); } }),
+    /* ③ 仕組み：途中で見せる・来る日 */
+    rule('midway', '途中[でまの]|途中経過|途中段階|(?:一度|一回|いったん|一旦|いちど)見せ|中間|時点で|進捗|できた(?:ところ|所|とこ)まで|経過を'),
+    rule('regular', '研究室[でにへ]|ラボ[でにへ]|大学[でにへ]|毎週|毎日|定例|ミーティング|打ち合わせ|打合せ|[月火水木金土日]曜日?に|週[1１一]|週に[1１一]'),
+    rule('regular', '来(?:る|て|れ|られ|ます)', { skip: function (t, s) { var p = before(t, s, 2); return /出$/.test(p) || /[きしせけびみ見]に$/.test(p); } }),
+    /* 先生から声をかける日（こちらから様子を聞く。自分からは言い出しにくい人向けの仕組み） */
+    rule('nudge', '(?:こちら|こっち|私|僕|俺)から(?:声|様子|確認|聞|連絡)|声(?:を)?かけるね|様子を(?:聞|見|確認)|確認しに行|聞きに行く|見に行く|リマインド'),
+    /* 自分の言葉で言い直してもらう（「わかりました」で終わらせない） */
+    rule('teachBack', '自分の言葉で|言い直して|復唱|(?:わかった|分かった|理解した)(?:こと|内容)を|要点を(?:返|教え|まとめ)|一言で返して|何をするか(?:返|教え|言って)'),
+    /* ⑤ 返し方：聞いていい目安・責める言葉・押しつけ */
+    rule('askOk', '聞いて|きいて', { skip: function (t, s, e) { return /^(?:な[いく]|なかっ|る)/.test(after(t, e, 3)); } }),
+    rule('askOk', '聞きに来|質問|相談|行き詰まったら|詰まったら|つまったら|わからなかったら|分からなかったら|わからなければ|分からなければ|わからない(?:こと|所|ところ)|分からない(?:こと|所|ところ)|迷ったら|声をかけて|声かけて|困ったら|不明点|気軽に|遠慮なく'),
+    rule('blame', 'また', { skip: function (t, s, e) {
+      return /も$/.test(before(t, s, 1)) || /^(?:は|ね|の|明日|あした|後で|あとで|今度|来週|連絡|よろしく|お願い|会|いつか|[、,，])/.test(after(t, e, 4)); } }),
+    rule('blame', 'いつも', { skip: function (t, s, e) { return /^(?:の|あり|助か|お疲れ|おつかれ|感謝|どおり|通り|とおり|すみません|ごめん|お世話|より)/.test(after(t, e, 5)); } }),
+    rule('blame', 'なんで', { skip: function (t, s, e) { return after(t, e, 1) === 'も'; } }),
+    rule('blame', '前(?:に|にも|も)言っ|前(?:に|にも|も)言いました|何度も言|何回も言|この前も言|普通は|普通に考え|ふつうは|ふつうに考え|常識|いい加減|いいかげん'),
+    rule('blame', '雑', { skip: function (t, s, e) { return /[複混煩錯]/.test(t.charAt(s - 1) || '') || /[談誌用記費音貨草務巾多学煮感踏魚種木居]/.test(after(t, e, 1)); } }),
+    rule('blame', 'ダメ|だめ|駄目', { skip: function (t, s, e) { return /^(?:でも|元|もと|ー)/.test(after(t, e, 2)); } }),
+    rule('blame', '何回', { skip: function (t, s, e) { return /^(?:か|でも|目)/.test(after(t, e, 2)); } }),
+    rule('push', '必ず|かならず', { skip: function (t, s, e) { return after(t, e, 2) === 'しも'; } }),
+    rule('push', '絶対|ぜったい', { skip: function (t, s, e) { return /^(?:値|湿|温|パ|座|参|圧|零|的|音)/.test(after(t, e, 1)); } }),
+    rule('push', 'なさい', { skip: function (t, s) { return /(?:ごめん|やすみ|休み|かえり|帰り)$/.test(before(t, s, 3)); } }),
+    rule('push', '言われた(?:とおり|通り)|言った(?:とおり|通り)|指示(?:どおり|通り)|勝手[にな]'),
+    /* ⑥ 報いる：お礼・ねぎらい（「よかったら」は数えない） */
+    rule('thanks', 'ありがとう|ありがと|ありがたい|助か[るりっ]|おつかれ|お疲れ|感謝|いいね|さすが|サンキュー'),
+    rule('thanks', 'よかった|良かった', { skip: function (t, s, e) { return after(t, e, 1) === 'ら'; } }),
+    /* 決めていい範囲（「決めていい？」の吹き出し用） */
+    rule('decide', '任せ|まかせ|自由に|好きに|判断で|判断して|決めて(?:いい|良い|よい|OK|ＯＫ|大丈夫|ね|もらって)|選んで|どちらでも|どっちでも|裁量|自分で決め')
+  );
+  var CATS = ['vague', 'purpose', 'goal', 'example', 'deadline', 'timebox', 'abbr', 'soft', 'midway', 'regular', 'nudge', 'teachBack', 'askOk', 'blame', 'push', 'thanks', 'decide'];
+  var STEP_RE = /^\s*(?:[0-9０-９]+\s*[.．)）、]|[・\-－*＊●■□▶►→]|[①-⑳]|[（(][0-9０-９]+[）)])/;
+  var MARK_ORDER = { blame: 0, push: 1, vague: 2, abbr: 3, soft: 4, thanks: 5 };
+
+  /* 同じ種類の中で重なったら、長いほう（同じ長さなら先）を残す */
+  function dedupe(list) {
+    list.sort(function (a, b) { return a.s - b.s || (b.e - b.s) - (a.e - a.s); });
+    var out = [], end = -1;
+    list.forEach(function (h) { if (h.s >= end) { out.push(h); end = h.e; } });
+    return out;
+  }
+  function scan(text) {
+    var by = {};
+    CATS.forEach(function (c) { by[c] = []; });
+    RULES.forEach(function (r) {
+      r.re.lastIndex = 0;
+      var m;
+      while ((m = r.re.exec(text))) {
+        var s = m.index, e = s + m[0].length;
+        if (!m[0]) { r.re.lastIndex++; continue; }
+        if (r.skip && r.skip(text, s, e, m[0])) continue;
+        by[r.cat].push({ cat: r.cat, s: s, e: e, word: m[0], base: r.base, type: r.type });
+      }
+    });
+    CATS.forEach(function (c) { by[c] = dedupe(by[c]); });
+    return by;
+  }
+
+  /* 黒板の文 → 特徴 */
+  function readBoard(text) {
+    text = String(text == null ? '' : text);
+    var by = scan(text);
+    var explained = {};
+    by.abbr.forEach(function (h) { if (/^\s*[（(＝=:：]/.test(text.slice(h.e, h.e + 3))) explained[toHalf(h.word)] = true; });
+    by.abbr.forEach(function (h) { h.explained = !!explained[toHalf(h.word)]; });
+    var marks = [];
+    Object.keys(MARK_ORDER).forEach(function (c) { by[c].forEach(function (h) { marks.push(h); }); });
+    marks.sort(function (a, b) { return a.s - b.s || (b.e - b.s) - (a.e - a.s) || MARK_ORDER[a.cat] - MARK_ORDER[b.cat]; });
+    var kept = [], end = -1;
+    marks.forEach(function (h) { if (h.s >= end) { kept.push({ cat: h.cat, s: h.s, e: h.e, word: h.word, type: h.type, base: h.base, explained: !!h.explained }); end = h.e; } });
+    var words = function (c) { return by[c].map(function (h) { return h.word; }); };
+    return {
+      text: text, empty: !text.trim(),
+      purpose: by.purpose.length > 0, goal: by.goal.length > 0, example: by.example.length > 0,
+      deadline: by.deadline.length > 0, timebox: by.timebox.length > 0, decide: by.decide.length > 0,
+      midway: by.midway.length > 0, regular: by.regular.length > 0, askOk: by.askOk.length > 0,
+      nudge: by.nudge.length > 0, teachBack: by.teachBack.length > 0,
+      vague: by.vague.map(function (h) { return { word: h.word, base: h.base, type: h.type }; }),
+      abbr: by.abbr.map(function (h) { return { word: h.word, explained: h.explained }; }),
+      soft: words('soft'), blame: words('blame'), push: words('push'), thanks: words('thanks'),
+      steps: text.split(/\r?\n/).filter(function (l) { return STEP_RE.test(l); }).length,
+      hits: by, marks: kept
+    };
+  }
+  /* 描くための切れ目（印のついた言葉と、ふつうの文） */
+  function segments(text, marks) {
+    var out = [], pos = 0;
+    (marks || []).forEach(function (m) {
+      if (m.s > pos) out.push({ t: text.slice(pos, m.s) });
+      out.push({ t: text.slice(m.s, m.e), cat: m.cat, explained: m.explained });
+      pos = m.e;
+    });
+    if (pos < text.length) out.push({ t: text.slice(pos) });
+    return out;
+  }
+
+  /* ===== 生徒（カードの答え） ===== */
+  var QUESTIONS = [
+    { key: 'q1', short: '慣れ', hint: '席の前後・言葉のにじみ', text: 'ふだん頼む作業に、いまどれくらい慣れている？',
+      opts: { A: '始めたばかりで、見本や手順があると進めやすい時期', B: '慣れた作業は一人で進められて、新しい種類の作業は見本があると進めやすい', C: 'たいていの作業は、ゴールが分かれば進め方を任せられる', D: 'まだ分からない' } },
+    /* E は、いちばん強い段（行動の言葉で書く）。画面では C と「まだ分からない」の間に出す */
+    { key: 'q2', short: '困ったとき', hint: '先生の顔・「いつ聞いていい？」・先生から声をかける日', text: '困ったこと（わからない・遅れそう・うまくいかない）が出てきたとき、どう伝えてくることが多い？',
+      opts: { A: '早めに自分から聞きに来る・言ってくる', B: '少し自分で調べてから来る。こちらから聞けば話してくれる', C: '一人で何とかしようとして、伝えてくるのが締め切りの近くや後になることがある', E: 'こちらから聞くまで、困っていても伝えてこない。止まったまま何日もたつことがある', D: 'まだ分からない' } },
+    { key: 'q3', short: '指摘のあと', hint: '責める言葉の見え方・「自分の言葉で言ってみて」', text: '指摘やコメントを返したあと、どんな様子が多い？',
+      opts: { A: 'その場で質問したり、すぐ直して出し直したりする', B: 'いったん持ち帰って、直したものを出してくる', C: '受け止めて直すまでに、少し時間がかかるように見える', E: '返事は「わかりました」でも、出てきたものを見ると伝わっていなかったことが多い', D: 'まだ分からない' } },
+    { key: 'q4', short: '仕上げ方', hint: '時計・「どこまで？」・「いつまで？」', text: '仕上げて出すまでの進め方は？',
+      opts: { A: '途中でも早めに見せてくる', B: 'ある程度形になってから見せてくる', C: 'しっかり仕上げてから出したいようで、締め切りの近くや少し後になることがある', E: '締め切りを過ぎても、こちらから「どう？」と声をかけるまで出てこないことがある', D: 'まだ分からない' } },
+    { key: 'q5', short: '決まった時間や場所がないとき', hint: '「次いつ見せる？」・「いつまで？」・先生から声をかける日', text: '決まった時間や場所がないとき（家での作業など）、作業はどう進むことが多い？',
+      opts: { A: '自分で時間を決めて進められる', B: '締め切りが近づくと進む', C: '来る日や見せる日が決まっていると進みやすい', E: '来る日や見せる日を決めても、こちらから声をかけないと進まないことが多い', D: 'まだ分からない' } }
+  ];
+  var RESULTS = [
+    { key: 'asExpected', label: '思ったとおり' },
+    { key: 'direction', label: '方向がずれた', miss: true },
+    { key: 'amount', label: '量や質がずれた', miss: true },
+    { key: 'time', label: '時間がかかりすぎた', miss: true },
+    { key: 'stalled', label: '途中で止まった', miss: true },
+    { key: 'asked', label: '途中で聞いてきた', good: true }
+  ];
+  var RESULT_BY = {};
+  RESULTS.forEach(function (r) { RESULT_BY[r.key] = r; });
+  var FAR = { A: 1, B: 0.6, C: 0.3, D: 0.6 };              // 黒板からの遠さ（にじみの強さ）
+  var SEAT = { A: 'back', B: 'middle', C: 'front', D: 'middle' };
+  var SEAT_LABEL = { front: '前の席', middle: '中ほどの席', back: '後ろの席' };
+  var SCALE = { front: 1, middle: 0.93, back: 0.86 };     // 席から見た黒板の字の大きさ
+
+  function normAnswers(a) {
+    var o = {};
+    // Q1 は A〜D、Q2〜Q5 はいちばん強い段 E もある
+    ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(function (k) { var ok = k === 'q1' ? /^[ABCD]$/ : /^[ABCDE]$/; o[k] = a && ok.test(a[k]) ? a[k] : 'D'; });
+    return o;
+  }
+  /* その頼みでの慣れ（「この人には初めての作業」なら A 扱い） */
+  function effectiveFam(answers, firstTime) { return firstTime ? 'A' : normAnswers(answers).q1; }
+  function seatOf(fam) { return SEAT[fam] || 'middle'; }
+  function blurPx(fam) { return Math.round((0.6 + 3 * (FAR[fam] == null ? 0.6 : FAR[fam])) * 10) / 10; }
+  /* 慣れに合った手厚さ：慣れていないのに見本も完成の目安もない／慣れているのに手順が5つ以上 → 合っていない */
+  function fitFor(f, fam) {
+    if (fam === 'A') return !!(f.example || f.goal);
+    if (fam === 'C') return f.steps < 5;
+    return true;
+  }
+  function quote(w) { return '「' + (w === 'かも' || w === 'かな' ? '〜' + w : w) + '」'; }
+
+  /* ===== 生徒の目線 ===== */
+  function studentView(f, answers, opt) {
+    opt = opt || {};
+    var a = normAnswers(answers);
+    var fam = effectiveFam(a, opt.firstTime), far = FAR[fam], seat = seatOf(fam);
+    var issues = [];
+    function add(key, w, o) { o.key = key; o.w = Math.round(w * 100) / 100; issues.push(o); }
+    function firstOf(type) { for (var i = 0; i < f.vague.length; i++) if (f.vague[i].type === type) return f.vague[i].word; return ''; }
+    var lv = firstOf('level'), tv = firstOf('time'), rv = firstOf('ref'), ab = '';
+    for (var i = 0; i < f.abbr.length; i++) if (!f.abbr[i].explained) { ab = f.abbr[i].word; break; }
+    /* C 以上（C か E）と、いちばん強い段（E） */
+    var q2hi = a.q2 === 'C' || a.q2 === 'E', q2max = a.q2 === 'E';
+    var q3hi = a.q3 === 'C' || a.q3 === 'E', q3max = a.q3 === 'E';
+    var q4hi = a.q4 === 'C' || a.q4 === 'E', q4max = a.q4 === 'E';
+    var q5hi = a.q5 === 'C' || a.q5 === 'E', q5max = a.q5 === 'E';
+    var clockBig = q4hi && !f.goal && !f.timebox;
+
+    /* ① はっきりさ */
+    if (!f.purpose) add('purpose', 4.5, { bubble: '何のため？', voice: '何に使うのか分からなくて、方向がずれるかも',
+      ask: 'これ、何に使うものだと思った？', chip: '目的：◯◯に使うため' });
+    if (!f.goal) add('goal', 3.5 + 1.5 * far + (q4hi ? 2 : 0) + (lv ? 0.5 : 0), { bubble: 'どこまで？',
+      voice: clockBig ? (lv ? quote(lv) + 'がどこまでか分からなくて、仕上げるまで出せないかも' : 'どこまでやれば大丈夫か分からなくて、仕上げるまで出せないかも')
+        : (lv ? quote(lv) + 'って、どこまでやればいいのか分からないかも' : 'どこまでやれば終わりか、分からないかも'),
+      ask: lv ? quote(lv) + 'って、どれくらいのつもりで受け取った？' : 'どこまでできたら完成だと思った？',
+      chip: '完成の目安：◯◯（例：A4 1枚・箇条書き5つ）' });
+    else if (lv) add('levelWord', 2.5 + 2 * far, { voice: quote(lv) + 'がどのくらいか、少し迷うかも',
+      ask: quote(lv) + 'って、どれくらいのつもりで受け取った？' });
+    if (!f.timebox) add('timebox', 2.5 + (q4hi ? 2 : 0) + 0.5 * far, { bubble: '何分？',
+      voice: '何分かけていいのか分からなくて、時間をかけすぎるかも', ask: 'これに何分くらいかけるつもりだった？', chip: 'かける時間：◯分まで' });
+    if (!f.deadline) add('deadline', 3 + (a.q5 === 'B' ? 2.5 : 0) + (q4max ? 2.5 : 0) + (tv ? 1 : 0), { bubble: 'いつまで？',
+      voice: q4max ? '締め切りがないと、声をかけられるまで後回しにするかも'
+        : a.q5 === 'B' ? '急ぎじゃないのかなと思って、後回しにするかも' : (tv ? quote(tv) + 'って、いつまでのことか分からないかも' : 'いつまでに出せばいいのか、分からないかも'),
+      ask: tv ? quote(tv) + 'って、いつまでのつもりで受け取った？' : 'いつまでに出すつもりで受け取った？', chip: 'いつまで：◯日◯時まで' });
+    if (rv) add('refWord', 2.5 + 2.5 * far, { voice: quote(rv) + 'って、どれのことか分からないかも', ask: quote(rv) + 'で、どれのことか伝わってた？' });
+    if (ab) add('abbr', 2 + 3 * far, { voice: quote(ab) + 'が何のことか、分からないかも', ask: quote(ab) + 'って、何のことか伝わってた？', chip: '（' + ab + '＝◯◯）' });
+    /* ② 言い切る */
+    if (f.soft.length) add('soft', 2.5 + (a.q5 === 'B' ? 1.5 : 0), {
+      voice: a.q5 === 'B' ? quote(f.soft[0]) + 'なら、後回しでもいいのかも' : quote(f.soft[0]) + 'とあるから、やらなくてもいいのかも',
+      ask: quote(f.soft[0]) + 'って書いたけど、どのくらい大事な頼みだと受け取った？' });
+    /* ③ 仕組み */
+    if (!f.midway && !f.regular) add('show', 2 + (q5hi ? 3 : 0) + (q5max ? 1 : 0) + (q4hi ? 1 : 0) + (a.q4 === 'B' ? 0.5 : 0), { bubble: '次いつ見せる？',
+      voice: q5hi ? '次いつ見せればいいか分からなくて、家だと進まないかも' : '途中で見せていいのか、次にいつ見せるのか、分からないかも',
+      ask: '次に見せる日、いつなら決めやすい？', chip: '途中で見せる日：◯日（途中のままでいいよ）' });
+    /* 自分からは言い出しにくい人（Q2・Q4・Q5 が E）には、先生から声をかける日を（根拠からの推論） */
+    var nudgeNeed = (q2max ? 1 : 0) + (q4max ? 1 : 0) + (q5max ? 1 : 0);
+    if (nudgeNeed && !f.nudge) add('nudge', 5.5 + nudgeNeed, {
+      voice: q4max ? '締め切りを過ぎても、声をかけられるまで出せずにいるかも'
+        : q5max ? '決めた日があっても、声をかけられないと手が止まるかも' : '先生から聞いてもらえないと、困っていることを言えないかも',
+      ask: '途中で、こっちから様子を聞くなら、いつがいい？', chip: '◯日に、こちらから様子を聞くね' });
+    /* ④ 手厚さと任せ方（後ろの席の不足は強めに出す） */
+    if (fam === 'A' && !f.example && !f.goal) add('handsOff', 5.5, { voice: '見本も完成の目安もなくて、放り出された気がするかも',
+      ask: '最初の一歩、何から始めればいいか見えてた？', chip: '見本：◯◯（前のものを見てね）' });
+    if (fam === 'C' && f.steps >= 5) add('tooMany', 4, { voice: '手順が細かくて、任せてもらえていないと感じるかも',
+      ask: '手順、細かすぎなかった？ 自分で決めたいところはあった？' });
+    if (!f.decide) add('decide', 2 + (fam === 'C' ? 1 : 0), { bubble: '決めていい？', voice: '勝手に決めたら、違うと言われるかも',
+      ask: '自分で決めていいところ、どこだと思った？', chip: '自分で決めていいこと：◯◯' });
+    /* ⑤ 返し方 */
+    if (!f.askOk) add('askOk', 2.5 + (q2hi ? 3 : 0) + (q2max ? 1 : 0) + (a.q2 === 'B' ? 0.5 : 0) - (a.q2 === 'A' ? 1 : 0) + (fam === 'A' ? 1 : 0), { bubble: 'いつ聞いていい？',
+      voice: q2max ? '困っても、聞かれるまで言い出せずに止まってしまうかも' : q2hi ? '聞いたら迷惑かなと思って、一人で抱えるかも' : '途中で聞いてもいいのか、迷うかも',
+      ask: '途中で聞きに来るとしたら、いつなら来やすい？', chip: '◯分たっても詰まったら、声をかけてね' });
+    if (f.blame.length) add('blame', 5 + (q3hi ? 3 : 0), {
+      voice: q3max ? quote(f.blame[0]) + 'が怖くて、分からなくても「わかりました」と言うかも'
+        : q3hi ? quote(f.blame[0]) + 'が刺さって、しばらく手が止まるかも' : '責められている気がして、次は言い出しにくいかも',
+      ask: quote(f.blame[0]) + 'って書いたけど、責められているように読めた？' });
+    /* 返事は「わかりました」でも伝わっていないことが多い人（Q3 が E）には、自分の言葉で言い直してもらう */
+    if (q3max && !f.teachBack) add('teachBack', 6.5, {
+      voice: '「わかりました」と言っておけば大丈夫だと思って、分からないところをそのままにするかも',
+      ask: 'やることを、自分の言葉で一回言ってみてもらえる？', chip: 'わかったことを一言で返してね（何を・どこまで・いつまで）' });
+    if (f.push.length) add('push', 3.5, { voice: quote(f.push[0]) + 'と言われると、やらされている感じがするかも',
+      ask: quote(f.push[0]) + 'って書いたけど、きつく聞こえた？' });
+    /* ⑥ 報いる（足りないときの提案だけ） */
+    if (!f.thanks.length) add('thanks', 1, { chip: 'いつも助かってるよ、ありがとう' });
+
+    issues.sort(function (x, y) { return y.w - x.w; });
+    var voices = issues.filter(function (x) { return x.voice && x.w >= 3.5; }).slice(0, 4)
+      .map(function (x) { return { key: x.key, text: x.voice, tone: 'neg', strong: x.key === 'handsOff' || x.w >= 7 }; });
+    if (voices.length < 2) {
+      var pos = [];
+      if (f.thanks.length) pos.push(['thanks', 'お礼があって、少し気持ちが軽くなるかも']);
+      if (f.askOk && (q2hi || fam === 'A')) pos.push(['askOk', '詰まったら聞いていいんだ、と思えるかも']);
+      if (f.nudge && nudgeNeed) pos.push(['nudge', '先生から様子を聞いてもらえる日があるから、言い出しやすいかも']);
+      if (f.teachBack && q3max) pos.push(['teachBack', '自分の言葉で返すから、分かっていないところに気づけるかも']);
+      if ((f.midway || f.regular) && (q4hi || q5hi)) pos.push(['show', '見せる日が決まっているから、早めに出せるかも']);
+      if (f.goal && (fam === 'A' || q4hi)) pos.push(['goal', 'どこまでやればいいか分かって、安心できるかも']);
+      if (f.purpose) pos.push(['purpose', '何に使うか分かるから、迷わず進められるかも']);
+      if (f.decide && fam === 'C') pos.push(['decide', '任せてもらえて、進め方を工夫できるかも']);
+      pos.forEach(function (p) { if (voices.length < 2) voices.push({ key: p[0], text: p[1], tone: 'pos', strong: false }); });
+      issues.forEach(function (x) { if (voices.length < 2 && x.voice && !voices.some(function (v) { return v.key === x.key; })) voices.push({ key: x.key, text: x.voice, tone: 'neg', strong: false }); });
+      if (voices.length < 2) voices.push({ key: 'ok', text: 'これなら、すぐ始められるかも', tone: 'pos', strong: false });
+    }
+    var top = issues.filter(function (x) { return x.ask; })[0];
+    var face = 'normal', faceWhy = 'いつもの顔に見えるかも';
+    if (f.blame.length) { face = 'stiff'; faceWhy = '責める言葉があるので、かたい顔に見えるかも'; }
+    else if (f.push.length) { face = 'stiff'; faceWhy = '押しつけの言葉があるので、かたい顔に見えるかも'; }
+    else if (q2hi && !f.askOk) { face = 'busy'; faceWhy = '聞いていい目安がないので、忙しそうに見えるかも'; }
+    else if (f.thanks.length) { face = 'soft'; faceWhy = 'お礼があるので、やわらかい顔に見えるかも'; }
+    return {
+      answers: a, fam: fam, seat: seat, seatLabel: SEAT_LABEL[seat], far: far, blur: blurPx(fam), scale: SCALE[seat], firstTime: !!opt.firstTime,
+      issues: issues,
+      bubbles: issues.filter(function (x) { return x.bubble; }).map(function (x) { return { key: x.key, text: x.bubble, size: x.w >= 6 ? 3 : x.w >= 4 ? 2 : 1 }; }),
+      voices: voices,
+      ask: top ? { key: top.key, text: top.ask } : { key: 'open', text: 'この頼み方で、分かりにくいところはあった？' },
+      chips: issues.filter(function (x) { return x.chip; }).slice(0, 5).map(function (x) { return { key: x.key, text: x.chip }; }),
+      face: face, faceWhy: faceWhy, faceStrong: f.blame.length > 0 && q3hi, blameBig: q3hi,
+      clock: clockBig ? 2 : (!f.timebox ? 1 : 0)
+    };
+  }
+
+  /* ===== 通知表（0〜1） ===== */
+  function avg(list) { return list.length ? list.reduce(function (s, x) { return s + x; }, 0) / list.length : 0; }
+  function r2(x) { return Math.round(x * 100) / 100; }
+  function scoreBoard(f, fams, acked) {
+    var d = { purpose: f.purpose ? 1 : 0, goal: f.goal ? 1 : 0, when: (f.deadline || f.timebox) ? 1 : 0, firm: f.soft.length ? 0 : 1, checkpoint: (f.midway || f.regular || f.nudge) ? 1 : 0 };
+    var fitList = (fams && fams.length ? fams : ['D']).map(function (x) { return fitFor(f, x) ? 1 : 0; });
+    var s = { fit: r2(avg(fitList)), askOk: f.askOk ? 1 : 0, noBlame: (f.blame.length || f.push.length) ? 0 : 1, reward: (f.thanks.length || acked) ? 1 : 0 };
+    var sum = function (o) { return Object.keys(o).reduce(function (t, k) { return t + o[k]; }, 0); };
+    return { demand: r2(sum(d) / 5), support: r2(sum(s) / 4), d: d, s: s };
+  }
+  function quadrant(demand, support) {
+    var hd = demand >= 0.5, hs = support >= 0.5;
+    if (hd && hs) return { key: 'warm', label: '温かく厳しい' };
+    if (hd) return { key: 'strict', label: 'きびしいだけ' };
+    if (hs) return { key: 'kind', label: 'やさしいだけ' };
+    return { key: 'hands', label: 'ほったらかし' };
+  }
+  function boardFams(board, byId) {
+    return (board.targets || []).filter(function (id) { return byId[id]; })
+      .map(function (id) { return effectiveFam(byId[id].answers, !!(board.firstTime && board.firstTime[id])); });
+  }
+  function boardAcked(board) { var r = board.results || {}; return Object.keys(r).some(function (k) { return r[k] && r[k].ack; }); }
+  function scoreSaved(board, byId) { return scoreBoard(readBoard(board.text), boardFams(board, byId), boardAcked(board)); }
+  function reportCard(scores) {
+    if (!scores.length) return null;
+    var d = r2(avg(scores.map(function (x) { return x.demand; }))), s = r2(avg(scores.map(function (x) { return x.support; })));
+    return { demand: d, support: s, n: scores.length, quad: quadrant(d, s) };
+  }
+  function topVague(texts, n) {
+    var count = {}, order = [];
+    texts.forEach(function (t) { readBoard(t).vague.forEach(function (v) { if (!count[v.base]) { count[v.base] = 0; order.push(v.base); } count[v.base]++; }); });
+    return order.map(function (w, i) { return { word: w, n: count[w], i: i }; })
+      .sort(function (a, b) { return b.n - a.n || a.i - b.i; }).slice(0, n || 5).map(function (x) { return { word: x.word, n: x.n }; });
+  }
+  function missingCounts(fs) {
+    var c = { purpose: 0, goal: 0, when: 0, checkpoint: 0, askOk: 0, decide: 0, soft: 0, blame: 0, push: 0, thanks: 0, vague: 0 };
+    fs.forEach(function (f) {
+      if (!f.purpose) c.purpose++; if (!f.goal) c.goal++; if (!f.deadline && !f.timebox) c.when++;
+      if (!f.midway && !f.regular && !f.nudge) c.checkpoint++; if (!f.askOk) c.askOk++; if (!f.decide) c.decide++;
+      if (f.soft.length) c.soft++; if (f.blame.length) c.blame++; if (f.push.length) c.push++; if (f.thanks.length) c.thanks++; if (f.vague.length) c.vague++;
+    });
+    return c;
+  }
+
+  /* ===== 提出物：まず疑う黒板の特徴（仮説）・何人もずれた ===== */
+  var SUSPECTS = {
+    direction: [['purpose', '目的（何のため）'], ['goal', '完成の基準'], ['abbr', '専門用語・略語の説明'], ['teachBack', '自分の言葉で言い直してもらう']],
+    amount: [['goal', '完成の基準（どのレベルか）']],
+    time: [['timebox', 'かける時間の目安'], ['fit', '慣れに合った手厚さ（見積もり違い）']],
+    stalled: [['fit', '手厚さ（見本や完成の目安）'], ['decide', '決めていい範囲'], ['askOk', '聞いていい目安'], ['nudge', 'こちらから様子を聞く日']]
+  };
+  function featureOk(key, f, fam) {
+    if (key === 'abbr') return !f.abbr.some(function (x) { return !x.explained; });
+    if (key === 'fit') return fitFor(f, fam);
+    return !!f[key];
+  }
+  function suspects(kind, f, fam) {
+    return (SUSPECTS[kind] || []).map(function (p) { return { key: p[0], label: p[1], ok: featureOk(p[0], f, fam) }; });
+  }
+  function presentFeatures(f) {
+    var out = [];
+    if (f.purpose) out.push('目的'); if (f.goal) out.push('完成の目安'); if (f.deadline) out.push('期限'); if (f.timebox) out.push('かける時間');
+    if (f.midway || f.regular) out.push('途中で見せる日・来る日'); if (f.nudge) out.push('こちらから様子を聞く日');
+    if (f.askOk) out.push('聞いていい目安'); if (f.teachBack) out.push('自分の言葉で言い直してもらう'); if (f.decide) out.push('決めていい範囲');
+    if (f.example) out.push('見本'); if (f.thanks.length) out.push('お礼');
+    return out;
+  }
+  function crowd(board) {
+    var n = 0, r = board.results || {};
+    (board.targets || []).forEach(function (id) { if (r[id] && RESULT_BY[r[id].kind] && RESULT_BY[r[id].kind].miss) n++; });
+    return { misses: n, alert: n >= 2 };
+  }
+  /* 「この像、まだ合ってる？」 4週間たつか、書き直してから記録が5件たまったら */
+  function needsReview(student, boards, now) {
+    var since = student.updatedAt || student.createdAt || 0, n = 0;
+    (boards || []).forEach(function (b) { var r = b.results && b.results[student.id]; if (r && r.kind && (r.at || 0) > since) n++; });
+    if (n >= 5) return 'count';
+    if (since && now - since >= 28 * DAY) return 'time';
+    return '';
+  }
+
+  /* ===== 書き出し（Markdown。行動の言葉だけで書く） ===== */
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function ymd(ts) { var d = new Date(ts); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function fmt(x) { return (Math.round(x * 100) / 100).toFixed(2); }
+  function oneLine(t) { return String(t).replace(/\s*\r?\n\s*/g, ' / ').trim(); }
+  function studentName(s) { return (s.example ? '見本：' : '') + s.name; }
+  function exportMarkdown(data, now) {
+    var students = (data && data.students) || [], boards = (data && data.boards) || [];
+    var byId = {};
+    students.forEach(function (s) { byId[s.id] = s; });
+    var own = boards.filter(function (b) { return !b.example; }), use = own.length ? own : boards;
+    var L = [];
+    L.push('# せきがえの書き出し（' + ymd(now) + '）', '');
+    L.push('- 生徒は「あなたから見たその人」の仮の像。本人の評価ではない');
+    L.push('- 数字は、黒板の文を言葉の一覧で機械的に数えた目安', '');
+    L.push('## 自分の癖' + (!own.length && boards.length ? '（見本の黒板から）' : ''));
+    if (!use.length) L.push('- まだ黒板がない');
+    else {
+      var fs = use.map(function (b) { return readBoard(b.text); });
+      var rc = reportCard(use.map(function (b) { return scoreSaved(b, byId); }));
+      var mc = missingCounts(fs), tv = topVague(use.map(function (b) { return b.text; }), 5), n = use.length;
+      L.push('- 黒板: ' + n + ' 枚');
+      L.push('- 通知表の位置: ' + rc.quad.label + '（求める ' + fmt(rc.demand) + '・支える ' + fmt(rc.support) + '）');
+      L.push('- よく使うあいまいな言葉: ' + (tv.length ? tv.map(function (x) { return x.word + '（' + x.n + '回）'; }).join('、') : 'なし'));
+      L.push('- 足りなかったもの（' + n + ' 枚のうち）: 目的 ' + mc.purpose + '・完成の目安 ' + mc.goal + '・期限かかける時間 ' + mc.when +
+        '・見せる日・来る日・声をかける日 ' + mc.checkpoint + '・聞いていい目安 ' + mc.askOk + '・決めていい範囲 ' + mc.decide);
+      L.push('- 入っていた言葉（' + n + ' 枚のうち）: やわらげすぎ ' + mc.soft + '・責める言葉 ' + mc.blame + '・押しつけ ' + mc.push + '・お礼 ' + mc.thanks);
+      var rcount = {}, acks = 0, unsent = 0;
+      use.forEach(function (b) {
+        Object.keys(b.results || {}).forEach(function (id) { var r = b.results[id]; if (r && r.kind) rcount[r.kind] = (rcount[r.kind] || 0) + 1; if (r && r.ack) acks++; });
+        if (b.closedAt) (b.targets || []).forEach(function (id) { var r = (b.results || {})[id]; if (!r || !r.submitted) unsent++; });
+      });
+      L.push('- 提出物の記録: ' + RESULTS.map(function (r) { return r.label + ' ' + (rcount[r.key] || 0); }).join('・') + '・未提出のまま締めた ' + unsent + '・認める一言を送った ' + acks);
+    }
+    L.push('', '## 生徒ごと');
+    if (!students.length) L.push('', '- まだ生徒がいない');
+    students.forEach(function (s) {
+      var a = normAnswers(s.answers), notes = s.notes || {};
+      L.push('', '### ' + studentName(s));
+      QUESTIONS.forEach(function (q) { L.push('- ' + q.short + ': ' + q.opts[a[q.key]]); });
+      L.push('- 本人から聞いたこと: ' + (notes.heard ? oneLine(notes.heard) : '（まだない）'));
+      L.push('- 気づいたこと: ' + (notes.noticed ? oneLine(notes.noticed) : '（まだない）'));
+      var hist = s.history || [];
+      if (hist.length) {
+        L.push('- カードの書き直し:');
+        hist.forEach(function (h, i) {
+          var prev = normAnswers(h.answers), next = normAnswers(i + 1 < hist.length ? hist[i + 1].answers : a);
+          var ch = QUESTIONS.filter(function (q) { return prev[q.key] !== next[q.key]; })
+            .map(function (q) { return q.short + '「' + q.opts[prev[q.key]] + '」→「' + q.opts[next[q.key]] + '」'; });
+          L.push('  - ' + ymd(h.at) + ': ' + (ch.length ? ch.join('、') : '答えは同じ'));
+        });
+      }
+      var mine = boards.filter(function (b) { return (b.targets || []).indexOf(s.id) >= 0; });
+      L.push('- 頼みごとと提出物:' + (mine.length ? '' : '（まだない）'));
+      mine.forEach(function (b) {
+        var r = (b.results || {})[s.id] || {};
+        L.push('  - ' + ymd(b.createdAt) + (b.example ? '（見本）' : '') + '「' + oneLine(b.text) + '」' + (b.firstTime && b.firstTime[s.id] ? '（初めての作業）' : '') +
+          ' → ' + (r.submitted && r.kind && RESULT_BY[r.kind] ? '提出: ' + RESULT_BY[r.kind].label
+            : b.closedAt ? '未提出のまま締めた' + (r.kind && RESULT_BY[r.kind] ? '（選んでいた記録: ' + RESULT_BY[r.kind].label + '）' : '')
+            : r.kind && RESULT_BY[r.kind] ? RESULT_BY[r.kind].label + '（提出の前）' : 'まだ記録なし') +
+          (r.memo ? '。メモ: ' + oneLine(r.memo) : '') + (r.ack ? '。認める一言: 送った' : ''));
+      });
+    });
+    return L.join('\n') + '\n';
+  }
+
+  return {
+    readBoard: readBoard, segments: segments, studentView: studentView,
+    normAnswers: normAnswers, effectiveFam: effectiveFam, seatOf: seatOf, blurPx: blurPx, fitFor: fitFor,
+    scoreBoard: scoreBoard, scoreSaved: scoreSaved, boardFams: boardFams, quadrant: quadrant, reportCard: reportCard,
+    topVague: topVague, missingCounts: missingCounts, suspects: suspects, presentFeatures: presentFeatures,
+    crowd: crowd, needsReview: needsReview, exportMarkdown: exportMarkdown, ymd: ymd, studentName: studentName,
+    QUESTIONS: QUESTIONS, RESULTS: RESULTS, RESULT_BY: RESULT_BY, SEAT_LABEL: SEAT_LABEL, DAY: DAY
+  };
+})();
+// ENGINE END
+</script>
+<script>
+(function () {
+'use strict';
+/* ===== 決まりごと ===== */
+const E = SekigaeEngine;
+const STORE_KEY = 'sekigae:v1';
+const MAX_TEXT = 400;
+const COLORS = 8;
+const TABS = ['room', 'subs', 'report', 'export'];
+const FACE_LABEL = { normal: 'いつもどおり', stiff: 'かたい', soft: 'やわらか', busy: '忙しそう' };
+const WD = '日月火水木金土';
+
+/* ===== 小道具 ===== */
+const $ = (id) => document.getElementById(id);
+const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ESC[c]);
+const reducedMQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+const motionOK = () => !reducedMQ.matches;
+function newId(p) {
+  try { if (window.crypto && typeof crypto.randomUUID === 'function') return p + crypto.randomUUID().replace(/-/g, '').slice(0, 12); } catch (e) { /* 下へ */ }
+  return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+/* 机の左右の席（0〜4。パソコンは5列、スマホは3列に当てる） */
+const SEAT_COLS = 5;
+function randInt(n) {
+  try { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; } catch (e) { return Math.floor(Math.random() * n); }
+}
+function hashNum(id) { let h = 0; for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0; return h; }
+function hashCol(id) { return hashNum(id) % SEAT_COLS; }
+/* 生徒の絵：黒板のほうを向いて机に手をのせた姿を、後ろの上から見たところ。服は生徒の色、髪型は id でゆるく変える */
+const HAIRS = ['short', 'pony', 'bun', 'long'];
+function kidSVG(s) {
+  const hair = HAIRS[hashNum(String(s.id)) % HAIRS.length];
+  const arm = (d) => '<path class="s-arm-line" d="' + d + '"/>', armC = (d) => '<path class="s-arm" d="' + d + '"/>';
+  return '<svg viewBox="0 0 64 52" focusable="false" data-hair="' + hair + '">' +
+    arm('M15 37 L20 8') + arm('M49 37 L44 8') + armC('M15 37 L20 8') + armC('M49 37 L44 8') +
+    '<circle class="s-hand" cx="20" cy="7" r="4.2"/><circle class="s-hand" cx="44" cy="7" r="4.2"/>' +
+    '<ellipse class="s-body" cx="32" cy="41" rx="23" ry="10.5"/>' +
+    (hair === 'long' ? '<path class="s-hair" d="M20.5 24 Q20 46 32 47.5 Q44 46 43.5 24 Z"/>' : '') +
+    '<circle class="s-ear" cx="20.4" cy="24" r="3.2"/><circle class="s-ear" cx="43.6" cy="24" r="3.2"/>' +
+    '<circle class="s-hair" cx="32" cy="23" r="12"/>' +
+    (hair === 'pony' ? '<ellipse class="s-hair" cx="32" cy="38.5" rx="4.4" ry="6.8"/>' : hair === 'bun' ? '<circle class="s-hair" cx="32" cy="34" r="5.4"/>' : '') +
+    '</svg>';
+}
+/* 空いている席：椅子（上から） */
+const CHAIR_SVG = '<svg viewBox="0 0 64 52" focusable="false"><rect class="s-chair" x="19" y="15" width="26" height="22" rx="5"/><rect class="s-chair" x="17" y="40" width="30" height="7" rx="3.5"/></svg>';
+function dateLabel(ts) { const d = new Date(ts); return (d.getMonth() + 1) + '月' + d.getDate() + '日（' + WD[d.getDay()] + '）'; }
+function focusEl(el) { if (!el) return; try { el.focus({ preventScroll: true }); } catch (e) { try { el.focus(); } catch (e2) { /* 無ければよい */ } } }
+
+/* ===== 状態（この端末の localStorage。読めなくても見本で動く） ===== */
+let state = null;
+function defaultState() {
+  const t = Date.now();
+  return {
+    v: 1,
+    students: [
+      { id: 'ex-s1', name: 'はじめての生徒', example: true, color: 1, col: 2, answers: { q1: 'A', q2: 'C', q3: 'B', q4: 'C', q5: 'C' }, notes: { heard: '', noticed: '' }, history: [], createdAt: t, updatedAt: t },
+      { id: 'ex-s2', name: '慣れた生徒', example: true, color: 2, col: 1, answers: { q1: 'C', q2: 'A', q3: 'A', q4: 'A', q5: 'A' }, notes: { heard: '', noticed: '' }, history: [], createdAt: t, updatedAt: t }
+    ],
+    boards: [
+      { id: 'ex-b1', text: 'これ、簡単にまとめておいて。なるはやで！', example: true, createdAt: t, updatedAt: t, targets: ['ex-s1', 'ex-s2'], firstTime: {}, results: {} }
+    ],
+    currentId: 'ex-b1',
+    ui: { tab: 'room' }
+  };
+}
+function latestBoard(boards) { return boards.slice().sort((a, b) => b.createdAt - a.createdAt)[0]; }
+function normalize(raw) {
+  if (!raw || typeof raw !== 'object' || raw.v !== 1) return null;
+  const out = { v: 1, students: [], boards: [], currentId: '', ui: { tab: 'room' } };
+  const seenS = new Set(), seenB = new Set();
+  (Array.isArray(raw.students) ? raw.students : []).forEach((s) => {
+    if (!s || typeof s.name !== 'string' || !s.id || seenS.has(String(s.id))) return;
+    seenS.add(String(s.id));
+    const c = Math.floor(Number(s.color));
+    out.students.push({
+      id: String(s.id), name: s.name.trim().slice(0, 16) || '名前なし', example: !!s.example,
+      color: Number.isFinite(c) && c >= 1 ? ((c - 1) % COLORS) + 1 : 1,
+      col: Number.isInteger(s.col) && s.col >= 0 && s.col < SEAT_COLS ? s.col : hashCol(String(s.id)),
+      answers: E.normAnswers(s.answers),
+      notes: { heard: String((s.notes && s.notes.heard) || '').slice(0, 300), noticed: String((s.notes && s.notes.noticed) || '').slice(0, 300) },
+      history: (Array.isArray(s.history) ? s.history : []).filter((h) => h && h.answers).map((h) => ({ at: Number(h.at) || 0, answers: E.normAnswers(h.answers) })).slice(-30),
+      createdAt: Number(s.createdAt) || Date.now(), updatedAt: Number(s.updatedAt) || Number(s.createdAt) || Date.now()
+    });
+  });
+  (Array.isArray(raw.boards) ? raw.boards : []).forEach((b) => {
+    if (!b || typeof b.text !== 'string' || !b.id || seenB.has(String(b.id))) return;
+    seenB.add(String(b.id));
+    const targets = (Array.isArray(b.targets) ? b.targets : []).map(String).filter((id, i, a) => seenS.has(id) && a.indexOf(id) === i);
+    const firstTime = {}, results = {};
+    Object.keys(b.firstTime || {}).forEach((id) => { if (seenS.has(id) && b.firstTime[id]) firstTime[id] = true; });
+    Object.keys(b.results || {}).forEach((id) => {
+      const r = b.results[id];
+      if (!seenS.has(id) || !r || typeof r !== 'object') return;
+      results[id] = { kind: E.RESULT_BY[r.kind] ? r.kind : '', memo: String(r.memo || '').slice(0, 80), ack: !!r.ack, at: Number(r.at) || 0,
+        submitted: !!(r.submitted && E.RESULT_BY[r.kind]) };
+    });
+    out.boards.push({ id: String(b.id), text: b.text.slice(0, MAX_TEXT), example: !!b.example, createdAt: Number(b.createdAt) || Date.now(), updatedAt: Number(b.updatedAt) || Date.now(),
+      closedAt: Number(b.closedAt) || 0, targets, firstTime, results });
+  });
+  out.currentId = out.boards.some((b) => b.id === raw.currentId) ? String(raw.currentId) : (out.boards.length ? latestBoard(out.boards).id : '');
+  if (raw.ui && TABS.indexOf(raw.ui.tab) >= 0) out.ui.tab = raw.ui.tab;
+  return out;
+}
+function load() {
+  try {
+    const s = localStorage.getItem(STORE_KEY);
+    return s ? normalize(JSON.parse(s)) : null;
+  } catch (e) { return null; }
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* 保存できなくても画面は動かす */ }
+}
+const student = (id) => state.students.find((s) => s.id === id) || null;
+const board = (id) => state.boards.find((b) => b.id === id) || null;
+const currentBoard = () => board(state.currentId);
+function byId() { const m = {}; state.students.forEach((s) => { m[s.id] = s; }); return m; }
+function nextColor() {
+  const used = state.students.map((s) => s.color);
+  for (let c = 1; c <= COLORS; c++) if (used.indexOf(c) < 0) return c;
+  return (state.students.length % COLORS) + 1;
+}
+function hasExamples() { return state.students.some((s) => s.example) || state.boards.some((b) => b.example); }
+/* 変更を確定する：保存して、教室と開いているタブを描き直す */
+function commit() { save(); renderRoom(); renderActivePane(); }
+
+/* ===== 絵（先生・時計・前の席の頭） ===== */
+function teacherSVG(face, strong) {
+  return '<svg class="teacher" viewBox="0 0 120 150" data-face="' + face + '" data-strong="' + (strong ? 1 : 0) + '" aria-hidden="true" focusable="false">' +
+    '<path class="t-body" d="M12 150 C14 116 34 101 60 101 C86 101 106 116 108 150 Z"/><path class="t-collar" d="M47 102 L60 117 L73 102 Z"/>' +
+    '<rect class="t-neck" x="52" y="86" width="16" height="18" rx="6"/><circle class="t-ear" cx="27" cy="60" r="7"/><circle class="t-ear" cx="93" cy="60" r="7"/>' +
+    '<circle class="t-head" cx="60" cy="58" r="33"/><path class="t-hair" d="M26 60 C21 30 40 17 62 17 C86 17 101 33 94 60 C90 45 80 37 66 36 C55 44 40 48 26 60 Z"/>' +
+    /* ふつう */
+    '<g class="f f-normal"><path class="t-brow" d="M39 49 Q45 46 52 48"/><path class="t-brow" d="M68 48 Q75 46 81 49"/>' +
+    '<circle class="t-eye" cx="46" cy="60" r="3.6"/><circle class="t-eye" cx="74" cy="60" r="3.6"/><path class="t-mouth" d="M51 75 Q60 81 69 75"/></g>' +
+    /* かたい（眉が寄って、口が下がる） */
+    '<g class="f f-stiff"><path class="t-brow" d="M38 46 L53 52"/><path class="t-brow" d="M82 46 L67 52"/>' +
+    '<ellipse class="t-eye" cx="46" cy="61" rx="3.6" ry="2.4"/><ellipse class="t-eye" cx="74" cy="61" rx="3.6" ry="2.4"/><path class="t-mouth" d="M50 79 Q60 72 70 79"/></g>' +
+    '<g class="anger"><path class="t-anger" d="M81 21 Q87 27 81 33 M95 21 Q89 27 95 33 M82 20 Q88 26 94 20 M82 34 Q88 28 94 34"/></g>' +
+    /* やわらか（目が細くなり、頬がゆるむ） */
+    '<g class="f f-soft"><path class="t-brow" d="M39 47 Q45 44 52 46"/><path class="t-brow" d="M68 46 Q75 44 81 47"/>' +
+    '<path class="t-line" d="M41 61 Q46 55 51 61"/><path class="t-line" d="M69 61 Q74 55 79 61"/>' +
+    '<ellipse class="t-cheek" cx="40" cy="70" rx="6.5" ry="3.8"/><ellipse class="t-cheek" cx="80" cy="70" rx="6.5" ry="3.8"/><path class="t-mouth-open" d="M50 72 Q60 86 70 72 Z"/></g>' +
+    /* 忙しそう（よそ見・汗・書類） */
+    '<g class="f f-busy"><path class="t-brow" d="M39 51 L52 47"/><path class="t-brow" d="M68 47 L81 51"/>' +
+    '<circle class="t-eye" cx="51" cy="58" r="3.2"/><circle class="t-eye" cx="79" cy="58" r="3.2"/><path class="t-mouth" d="M52 77 Q56 74 60 77 Q64 80 68 77"/>' +
+    '<path class="t-sweat" d="M101 36 Q107 47 101 51 Q95 47 101 36 Z"/><path class="t-motion" d="M6 44 L15 46 M4 56 L14 56 M6 68 L15 66"/>' +
+    '<rect class="t-paper" x="86" y="90" width="30" height="8" rx="1.5"/><rect class="t-paper" x="82" y="97" width="34" height="8" rx="1.5"/><rect class="t-paper" x="88" y="104" width="30" height="8" rx="1.5"/></g>' +
+    '</svg>';
+}
+function clockSVG() {
+  let ticks = '';
+  for (let i = 0; i < 12; i++) {
+    const a = i * Math.PI / 6, s = Math.sin(a), c = Math.cos(a);
+    ticks += '<line class="clock-tick" x1="' + (20 + s * 13.5).toFixed(1) + '" y1="' + (20 - c * 13.5).toFixed(1) + '" x2="' + (20 + s * 16).toFixed(1) + '" y2="' + (20 - c * 16).toFixed(1) + '"/>';
+  }
+  return '<svg viewBox="0 0 40 40" focusable="false"><circle class="clock-face" cx="20" cy="20" r="18"/>' + ticks +
+    '<line class="clock-hand" x1="20" y1="20" x2="26" y2="23"/><line class="clock-hand clock-min" x1="20" y1="20" x2="20" y2="8"/><circle class="t-eye" cx="20" cy="20" r="1.8"/></svg>';
+}
+/* 自分より前の席の人の頭（後ろの席ほど、前に人が多い） */
+function headsHTML(seat) {
+  if (seat === 'front') return '';
+  const row = (cls, n) => '<div class="heads-row ' + cls + '">' + '<i class="head"></i>'.repeat(n) + '</div>';
+  return '<div class="heads" data-rows="' + (seat === 'back' ? 2 : 1) + '">' + (seat === 'back' ? row('far', 16) : '') + row('near', 12) + '</div>';
+}
+
+/* ===== お知らせ・コピー ===== */
+let toastTimer = 0;
+function announce(msg) { const live = $('sr-live'); live.textContent = ''; setTimeout(() => { live.textContent = msg; }, 40); }
+function toast(msg) {
+  $('toast-msg').textContent = msg;
+  $('toast').classList.add('is-on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('toast').classList.remove('is-on'), 2800);
+  announce(msg);
+}
+/* コピーはクリックの中で呼ぶ。だめなら文字を選んだ状態にする */
+function copyText(text, el) {
+  const fail = () => {
+    try {
+      if (el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT')) { el.focus(); el.select(); try { el.setSelectionRange(0, el.value.length); } catch (e) { /* 選べたところまで */ } }
+      else if (el) { const r = document.createRange(); r.selectNodeContents(el); const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); }
+    } catch (e) { /* 選べなくても文は見えている */ }
+    toast('コピーできなかったので文字を選んだよ。選んでコピーしてね');
+  };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => toast('コピーしたよ'), fail);
+    else fail();
+  } catch (e) { fail(); }
+}
+
+/* ===== 重なり（シート・目線・確かめ）：いちばん上だけ触れる ===== */
+const layers = [];
+function syncInert() {
+  const top = layers[layers.length - 1] || '', open = layers.length > 0;
+  $('app').inert = open;
+  $('bar').inert = open;
+  ['view', 'sheet-write', 'sheet-card', 'sheet-help', 'confirm'].forEach((id) => { $(id).inert = open && layers.indexOf(id) >= 0 && id !== top; });
+  document.documentElement.classList.toggle('is-locked', open);
+}
+function pushLayer(id) { const i = layers.indexOf(id); if (i >= 0) layers.splice(i, 1); layers.push(id); syncInert(); }
+function popLayer(id) { const i = layers.indexOf(id); if (i >= 0) layers.splice(i, 1); syncInert(); }
+
+let sheetEl = null, sheetOpener = null;
+function openSheet(id, opt) {
+  opt = opt || {};
+  if (sheetEl) closeSheet(true);
+  const el = $(id);
+  sheetOpener = opt.opener || document.activeElement;
+  sheetEl = el;
+  $('scrim').hidden = false;
+  $('scrim').classList.toggle('is-clear', !!opt.clear);
+  document.body.classList.toggle('has-drawer', !!opt.drawer);
+  el.hidden = false;
+  el.scrollTop = 0;
+  pushLayer(id);
+  focusEl(opt.focus ? $(opt.focus) : el.querySelector('h2'));
+}
+function closeSheet(swap) {
+  if (!sheetEl) return;
+  const id = sheetEl.id;
+  sheetEl.hidden = true;
+  sheetEl = null;
+  popLayer(id);
+  $('scrim').hidden = true;
+  document.body.classList.remove('has-drawer');
+  if (id === 'sheet-write') onWriteClosed();
+  if (swap === true) return;
+  const o = sheetOpener;
+  sheetOpener = null;
+  if (o && o !== document.body && document.contains(o) && !o.closest('[hidden]')) focusEl(o);
+}
+
+let confirmFn = null, confirmOpener = null;
+function askConfirm(title, sub, yes, fn) {
+  confirmFn = fn;
+  confirmOpener = document.activeElement;
+  $('confirm-title').textContent = title;
+  $('confirm-sub').textContent = sub || '';
+  $('confirm-yes').textContent = yes || '消す';
+  $('confirm').hidden = false;
+  pushLayer('confirm');
+  focusEl($('confirm-no'));
+}
+function closeConfirm(run) {
+  const fn = confirmFn;
+  confirmFn = null;
+  $('confirm').hidden = true;
+  popLayer('confirm');
+  if (run && fn) fn();
+  else if (confirmOpener && document.contains(confirmOpener)) focusEl(confirmOpener);
+}
+
+/* ===== タブ ===== */
+function showTab(name, focus) {
+  if (TABS.indexOf(name) < 0) name = 'room';
+  const changed = state.ui.tab !== name;
+  state.ui.tab = name;
+  save();
+  TABS.forEach((t) => {
+    const on = t === name;
+    $('tab-' + t).setAttribute('aria-selected', on ? 'true' : 'false');
+    $('tab-' + t).tabIndex = on ? 0 : -1;
+    $('pane-' + t).hidden = !on;
+  });
+  $('bar').hidden = name !== 'room';
+  renderActivePane();
+  if (focus) focusEl($('tab-' + name));
+  if (changed) window.scrollTo(0, 0);
+}
+function renderActivePane() {
+  const t = state.ui.tab;
+  if (t === 'subs') renderSubs();
+  else if (t === 'report') renderReport();
+  else if (t === 'export') renderExport();
+}
+
+/* ===== 教室 ===== */
+let writeMode = 'new', writeDraft = '', writePreview = null, writeTargets = new Set(), writeFirst = new Set();
+function sizeClass(el, text) {
+  const n = text.length;
+  el.classList.toggle('is-mid', n > 40 && n <= 90);
+  el.classList.toggle('is-long', n > 90);
+}
+function setChalk(el, text) {
+  const empty = !text.trim();
+  el.classList.toggle('is-empty', empty);
+  el.textContent = empty ? 'まだ何も書いていない黒板。「黒板に書く」から頼みごとを書いてみよう' : text;
+  sizeClass(el, empty ? '' : text);
+}
+function targetNames(b) {
+  const names = b.targets.map((id) => student(id)).filter(Boolean).map((s) => s.name + 'さん');
+  if (!names.length) return '相手：まだいない';
+  return '相手：' + (names.length > 3 ? names.slice(0, 3).join('、') + ' ほか' + (names.length - 3) + '人' : names.join('、'));
+}
+function renderRoomBoard() {
+  const b = currentBoard(), previewNew = writePreview != null && writeMode === 'new';
+  setChalk($('room-chalk'), writePreview != null ? writePreview : (b ? b.text : ''));
+  $('room-date').textContent = dateLabel(b && !previewNew ? b.createdAt : Date.now());
+  if (writePreview != null) $('room-note').textContent = '書いている途中（まだ黒板に書いていない）';
+  else if (b) $('room-note').innerHTML = 'いまの黒板' + (b.example ? ' <span class="tag">見本</span>' : '') + '・' + esc(targetNames(b));
+  else $('room-note').textContent = '';
+  $('room-edit').hidden = !b;
+  $('room-copy').hidden = !b;
+}
+function deskHTML(s, b, seat) {
+  const first = !!(b && b.firstTime[s.id]), off = !!(b && b.targets.indexOf(s.id) < 0);
+  const review = E.needsReview(s, state.boards, Date.now());
+  const badges = [];
+  if (s.example) badges.push('<span class="badge">見本</span>');
+  if (first) badges.push('<span class="badge badge-first">初めて</span>');
+  if (off) badges.push('<span class="badge">今回は対象外</span>');
+  if (review) badges.push('<span class="badge badge-review">像の見直し？</span>');
+  const label = 'あなたから見た' + (s.example ? '見本の' : '') + s.name + 'さん（' + E.SEAT_LABEL[seat] + (first ? '・この頼みは初めての作業' : '') +
+    (off ? '・この黒板の相手ではない' : '') + (review ? '・像の見直しどき' : '') + '）。押すと、この生徒の目線に切り替わる';
+  return '<button class="desk' + (off ? ' is-off' : '') + '" type="button" data-sid="' + esc(s.id) + '" style="--c: var(--k' + s.color + ')" aria-label="' + esc(label) + '">' +
+    (badges.length ? '<span class="desk-badges" aria-hidden="true">' + badges.join('') + '</span>' : '') +
+    '<span class="desk-top" aria-hidden="true"><span class="desk-tag"><span class="tag-k">あなたから見た</span><span class="tag-n">' + esc(s.name) + 'さん</span></span></span>' +
+    '<span class="kid" aria-hidden="true">' + kidSVG(s) + '</span></button>';
+}
+/* 1段の机の数（CSS の .row-desks と同じ境目：760px 以上は5列、それより狭いと3列） */
+const wideMQ = window.matchMedia ? window.matchMedia('(min-width: 760px)') : { matches: false };
+function deskCols() { return wideMQ.matches ? 5 : 3; }
+/* 生徒ごとの左右の席（col）を、その幅の列に当てる。重なったら右へずらす（段がいっぱいなら次の段へ） */
+function placeRow(list, nc) {
+  const size = Math.max(nc, Math.ceil(list.length / nc) * nc), slots = new Array(size).fill(null);
+  list.forEach((s) => {
+    const start = (((s.col | 0) % nc) + nc) % nc;
+    for (let k = 0; k < size; k++) { const i = (start + k) % size; if (!slots[i]) { slots[i] = s; return; } }
+  });
+  return slots;
+}
+function renderRoom() {
+  renderRoomBoard();
+  const b = currentBoard(), groups = { front: [], middle: [], back: [] }, nc = deskCols();
+  state.students.forEach((s) => groups[E.seatOf(s.answers.q1)].push(s));
+  let html = '';
+  ['front', 'middle', 'back'].forEach((seat) => {
+    html += '<div class="row" data-seat="' + seat + '"><p class="row-label">' + E.SEAT_LABEL[seat] + '</p><div class="row-desks">';
+    placeRow(groups[seat], nc).forEach((s) => {
+      html += s ? deskHTML(s, b, seat) : '<div class="desk is-empty" aria-hidden="true"><span class="desk-top"></span><span class="kid">' + CHAIR_SVG + '</span></div>';
+    });
+    html += '</div></div>';
+  });
+  $('room-rows').innerHTML = html;
+  $('room-ex').hidden = !hasExamples();
+}
+try { if (wideMQ.addEventListener) wideMQ.addEventListener('change', () => { if (state) renderRoom(); }); else if (wideMQ.addListener) wideMQ.addListener(() => { if (state) renderRoom(); }); } catch (e) { /* 無くても動く */ }
+/* 新しく来た生徒の席：同じ段で空いている左右の席から、くじで選ぶ */
+function freeCol(seat) {
+  const used = new Set(state.students.filter((x) => E.seatOf(x.answers.q1) === seat).map((x) => x.col)), free = [];
+  for (let c = 0; c < SEAT_COLS; c++) if (!used.has(c)) free.push(c);
+  return free.length ? free[randInt(free.length)] : randInt(SEAT_COLS);
+}
+/* 席替え：前後（慣れ）はそのまま、同じ段の中で左右の席をくじで入れ替える */
+$('room-shuffle').addEventListener('click', () => {
+  if (!state.students.length) { toast('まだ生徒がいないよ。「生徒を迎える」から始めよう'); return; }
+  const rows = { front: [], middle: [], back: [] };
+  state.students.forEach((s) => rows[E.seatOf(s.answers.q1)].push(s));
+  Object.keys(rows).forEach((k) => {
+    const cols = [0, 1, 2, 3, 4];
+    for (let i = cols.length - 1; i > 0; i--) { const j = randInt(i + 1), t = cols[i]; cols[i] = cols[j]; cols[j] = t; }
+    rows[k].forEach((s, i) => { s.col = i < cols.length ? cols[i] : randInt(SEAT_COLS); });
+  });
+  commit();
+  toast('席替えしたよ（前後は「慣れ」のまま、左右だけ入れ替えた）');
+});
+
+/* ===== 黒板に書く（書いている間も教室の黒板に映す） ===== */
+function renderWriteTargets() {
+  const box = $('write-targets');
+  if (!state.students.length) { box.innerHTML = '<p class="small">まだ生徒がいません。「生徒を迎える」から席に着いてもらうと、ここで選べます。</p>'; return; }
+  box.innerHTML = state.students.map((s) => {
+    const id = esc(s.id), on = writeTargets.has(s.id);
+    return '<div class="tgt"><label class="tgt-who"><input type="checkbox" id="tgt-' + id + '" data-sid="' + id + '" data-kind="tgt"' + (on ? ' checked' : '') + '>' +
+      '<span class="dot" style="--c: var(--k' + s.color + ')"></span><span>' + (s.example ? '<span class="tag">見本</span> ' : '') + esc(s.name) + 'さん</span></label>' +
+      '<label class="tgt-first"><input class="switch" type="checkbox" role="switch" id="first-' + id + '" data-sid="' + id + '" data-kind="first"' +
+      (writeFirst.has(s.id) ? ' checked' : '') + (on ? '' : ' disabled') + '><span>この人には初めての作業</span></label></div>';
+  }).join('');
+}
+function updateWriteCount() { $('write-count').textContent = $('write-text').value.length + '/' + MAX_TEXT; }
+function openWrite(mode, opener) {
+  const b = currentBoard(), editing = mode === 'edit' && !!b;
+  writeMode = editing ? 'edit' : 'new';
+  $('write-title').textContent = editing ? '黒板を直す' : '黒板に書く';
+  $('write-submit').textContent = editing ? '直して書く' : '黒板に書く';
+  $('write-text').value = editing ? b.text : writeDraft;
+  writeTargets = new Set(editing ? b.targets : state.students.map((s) => s.id));
+  writeFirst = new Set(editing ? Object.keys(b.firstTime) : []);
+  renderWriteTargets();
+  updateWriteCount();
+  $('write-err').hidden = true;
+  writePreview = $('write-text').value;
+  if (state.ui.tab !== 'room') showTab('room');
+  window.scrollTo(0, 0);
+  renderRoomBoard();
+  openSheet('sheet-write', { clear: true, drawer: true, focus: 'write-text', opener: opener });
+}
+function onWriteClosed() {
+  if (writeMode === 'new' && writePreview != null) writeDraft = $('write-text').value;
+  writePreview = null;
+  renderRoomBoard();
+}
+$('write-text').addEventListener('input', () => {
+  $('write-err').hidden = true;
+  writePreview = $('write-text').value;
+  updateWriteCount();
+  renderRoomBoard();
+});
+$('write-targets').addEventListener('change', (e) => {
+  const t = e.target, sid = t.dataset && t.dataset.sid;
+  if (!sid) return;
+  if (t.dataset.kind === 'tgt') {
+    if (t.checked) writeTargets.add(sid); else writeTargets.delete(sid);
+    const sw = $('first-' + sid);
+    if (sw) sw.disabled = !t.checked;
+  } else if (t.dataset.kind === 'first') {
+    if (t.checked) writeFirst.add(sid); else writeFirst.delete(sid);
+  }
+});
+$('write-copy').addEventListener('click', () => {
+  const v = $('write-text').value;
+  if (!v.trim()) { $('write-err').hidden = false; focusEl($('write-text')); return; }
+  copyText(v, $('write-text'));
+});
+$('write-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const text = $('write-text').value.replace(/\s+$/, '').slice(0, MAX_TEXT);
+  if (!text.trim()) { $('write-err').hidden = false; focusEl($('write-text')); return; }
+  const targets = state.students.map((s) => s.id).filter((id) => writeTargets.has(id));
+  const firstTime = {};
+  targets.forEach((id) => { if (writeFirst.has(id)) firstTime[id] = true; });
+  const now = Date.now(), b = currentBoard();
+  if (writeMode === 'edit' && b) {
+    b.text = text; b.targets = targets; b.firstTime = firstTime; b.updatedAt = now;
+    toast('黒板を直したよ');
+  } else {
+    const nb = { id: newId('b-'), text: text, example: false, createdAt: now, updatedAt: now, targets: targets, firstTime: firstTime, results: {} };
+    state.boards.push(nb);
+    state.currentId = nb.id;
+    writeDraft = '';
+    toast('黒板に書いたよ。机を押すと、その生徒の目線で見られる');
+  }
+  writePreview = null;
+  closeSheet();
+  commit();
+});
+
+/* ===== 生徒カード（迎える・直す。直すと前の答えは履歴に残る） ===== */
+let cardSid = null;
+function renderCardQs(ans) {
+  $('card-qs').innerHTML = E.QUESTIONS.map((q, i) =>
+    '<fieldset class="q"><legend><span class="q-n">Q' + (i + 1) + '</span><span class="q-text">' + esc(q.text) + '</span><span class="q-hint">見え方に効くところ：' + esc(q.hint) + '</span></legend><div class="q-opts">' +
+    Object.keys(q.opts).map((k) => '<label class="q-opt' + (k === 'D' ? ' is-unknown' : '') + '"><input type="radio" name="card-' + q.key + '" id="card-' + q.key + '-' + k.toLowerCase() + '" value="' + k + '"' +
+      (ans[q.key] === k ? ' checked' : '') + '><span>' + esc(q.opts[k]) + '</span></label>').join('') +
+    '</div></fieldset>').join('');
+}
+function updatePreface() {
+  const n = $('card-name').value.trim() || '○○';
+  $('card-preface').textContent = 'ここで作るのは、あなたから見た「いまの' + n + 'さん」です。本人の評価ではありません。伝え方を試すための仮の像で、いつでも書き直せます。分からない問いは「まだ分からない」で大丈夫です。';
+}
+function renderHistory(s) {
+  const box = $('card-history');
+  if (!s || !s.history.length) { box.hidden = true; return; }
+  box.hidden = false;
+  box.querySelector('summary').textContent = '前の答え（' + s.history.length + '件）';
+  $('card-history-list').innerHTML = s.history.map((h, i) => {
+    const next = i + 1 < s.history.length ? s.history[i + 1].answers : s.answers;
+    const ch = E.QUESTIONS.filter((q) => h.answers[q.key] !== next[q.key]).map((q) => q.short + '：' + q.opts[h.answers[q.key]] + ' → ' + q.opts[next[q.key]]);
+    return '<li>' + esc(E.ymd(h.at)) + ' に書き直し：' + esc(ch.join('／') || '答えは同じ') + '</li>';
+  }).reverse().join('');
+}
+function openCard(sid, opener) {
+  const s = sid ? student(sid) : null;
+  cardSid = s ? s.id : null;
+  $('card-title').textContent = s ? '生徒カード' : '生徒を迎える';
+  $('card-submit').textContent = s ? '保存する' : '席に着いてもらう';
+  $('card-name').value = s ? s.name : '';
+  $('card-heard').value = s ? s.notes.heard : '';
+  $('card-noticed').value = s ? s.notes.noticed : '';
+  $('card-err').hidden = true;
+  renderCardQs(s ? s.answers : E.normAnswers({}));
+  updatePreface();
+  $('card-review').hidden = !(s && E.needsReview(s, state.boards, Date.now()));
+  renderHistory(s);
+  $('card-del-wrap').hidden = !s;
+  openSheet('sheet-card', { opener: opener });
+}
+$('card-name').addEventListener('input', () => { $('card-err').hidden = true; updatePreface(); });
+$('card-form').addEventListener('keydown', (e) => {
+  // 1行の欄で Enter を押しても送らない（日本語の変換の確定で送らないように）
+  if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type === 'text') e.preventDefault();
+});
+$('card-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = $('card-name').value.trim().slice(0, 16);
+  if (!name) { $('card-err').hidden = false; focusEl($('card-name')); return; }
+  const ans = {};
+  E.QUESTIONS.forEach((q) => { const c = document.querySelector('input[name="card-' + q.key + '"]:checked'); ans[q.key] = c ? c.value : 'D'; });
+  const notes = { heard: $('card-heard').value.trim().slice(0, 300), noticed: $('card-noticed').value.trim().slice(0, 300) };
+  const now = Date.now();
+  let s = cardSid ? student(cardSid) : null;
+  if (s) {
+    const changed = E.QUESTIONS.some((q) => s.answers[q.key] !== ans[q.key]);
+    if (changed) { s.history.push({ at: now, answers: Object.assign({}, s.answers) }); if (s.history.length > 30) s.history.shift(); }
+    s.name = name; s.answers = E.normAnswers(ans); s.notes = notes; s.updatedAt = now;
+    toast(changed ? 'カードを書き直したよ（前の答えは履歴に残した）' : 'カードを保存したよ');
+  } else {
+    s = { id: newId('s-'), name: name, example: false, color: nextColor(), col: freeCol(E.seatOf(E.normAnswers(ans).q1)), answers: E.normAnswers(ans), notes: notes, history: [], createdAt: now, updatedAt: now };
+    state.students.push(s);
+    toast(name + 'さんが' + E.SEAT_LABEL[E.seatOf(s.answers.q1)] + 'に着いたよ');
+  }
+  closeSheet();
+  commit();
+});
+$('card-del').addEventListener('click', () => {
+  const s = student(cardSid);
+  if (!s) return;
+  askConfirm(s.name + 'さんを消しますか？', 'カード・メモ・この人の提出物の記録も消えます。元に戻せません。', '消す', () => {
+    const id = s.id;
+    state.students = state.students.filter((x) => x.id !== id);
+    state.boards.forEach((b) => { b.targets = b.targets.filter((x) => x !== id); delete b.firstTime[id]; delete b.results[id]; });
+    closeSheet(true);
+    commit();
+    focusEl(state.ui.tab === 'room' ? $('btn-add-student') : $('tab-' + state.ui.tab));
+    toast('消したよ');
+  });
+});
+
+/* ===== 生徒の目線（ふわっと切り替える。先生が席に座る絵は出さない） ===== */
+let viewSid = null, viewOpenerSid = null, viewTimer = 0;
+function viewChalkHTML(f, v) {
+  return E.segments(f.text, f.marks).map((sg) => {
+    const t = esc(sg.t);
+    if (!sg.cat) return t;
+    if (sg.cat === 'vague' || (sg.cat === 'abbr' && !sg.explained)) return '<span class="m-blur" style="--b:' + v.blur + 'px">' + t + '</span><span class="sr-only">（にじんで読みにくいかも）</span>';
+    if (sg.cat === 'blame') return '<span class="m-blame' + (v.blameBig ? ' is-big' : '') + '">' + t + '</span>';
+    if (sg.cat === 'push') return '<span class="m-push">' + t + '</span>';
+    if (sg.cat === 'soft') return '<span class="m-soft">' + t + '</span>';
+    if (sg.cat === 'thanks') return '<span class="m-thanks">' + t + '</span>';
+    return t;
+  }).join('');
+}
+function renderView(entering) {
+  const s = student(viewSid), b = currentBoard();
+  if (!s || !b) return;
+  const f = E.readBoard(b.text), first = !!b.firstTime[s.id], off = b.targets.indexOf(s.id) < 0;
+  const v = E.studentView(f, s.answers, { firstTime: first });
+  $('view-title').textContent = s.name + 'さんの目線';
+  $('view-pills').innerHTML = '<span class="pill">' + v.seatLabel + 'から</span>' + (s.example ? '<span class="pill">見本</span>' : '') +
+    (first ? '<span class="pill pill-first">この頼みは初めての作業</span>' : '') + (off ? '<span class="pill pill-off">この黒板の相手ではない（見え方は参考）</span>' : '');
+  const scene = $('scene');
+  scene.dataset.seat = v.seat;
+  scene.classList.toggle('is-entering', !!entering && motionOK());
+  const chalk = $('view-chalk');
+  chalk.style.setProperty('--scale', String(v.scale));
+  chalk.innerHTML = viewChalkHTML(f, v);
+  sizeClass(chalk, b.text);
+  $('view-date').textContent = dateLabel(b.createdAt);
+  const clock = $('view-clock');
+  if (!clock.firstChild) clock.innerHTML = clockSVG();
+  clock.hidden = v.clock === 0;
+  clock.dataset.size = String(v.clock || 1);
+  $('view-teacher').innerHTML = teacherSVG(v.face, v.faceStrong) + '<div class="podium"></div>';
+  const rot = [-4, 3, -2, 5, -5, 2, -3];
+  let a = '', c = '';
+  v.bubbles.forEach((q, i) => {
+    const html = '<span class="q-bubble s' + q.size + '" style="--r:' + rot[i % rot.length] + 'deg;--i:' + i + '">' + esc(q.text) + '</span>';
+    if (i % 2 === 0) a += html; else c += html;
+  });
+  $('bub-a').innerHTML = a;
+  $('bub-b').innerHTML = c;
+  $('view-floor').innerHTML = headsHTML(v.seat) + '<div class="my-desk"></div>';
+  $('view-face').innerHTML = '先生の顔：<b>' + FACE_LABEL[v.face] + '</b>（' + esc(v.faceWhy) + '）';
+  $('view-voices').innerHTML = v.voices.map((x) => '<li class="voice' + (x.strong ? ' is-strong' : '') + (x.tone === 'pos' ? ' is-pos' : '') + '">' + esc(x.text) + '</li>').join('');
+  $('view-ask').textContent = v.ask.text;
+  $('view-chips').innerHTML = v.chips.length ? v.chips.map((x) => '<button class="chip-btn" type="button" data-tpl="' + esc(x.text) + '">＋ ' + esc(x.text) + '</button>').join('')
+    : '<p class="small">足りないものは見つからなかった。あとは本人に聞いて確かめよう。</p>';
+  $('view-chips-note').hidden = !v.chips.length;
+}
+function openView(sid) {
+  if (!currentBoard()) { toast('先に黒板に頼みごとを書いてね'); openWrite('new'); return; }
+  const v = $('view');
+  clearTimeout(viewTimer);
+  viewSid = sid;
+  viewOpenerSid = sid;
+  renderView(true);
+  v.classList.remove('is-in', 'is-settled', 'is-leaving');
+  v.hidden = false;
+  v.scrollTop = 0;
+  pushLayer('view');
+  void v.offsetWidth;   // ぼけた状態から始める
+  $('app').classList.add('is-away');
+  v.classList.add('is-in');
+  viewTimer = setTimeout(() => { v.classList.add('is-settled'); $('scene').classList.remove('is-entering'); }, motionOK() ? 1500 : 200);
+  focusEl($('view-title'));
+}
+function closeView(then) {
+  const v = $('view');
+  if (v.hidden) { if (then) then(); return; }
+  clearTimeout(viewTimer);
+  v.classList.remove('is-settled');
+  v.classList.add('is-leaving');
+  v.classList.remove('is-in');
+  $('app').classList.remove('is-away');
+  popLayer('view');
+  viewTimer = setTimeout(() => { v.hidden = true; v.classList.remove('is-leaving'); }, motionOK() ? 300 : 160);
+  const sid = viewOpenerSid;
+  viewSid = null;
+  viewOpenerSid = null;
+  if (then) { then(); return; }
+  focusEl(document.querySelector('.desk[data-sid="' + (window.CSS && CSS.escape ? CSS.escape(sid || '') : sid) + '"]'));
+}
+$('room-rows').addEventListener('click', (e) => {
+  const d = e.target.closest('button.desk');
+  if (d) openView(d.dataset.sid);
+});
+$('view-back').addEventListener('click', () => closeView());
+$('view-back-2').addEventListener('click', () => closeView());
+$('view-edit-board').addEventListener('click', () => closeView(() => openWrite('edit', $('btn-write'))));
+$('view-edit-card').addEventListener('click', () => { const sid = viewSid; closeView(() => openCard(sid, $('btn-add-student'))); });
+$('view-ask-copy').addEventListener('click', () => copyText($('view-ask').textContent, $('view-ask')));
+$('view-chips').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-tpl]'), b = currentBoard();
+  if (!btn || !b) return;
+  const tpl = btn.dataset.tpl, next = b.text.replace(/\s+$/, '') + '\n' + tpl;
+  if (next.length > MAX_TEXT) { toast('黒板がいっぱい（' + MAX_TEXT + '字まで）。「黒板を直す」で短くしてね'); return; }
+  b.text = next;
+  b.updatedAt = Date.now();
+  save();
+  renderRoom();
+  renderView(false);
+  focusEl($('view-chips').querySelector('button') || $('view-title'));
+  toast('黒板の最後に「' + tpl + '」を足したよ。◯ はあとで書きかえてね');
+});
+
+/* ===== 提出物（返ってきたものの記録） ===== */
+function missingLabels(f) {
+  const out = [];
+  if (!f.purpose) out.push('目的');
+  if (!f.goal) out.push('完成の目安');
+  if (!f.deadline && !f.timebox) out.push('期限かかける時間');
+  if (!f.midway && !f.regular) out.push('途中で見せる日');
+  if (!f.askOk) out.push('聞いていい目安');
+  if (!f.decide) out.push('決めていい範囲');
+  return out;
+}
+function crowdHTML(b, f) {
+  const c = E.crowd(b);
+  if (!c.alert) return '';
+  const miss = missingLabels(f), vague = f.vague.map((x) => x.word).filter((w, i, a) => a.indexOf(w) === i);
+  return '<p class="crowd"><b>' + c.misses + '人がずれた → まず黒板を見直そう</b>' +
+    (miss.length ? '足りなかったもの：' + esc(miss.join('・')) : '黒板の上ではそろっていた。言葉の受け取り方を本人に聞いてみよう') +
+    (vague.length ? '。あいまいな言葉：' + esc(vague.join('・')) : '') + '</p>';
+}
+function hypoHTML(kind, f, fam) {
+  if (!kind) return '';
+  if (kind === 'asExpected') {
+    const p = E.presentFeatures(f);
+    return '<div class="hypo"><p class="hypo-t">うまくいった頼み方</p><p class="small">' +
+      (p.length ? 'そろっていたもの：' + esc(p.join('・')) : '黒板の言葉は少なかった。この人とは、言わなくても通じている部分があるのかも') + '</p></div>';
+  }
+  if (kind === 'asked') return '<div class="hypo"><p class="hypo-t">良いサイン（言い出しやすさ）</p><p class="small">毎回同じことを聞かれるなら、黒板に足りない情報があるかも。聞かれたことを次の黒板に足そう。</p></div>';
+  const list = E.suspects(kind, f, fam), missing = list.filter((x) => !x.ok);
+  return '<div class="hypo"><p class="hypo-t">まず疑う黒板の特徴（仮説）</p><ul>' +
+    list.map((x) => '<li><span class="mk ' + (x.ok ? 'mk-ok' : 'mk-miss') + '">' + (x.ok ? 'あった' : 'なかった') + '</span><span>' + esc(x.label) + '</span></li>').join('') + '</ul>' +
+    '<p class="small">' + (missing.length ? 'なかったものから疑おう。' : '黒板の上ではそろっていた。相手の事情かもしれないので、本人に聞いてみよう。') +
+    ' <button class="link-btn" type="button" data-act="card">思ってた人と違った？ カードを直す</button></p></div>';
+}
+function resLabel(r) { return r && r.kind && E.RESULT_BY[r.kind] ? E.RESULT_BY[r.kind].label : ''; }
+function subRowHTML(b, s, f) {
+  const r = b.results[s.id] || { kind: '', memo: '', ack: false, submitted: false };
+  const key = esc(b.id) + '-' + esc(s.id), fam = E.effectiveFam(s.answers, !!b.firstTime[s.id]);
+  const head = '<h3 class="sub-name"><span class="dot" style="--c: var(--k' + s.color + ')"></span><span class="k">あなたから見た</span>' + esc(s.name) + 'さん' +
+    (s.example ? '<span class="tag">見本</span>' : '') + (b.firstTime[s.id] ? '<span class="tag">初めての作業</span>' : '') +
+    (r.submitted && r.kind ? '<span class="tag tag-done">提出済み</span>' : '') + '</h3>';
+  /* 提出済み：選んだ記録をまとめて見せる（直すと提出の前に戻る） */
+  if (r.submitted && r.kind) {
+    return '<section class="sub-row is-done" data-sid="' + esc(s.id) + '">' + head +
+      '<p class="done-line"><b>' + esc(resLabel(r)) + '</b>' + (r.memo ? '<span class="done-memo">' + esc(r.memo) + '</span>' : '') +
+      (r.ack ? '<span class="tag tag-ack">認める一言を送った</span>' : '') + '</p>' +
+      hypoHTML(r.kind, f, fam) +
+      '<p class="small"><button class="link-btn" type="button" data-act="reopen-res">直す（提出を取り消す）</button></p></section>';
+  }
+  return '<section class="sub-row" data-sid="' + esc(s.id) + '">' + head +
+    '<div class="res-opts" role="radiogroup" aria-label="' + esc(s.name) + 'さんから返ってきたもの">' +
+    E.RESULTS.map((x) => '<label class="res' + (x.good ? ' is-good' : '') + '"><input type="radio" name="res-' + key + '" id="res-' + key + '-' + x.key + '" value="' + x.key + '"' +
+      (r.kind === x.key ? ' checked' : '') + '><span>' + esc(x.label) + (x.good ? '<small>良いサイン</small>' : '') + '</span></label>').join('') + '</div>' +
+    hypoHTML(r.kind, f, fam) +
+    '<div class="sub-fields">' +
+    '<label class="sr-only" for="memo-' + key + '">' + esc(s.name) + 'さんのひとことメモ</label>' +
+    '<input class="field" type="text" id="memo-' + key + '" data-memo="1" maxlength="80" autocomplete="off" placeholder="ひとことメモ（行動で。例：目次だけ先に出てきた）" value="' + esc(r.memo || '') + '">' +
+    '<label class="ack"><input class="switch" type="checkbox" role="switch" id="ack-' + key + '" data-ack="1"' + (r.ack ? ' checked' : '') + '><span>認める一言を送った</span></label>' +
+    '<div class="sub-actions"><button class="btn btn-primary btn-small" type="button" id="submit-' + key + '" data-act="submit-res"' + (r.kind ? '' : ' disabled') + '>提出</button>' +
+    (r.kind ? '<button class="link-btn" type="button" data-act="clear-res">選んだ記録を消す</button>' : '<span class="small">返ってきたものを選ぶと、提出できます</span>') + '</div>' +
+    '</div></section>';
+}
+function subCardHTML(b, ids) {
+  const f = E.readBoard(b.text), tg = b.targets.filter((id) => ids[id]);
+  const done = tg.filter((id) => b.results[id] && b.results[id].submitted).length;
+  const rows = tg.map((id) => subRowHTML(b, ids[id], f)).join('');
+  return '<article class="sub-card" data-bid="' + esc(b.id) + '" aria-label="' + esc(dateLabel(b.createdAt)) + 'の黒板">' +
+    '<p class="sub-date">' + esc(dateLabel(b.createdAt)) + (b.example ? '<span class="tag">見本</span>' : '') + (b.id === state.currentId ? '<span class="tag tag-now">いまの黒板</span>' : '') +
+    (tg.length ? '<span class="tag">提出 ' + done + '/' + tg.length + '</span>' : '') + '</p>' +
+    '<div class="mini-board"><p class="chalk-text">' + esc(b.text) + '</p></div>' +
+    '<div class="sub-links">' + (b.id !== state.currentId ? '<button class="link-btn" type="button" data-act="show">黒板に出す</button>' : '') +
+    '<button class="link-btn" type="button" data-act="edit">直す</button>' +
+    (tg.length ? '<button class="link-btn" type="button" data-act="close">締める（未提出のまま残す）</button>' : '') +
+    '<button class="link-btn danger" type="button" data-act="del">消す</button></div>' +
+    crowdHTML(b, f) + (rows || '<p class="small sub-none">この黒板には相手がいません。「直す」で選べます。</p>') + '</article>';
+}
+/* 締めた黒板（これまでの提出物）：完結した形で残して、あとで見直せるようにする */
+function arcCardHTML(b, ids) {
+  const f = E.readBoard(b.text), tg = b.targets.filter((id) => ids[id]);
+  const lines = tg.map((id) => {
+    const s = ids[id], r = b.results[id] || {};
+    return '<li><span class="dot" style="--c: var(--k' + s.color + ')"></span><b>' + esc(s.name) + 'さん</b>' +
+      (r.submitted && r.kind ? '<span>' + esc(resLabel(r)) + '</span>' : '<span class="unsent">未提出のまま締めた</span>') +
+      (r.memo ? '<span class="arc-memo">' + esc(r.memo) + '</span>' : '') + (r.ack ? '<span class="tag tag-ack">認める一言</span>' : '') + '</li>';
+  }).join('');
+  const hints = tg.map((id) => {
+    const s = ids[id], r = b.results[id] || {};
+    return r.submitted && r.kind ? '<div class="arc-hint" data-sid="' + esc(id) + '"><p class="arc-hint-n">' + esc(s.name) + 'さん</p>' +
+      hypoHTML(r.kind, f, E.effectiveFam(s.answers, !!b.firstTime[id])) + '</div>' : '';
+  }).join('');
+  return '<article class="sub-card arc-card" data-bid="' + esc(b.id) + '" aria-label="' + esc(dateLabel(b.createdAt)) + 'の黒板（締めた）">' +
+    '<p class="sub-date">' + esc(dateLabel(b.createdAt)) + (b.example ? '<span class="tag">見本</span>' : '') +
+    '<span class="tag tag-done">' + esc(dateLabel(b.closedAt)) + 'に締めた</span></p>' +
+    '<div class="mini-board"><p class="chalk-text">' + esc(b.text) + '</p></div>' +
+    (lines ? '<ul class="arc-list">' + lines + '</ul>' : '') + crowdHTML(b, f) +
+    (hints ? '<details class="arc-more"><summary>見直しのヒント</summary>' + hints + '</details>' : '') +
+    '<div class="sub-links"><button class="link-btn" type="button" data-act="reopen">開き直す</button>' +
+    (b.id !== state.currentId ? '<button class="link-btn" type="button" data-act="show">黒板に出す</button>' : '') +
+    '<button class="link-btn danger" type="button" data-act="del">消す</button></div></article>';
+}
+function renderSubs() {
+  const ids = byId(), all = state.boards.slice().sort((a, b) => b.createdAt - a.createdAt);
+  const open = all.filter((b) => !b.closedAt), closed = all.filter((b) => b.closedAt).sort((a, b) => b.closedAt - a.closedAt);
+  $('subs-list').innerHTML =
+    (open.length ? open.map((b) => subCardHTML(b, ids)).join('')
+      : '<p class="empty-state">' + (all.length ? '記録の途中の黒板はありません。' : 'まだ黒板がありません。教室の「黒板に書く」から始めよう。') + '</p>') +
+    '<section class="arc" aria-labelledby="arc-title"><h3 class="arc-title" id="arc-title">これまでの提出物' + (closed.length ? '（' + closed.length + '枚）' : '') + '</h3>' +
+    (closed.length ? closed.map((b) => arcCardHTML(b, ids)).join('')
+      : '<p class="small arc-empty">相手全員の「提出」がそろうか、「締める」を押すと、ここに完結した形で残ります。あとで見直せます。</p>') +
+    '</section>';
+}
+/* 1枚だけ描き直して、触っていた部品に戻る */
+function rerenderSub(bid, keepId) {
+  const b = board(bid), el = document.querySelector('.sub-card[data-bid="' + bid + '"]');
+  if (!b || !el) { renderSubs(); return; }
+  el.outerHTML = subCardHTML(b, byId());
+  if (keepId) focusEl($(keepId));
+}
+function resultOf(b, sid) {
+  if (!b.results[sid]) b.results[sid] = { kind: '', memo: '', ack: false, at: 0 };
+  return b.results[sid];
+}
+let memoTimer = 0;
+$('subs-list').addEventListener('change', (e) => {
+  const t = e.target, card = t.closest('.sub-card'), row = t.closest('.sub-row');
+  if (!card || !row) return;
+  const b = board(card.dataset.bid);
+  if (!b) return;
+  const r = resultOf(b, row.dataset.sid);
+  if (t.type === 'radio') {
+    r.kind = t.value;
+    r.at = Date.now();
+    save();
+    rerenderSub(b.id, t.id);
+    renderRoom();
+  } else if (t.dataset.ack) {
+    r.ack = t.checked;
+    save();
+  }
+});
+$('subs-list').addEventListener('input', (e) => {
+  const t = e.target, card = t.closest('.sub-card'), row = t.closest('.sub-row');
+  if (!t.dataset.memo || !card || !row) return;
+  const b = board(card.dataset.bid);
+  if (!b) return;
+  resultOf(b, row.dataset.sid).memo = t.value.slice(0, 80);
+  clearTimeout(memoTimer);
+  memoTimer = setTimeout(save, 300);
+});
+$('subs-list').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-act]'), card = e.target.closest('.sub-card');
+  if (!btn || !card) return;
+  const b = board(card.dataset.bid), row = btn.closest('[data-sid]'), act = btn.dataset.act;
+  if (!b) return;
+  if (act === 'submit-res' && row) {
+    const r = resultOf(b, row.dataset.sid);
+    if (!r.kind) return;
+    r.submitted = true;
+    r.at = Date.now();
+    const left = b.targets.filter((id) => student(id) && !(b.results[id] && b.results[id].submitted)).length;
+    if (!left) { b.closedAt = Date.now(); toast('全員の提出がそろったよ。下の「これまでの提出物」に入れた'); }
+    else toast('提出を記録したよ（あと ' + left + ' 人）');
+    commit();
+    return;
+  }
+  if (act === 'reopen-res' && row) {
+    resultOf(b, row.dataset.sid).submitted = false;
+    if (b.closedAt) b.closedAt = 0;
+    commit();
+    toast('提出を取り消したよ。選び直して、もう一度「提出」してね');
+    return;
+  }
+  if (act === 'close') {
+    askConfirm('この黒板を締めますか？', 'まだ提出していない人は「未提出のまま締めた」と残ります。「これまでの提出物」から開き直せます。', '締める', () => {
+      b.closedAt = Date.now();
+      commit();
+      focusEl($('tab-subs'));
+      toast('締めたよ。下の「これまでの提出物」に入れた');
+    });
+    return;
+  }
+  if (act === 'reopen') { b.closedAt = 0; commit(); toast('開き直したよ。上の記録の途中に戻した'); return; }
+  if (act === 'show') { state.currentId = b.id; commit(); toast('この頼みごとを黒板に出したよ'); }
+  else if (act === 'edit') { state.currentId = b.id; save(); openWrite('edit', btn); }
+  else if (act === 'del') {
+    askConfirm('この黒板を消しますか？', '「' + b.text.slice(0, 40) + (b.text.length > 40 ? '…' : '') + '」と、その提出物の記録が消えます。元に戻せません。', '消す', () => {
+      state.boards = state.boards.filter((x) => x.id !== b.id);
+      if (state.currentId === b.id) state.currentId = state.boards.length ? latestBoard(state.boards).id : '';
+      commit();
+      focusEl($('tab-subs'));
+      toast('消したよ');
+    });
+  } else if (act === 'clear-res' && row) {
+    const r = resultOf(b, row.dataset.sid);
+    r.kind = '';
+    r.submitted = false;
+    save();
+    rerenderSub(b.id, 'res-' + b.id + '-' + row.dataset.sid + '-asExpected');
+  } else if (act === 'card' && row) openCard(row.dataset.sid, btn);
+});
+
+/* ===== 先生の通知表（黒板の文から機械で数えた目安） ===== */
+function fmtNum(x) { return Number.isInteger(x) ? String(x) : x.toFixed(1); }
+function mapSVG(items, rc) {
+  const X0 = 46, Y0 = 14, W = 290, H = 290, x = (v) => X0 + v * W, y = (v) => Y0 + (1 - v) * H;
+  let s = '<svg class="map" viewBox="0 0 350 352" role="img" aria-label="求める×支える の地図。いまの位置は' + esc(rc.quad.label) + '">';
+  s += '<rect class="q-strict" x="' + X0 + '" y="' + Y0 + '" width="' + W / 2 + '" height="' + H / 2 + '"/><rect class="q-warm" x="' + x(.5) + '" y="' + Y0 + '" width="' + W / 2 + '" height="' + H / 2 + '"/>';
+  s += '<rect class="q-hands" x="' + X0 + '" y="' + y(.5) + '" width="' + W / 2 + '" height="' + H / 2 + '"/><rect class="q-kind" x="' + x(.5) + '" y="' + y(.5) + '" width="' + W / 2 + '" height="' + H / 2 + '"/>';
+  s += '<line class="mid" x1="' + x(.5) + '" y1="' + Y0 + '" x2="' + x(.5) + '" y2="' + (Y0 + H) + '"/><line class="mid" x1="' + X0 + '" y1="' + y(.5) + '" x2="' + (X0 + W) + '" y2="' + y(.5) + '"/>';
+  s += '<line class="axis" x1="' + X0 + '" y1="' + (Y0 + H) + '" x2="' + (X0 + W) + '" y2="' + (Y0 + H) + '"/><line class="axis" x1="' + X0 + '" y1="' + Y0 + '" x2="' + X0 + '" y2="' + (Y0 + H) + '"/>';
+  s += '<text class="ql" x="' + (X0 + 8) + '" y="' + (Y0 + 20) + '">きびしいだけ</text><text class="ql" x="' + (X0 + W - 8) + '" y="' + (Y0 + 20) + '" text-anchor="end">温かく厳しい</text>';
+  s += '<text class="ql" x="' + (X0 + 8) + '" y="' + (Y0 + H - 10) + '">ほったらかし</text><text class="ql" x="' + (X0 + W - 8) + '" y="' + (Y0 + H - 10) + '" text-anchor="end">やさしいだけ</text>';
+  [0, 0.5, 1].forEach((t) => {
+    s += '<text x="' + x(t) + '" y="' + (Y0 + H + 15) + '" text-anchor="middle">' + t + '</text><text x="' + (X0 - 7) + '" y="' + (y(t) + 4) + '" text-anchor="end">' + t + '</text>';
+  });
+  s += '<text x="' + (X0 + W / 2) + '" y="' + (Y0 + H + 34) + '" text-anchor="middle">支える（優しさ）→</text>';
+  s += '<text transform="translate(13 ' + (Y0 + H / 2) + ') rotate(-90)" text-anchor="middle">求める（厳しさ）→</text>';
+  const seen = {};
+  items.forEach((it) => {
+    const k = it.sc.support + ',' + it.sc.demand, n = (seen[k] = (seen[k] || 0) + 1), ang = n * 2.4, rr = n > 1 ? 5 + n * 2 : 0;
+    s += '<circle class="pt' + (it.b.example ? ' ex' : '') + '" cx="' + (x(it.sc.support) + Math.cos(ang) * rr).toFixed(1) + '" cy="' + (y(it.sc.demand) + Math.sin(ang) * rr).toFixed(1) + '" r="6">' +
+      '<title>' + esc(dateLabel(it.b.createdAt) + '：' + it.b.text.slice(0, 30)) + '</title></circle>';
+  });
+  const mx = x(rc.support), my = y(rc.demand), lx = Math.min(X0 + W - 44, Math.max(X0 + 44, mx));
+  s += '<g transform="translate(' + mx.toFixed(1) + ' ' + my.toFixed(1) + ')"><circle class="me-ring" r="15"/><circle class="t-head" cy="1" r="11"/>' +
+    '<path class="t-hair" d="M-11 0 C-12 -10 -5 -13 1 -13 C8 -13 13 -8 11 0 C9 -5 5 -7 1 -7 C-3 -4 -7 -3 -11 0 Z"/><circle class="t-eye" cx="-4" cy="2" r="1.5"/><circle class="t-eye" cx="4" cy="2" r="1.5"/></g>';
+  s += '<text class="me-label" x="' + lx.toFixed(1) + '" y="' + (my + (rc.demand > 0.85 ? 32 : -21)).toFixed(1) + '" text-anchor="middle">あなた（平均）</text>';
+  return s + '</svg>';
+}
+function itemsHTML(title, defs, items) {
+  return '<h3 class="sub-title">' + title + '</h3><ul class="items">' + defs.map((d) => {
+    const sum = items.reduce((t, it) => t + it.sc[d[2]][d[1]], 0), n = items.length;
+    return '<li class="item"><span>' + esc(d[0]) + '</span><span class="item-bar" aria-hidden="true"><i style="width:' + Math.round((n ? sum / n : 0) * 100) + '%"></i></span>' +
+      '<span class="item-v">' + fmtNum(Math.round(sum * 10) / 10) + '/' + n + '枚</span></li>';
+  }).join('') + '</ul>';
+}
+function renderReport() {
+  const own = state.boards.filter((b) => !b.example), use = own.length ? own : state.boards, ids = byId();
+  let html = '<h2 class="pane-title">先生の通知表</h2><p class="machine">黒板の文から機械で数えた目安です（言葉の一覧で数えています。AI は使っていません）。点は黒板1枚ごと、顔の印はその平均です。目標の割合は出しません。</p>';
+  if (!use.length) { $('report-body').innerHTML = html + '<p class="empty-state">まだ黒板がありません。黒板に書くと、ここに点が出ます。</p>'; return; }
+  const items = use.map((b) => ({ b: b, sc: E.scoreSaved(b, ids) })), rc = E.reportCard(items.map((it) => it.sc));
+  const top = E.topVague(use.map((b) => b.text), 5);
+  html += '<div class="report-grid"><div>' + mapSVG(items, rc) + '</div><div>' +
+    '<p class="pos">いまの位置' + (!own.length ? '（見本の黒板から）' : '') + '<b>' + esc(rc.quad.label) + '</b>求める ' + rc.demand.toFixed(2) + '・支える ' + rc.support.toFixed(2) + '（黒板 ' + rc.n + ' 枚の平均）</p>' +
+    itemsHTML('求める（厳しさ）：そろっていた黒板の数', [['目的', 'purpose', 'd'], ['完成の目安', 'goal', 'd'], ['期限かかける時間', 'when', 'd'], ['言い切る（やわらげすぎがない）', 'firm', 'd'], ['見せる日・来る日・声をかける日', 'checkpoint', 'd']], items) +
+    itemsHTML('支える（優しさ）：そろっていた黒板の数', [['慣れに合った手厚さ', 'fit', 's'], ['聞いていい目安', 'askOk', 's'], ['責める言葉・押しつけがない', 'noBlame', 's'], ['お礼か「認める一言」', 'reward', 's']], items) +
+    '<h3 class="sub-title">よく使うあいまいな言葉</h3>' +
+    (top.length ? '<div class="words">' + top.map((w) => '<span class="word">' + esc(w.word) + '<b>' + w.n + '回</b></span>').join('') + '</div>' : '<p class="small">あいまいな言葉は見つからなかった。</p>') +
+    '</div></div>';
+  $('report-body').innerHTML = html;
+}
+
+/* ===== 書き出す（コピーだけ。ファイルのダウンロードはしない） ===== */
+function renderExport() { $('export-text').value = E.exportMarkdown({ students: state.students, boards: state.boards }, Date.now()); }
+function clearExamples() {
+  const ex = new Set(state.students.filter((s) => s.example).map((s) => s.id));
+  state.students = state.students.filter((s) => !s.example);
+  state.boards = state.boards.filter((b) => !b.example);
+  state.boards.forEach((b) => { b.targets = b.targets.filter((id) => !ex.has(id)); ex.forEach((id) => { delete b.firstTime[id]; delete b.results[id]; }); });
+  if (!currentBoard()) state.currentId = state.boards.length ? latestBoard(state.boards).id : '';
+  commit();
+  toast('見本を消したよ');
+}
+function askClearExamples() {
+  if (!hasExamples()) { toast('見本はもうありません'); return; }
+  askConfirm('見本の生徒と黒板を消しますか？', '「はじめての生徒」「慣れた生徒」と見本の黒板が消えます。あなたが作ったものは残ります。', '消す', clearExamples);
+}
+$('room-ex-clear').addEventListener('click', askClearExamples);
+$('export-ex-clear').addEventListener('click', askClearExamples);
+$('export-copy').addEventListener('click', () => { renderExport(); copyText($('export-text').value, $('export-text')); });
+$('export-wipe').addEventListener('click', () => {
+  askConfirm('すべて消しますか？', '生徒・黒板・提出物の記録が、この端末から全部消えます。元に戻せません。', 'すべて消す', () => {
+    state = { v: 1, students: [], boards: [], currentId: '', ui: { tab: state.ui.tab } };
+    writeDraft = '';
+    commit();
+    toast('すべて消したよ');
+  });
+});
+
+/* ===== 起動とつなぎ ===== */
+$('btn-write').addEventListener('click', (e) => openWrite('new', e.currentTarget));
+$('btn-add-student').addEventListener('click', (e) => openCard(null, e.currentTarget));
+$('room-edit').addEventListener('click', (e) => openWrite('edit', e.currentTarget));
+$('room-copy').addEventListener('click', () => { const b = currentBoard(); if (b) copyText(b.text, $('room-chalk')); });
+$('btn-help').addEventListener('click', (e) => openSheet('sheet-help', { opener: e.currentTarget }));
+document.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) closeSheet(); });
+$('scrim').addEventListener('click', () => closeSheet());
+$('confirm-no').addEventListener('click', () => closeConfirm(false));
+$('confirm-yes').addEventListener('click', () => closeConfirm(true));
+TABS.forEach((t, i) => {
+  $('tab-' + t).addEventListener('click', () => showTab(t));
+  $('tab-' + t).addEventListener('keydown', (e) => {
+    const k = e.key, n = TABS.length;
+    let j = -1;
+    if (k === 'ArrowRight') j = (i + 1) % n; else if (k === 'ArrowLeft') j = (i - 1 + n) % n; else if (k === 'Home') j = 0; else if (k === 'End') j = n - 1;
+    if (j >= 0) { e.preventDefault(); showTab(TABS[j], true); }
+  });
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (!$('confirm').hidden) closeConfirm(false);
+  else if (sheetEl) closeSheet();
+  else if (!$('view').hidden && $('view').classList.contains('is-in')) closeView();
+});
+
+state = load() || defaultState();
+save();
+$('room-teacher').innerHTML = teacherSVG('normal', false);
+renderRoom();
+showTab(state.ui.tab);
+})();
+</script>
+</body>
+</html>

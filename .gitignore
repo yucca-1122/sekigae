@@ -1,0 +1,12 @@
+# 公開しないもの
+_*.md
+_素材/
+docs/
+shots/
+
+# OS やツールが作るもの
+__pycache__/
+node_modules/
+Thumbs.db
+desktop.ini
+.DS_Store
