@@ -26,7 +26,7 @@ page = '\n'.join([
     '<meta name="theme-color" content="#eef2ef">',
     '<meta name="apple-mobile-web-app-capable" content="yes">',
     '<meta name="mobile-web-app-capable" content="yes">',
-    '<meta name="apple-mobile-web-app-title" content="マネ教室">',
+    '<meta name="apple-mobile-web-app-title" content="マネジメント教室">',
     '<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">',
     '<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">',
     '<link rel="manifest" href="manifest.webmanifest">',
