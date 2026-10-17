@@ -7,12 +7,12 @@
 <meta name="theme-color" content="#eef2ef">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="せきがえ">
+<meta name="apple-mobile-web-app-title" content="マネ教室">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>せきがえ</title>
+<title>マネジメント教室</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Zen+Maru+Gothic:wght@500;700&display=swap">
@@ -586,7 +586,7 @@ textarea.field { resize: vertical; }
   <header class="top">
     <div class="wrap top-in">
       <div class="brand">
-        <h1><span class="logo" aria-hidden="true"></span>せきがえ</h1>
+        <h1><span class="logo" aria-hidden="true"></span>マネジメント教室</h1>
         <p class="brand-sub">頼み方が、相手の席からどう見えるか</p>
       </div>
       <button class="icon-btn" id="btn-help" type="button" aria-label="考え方">？</button>
@@ -721,11 +721,11 @@ textarea.field { resize: vertical; }
 <section class="sheet" id="sheet-help" role="dialog" aria-modal="true" aria-labelledby="help-title" hidden>
   <div class="grabber" aria-hidden="true"></div>
   <div class="sheet-head">
-    <h2 id="help-title" tabindex="-1">せきがえの考え方</h2>
+    <h2 id="help-title" tabindex="-1">マネジメント教室の考え方</h2>
     <button class="icon-btn" type="button" data-close aria-label="閉じる">×</button>
   </div>
   <div class="help-body">
-    <p>頼んだ自分には、頼みごとがはっきり見えている。でも、相手の席からは違って見えるかもしれない。せきがえは、その見え方を確かめる鏡です。</p>
+    <p>頼んだ自分には、頼みごとがはっきり見えている。でも、相手の席からは違って見えるかもしれない。マネジメント教室は、その見え方を確かめる鏡です。</p>
     <p><b>生徒は「あなたから見たその人」の仮の像</b>で、本人の評価ではありません。いつでも書き直せます。</p>
     <p><b>席の前後</b>は、その人に言葉が届くのに必要なはっきりさ。出来の良し悪しではありません。</p>
     <p><b>心の声は「〜かも」の仮説</b>です。相手の立場を想像するより、本人に聞いたほうが当たります。「本人に聞くなら」の一言で確かめよう。</p>
@@ -1224,7 +1224,7 @@ var SekigaeEngine = (function () {
     students.forEach(function (s) { byId[s.id] = s; });
     var own = boards.filter(function (b) { return !b.example; }), use = own.length ? own : boards;
     var L = [];
-    L.push('# せきがえの書き出し（' + ymd(now) + '）', '');
+    L.push('# マネジメント教室の書き出し（' + ymd(now) + '）', '');
     L.push('- 生徒は「あなたから見たその人」の仮の像。本人の評価ではない');
     L.push('- 数字は、黒板の文を言葉の一覧で機械的に数えた目安', '');
     L.push('## 自分の癖' + (!own.length && boards.length ? '（見本の黒板から）' : ''));
