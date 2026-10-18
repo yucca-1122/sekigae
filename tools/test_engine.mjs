@@ -748,8 +748,9 @@ section('O. v0.4 段A（時間の名前・枠の空き・その枠の頼み・�
     [E.freeSlots(bs, D18), E.freeSlots(bs, D18, 'Lb'), E.freeSlots(bs, D17)], [[2, 3, 5, 6], [2, 3, 4.5, 5, 6], [1, 2, 3, 4, 4.5, 5, 6]]);
   eq('その枠の頼み：1限・昼休み・空いている2限（ほかの日は空）', [E.slotBoards(bs, D18, 1).map((b) => b.id), E.slotBoards(bs, D18, 4.5).map((b) => b.id), E.slotBoards(bs, D18, 2), E.slotBoards(bs, D17, 1)],
     [['p1'], ['Lb'], [], []]);
-  eq('昼休みの枠の黒板・お便り：「昼休み 授業（黒板）」「昼休み 手伝い（お便り）」・1日1つ（2つ目は空いている時限へ）',
-    [E.lessonLabel(lb, E.periods(bs).Lb), E.lessonLabel(ll, E.periods([ll]).Ll), E.periods(bs.concat([ll])).Ll], ['昼休み 授業（黒板）', '昼休み 手伝い（お便り）', 2]);
+  // v0.4 段B：昼休みの枠にも伝え方ごとに1つずつ入る（段A では「1日1つ・2つ目は空いている時限へ」だった。期待を 2 → 4.5 に変えた）
+  eq('昼休みの枠の黒板・お便り：「昼休み 授業（黒板）」「昼休み 手伝い（お便り）」・伝え方がちがえば同じ昼休みに入る（段B）',
+    [E.lessonLabel(lb, E.periods(bs).Lb), E.lessonLabel(ll, E.periods([ll]).Ll), E.periods(bs.concat([ll])).Ll], ['昼休み 授業（黒板）', '昼休み 手伝い（お便り）', 4.5]);
   const f = E.readBoard('資料を3枚にまとめておいて'), lv = (ch) => E.studentView(f, USED, { channel: ch, lunch: true }).issues.find((x) => x.key === 'lunch') || {};
   eq('昼休みの枠の頼みなら、どの伝え方でも「せっかくの昼休み、頼まれたことが気になって休めなかったかも」（重み5）',
     ['board', 'letter', 'broadcast'].map((ch) => [lv(ch).voice, lv(ch).w]), ['board', 'letter', 'broadcast'].map(() => ['せっかくの昼休み、頼まれたことが気になって休めなかったかも', 5]));
@@ -771,6 +772,460 @@ section('O. v0.4 段A（時間の名前・枠の空き・その枠の頼み・�
     E.sweepMark(B('a', { sweep: { s: log('done') }, results: { u: sub } })),
     E.sweepMark(B('a', { sweep: { s: { st: 'done', log: [{ day: D17, st: 'mid' }, { day: D18, st: 'done' }] }, u: log('done') } })),
     E.sweepMark(B('a', { sweep: { s: log('done') } }))], ['done', 'done', '']);
+}
+
+/* ================= P. v0.4 段B・段C（1つの枠に伝え方ごとの頼み・締め切り・宿題・居残り・正の字・机のお便り） ================= */
+{
+  const D16 = '2026-10-16', D20 = '2026-10-20', D21 = '2026-10-21';
+  /* 頼みごと（ふつうは 10/18 9:00・黒板・授業・相手 s） */
+  const B = (id, o) => Object.assign({ id: id, text: id + 'の頼み', channel: 'board', subject: '授業', targets: ['s'], createdAt: at(18, 9), firstTime: {}, results: {} }, o || {});
+  const ids = (list) => list.map((b) => b.id);
+  const vkeys = (v) => v.voices.map((x) => x.key);
+  const byKey = (o, keys) => keys.map((k) => o[k]);   // 名前の並びに依らずに比べる
+
+/* ================= 0. 読み込み ================= */
+section('P0. v0.4 段B・段C の名前が出ている');
+{
+  const names = ['SLOTS', 'isLunch', 'slotBoards', 'channelOrder', 'validDay', 'slotOf', 'slotMates', 'alignSubject', 'slotSubject', 'slotCreatedAt', 'sameRequest',
+    'slotView', 'SAME_SLOT_VOICE', 'DUE_KINDS', 'normDue', 'dueKind', 'dueLabel', 'boardDueDay', 'dueDayFor', 'withDue', 'dueChoice', 'doneBy', 'openOn',
+    'normLogEntry', 'CHECK_ANS', 'slotAsk', 'answerSlot', 'normSlotCheck', 'STAY_VOICE', 'stayList', 'stayVoice', 'remainingTasks', 'tally', 'taskBoard',
+    'TASK_ROWS_MAX', 'deskLetters', 'DESK_MAX'];
+  const missing = names.filter((n) => E[n] === undefined);
+  ok('段B・段C の新しい名前が全部出ている（' + names.length + ' 個）', !missing.length, J(missing));
+  ok('置きかえた関数も出ている（今までの名前のまま）', ['periods', 'freePeriods', 'dayList', 'interrupted', 'dayView', 'scoreSaved', 'markSweep', 'sweepList',
+    'carryOver', 'sweepSummary', 'sweepLogText', 'exportMarkdown'].every((n) => typeof E[n] === 'function'));
+  eq('枠の並び（1〜4限・昼休み 4.5・5〜6限）・伝え方の並び（黒板 0・お便り 1・放送 2・知らないものは黒板）', [E.SLOTS, ['board', 'letter', 'broadcast', 'fax'].map(E.channelOrder)], [[1, 2, 3, 4, 4.5, 5, 6], [0, 1, 2, 0]]);
+  eq('ほんとうにある日か（2/30・形のちがうものはだめ）', [E.validDay(D20), E.validDay('2026-02-30'), E.validDay('10/20'), E.validDay(''), E.validDay(null)], [true, false, false, false, false]);
+}
+
+/* ================= B1. 枠ごとに伝え方1つまで（periods） ================= */
+section('B1. 1つの枠に、伝え方ごとの頼みを1つずつ（periods・slotBoards・freePeriods）');
+{
+  const bs = [B('k4', { period: 4, createdAt: at(18, 11) }), B('l4', { period: 4, channel: 'letter', createdAt: at(18, 9) }), B('c4', { period: 4, channel: 'broadcast', createdAt: at(18, 13) })];
+  eq('1つの時限（4限）に、黒板・お便り・放送が1つずつ入る（枠に3つ）', byKey(E.periods(bs), ['k4', 'l4', 'c4']), [4, 4, 4]);
+  eq('その枠の頼みは 黒板 → お便り → 放送 の順（出した順ではない）', ids(E.slotBoards(bs, D18, 4)), ['k4', 'l4', 'c4']);
+  const dup = bs.concat([B('k4b', { period: 4, createdAt: at(18, 14) })]);
+  eq('同じ日・同じ時限・同じ伝え方が重なったら、あとから出したほうを、どの伝え方も入っていない時限（1限）へ', [E.periods(dup).k4, E.periods(dup).k4b], [4, 1]);
+  const old = bs.concat([B('o1', { createdAt: at(18, 8) }), B('o2', { channel: 'letter', createdAt: at(18, 10) })]);
+  eq('時限のない古いデータは、どの伝え方も入っていない時限に小さい順（4限のお便りが入っていても、ほかの頼みと同じ枠にはしない）', [E.periods(old).o1, E.periods(old).o2], [1, 2]);
+  const full = [1, 2, 3, 4, 5, 6].map((p) => B('f' + p, { period: p, createdAt: at(18, 8 + p) })).concat([B('x', { channel: 'letter', createdAt: at(18, 20) })]);
+  eq('… 6つの時限にどれか入っていたら、時限のない頼みは時間割の外（0）。お便りが空いていても入れない', E.periods(full).x, 0);
+  eq('はっきり 0（時間割に入らない）は 0 のまま', E.periods([B('z', { period: 0, channel: 'letter' })]).z, 0);
+  const L = (id, ch, h) => B(id, { channel: ch, lunch: true, period: 0, createdAt: at(18, h) });
+  const lb = [L('Lk', 'board', 12), L('Ll', 'letter', 12), L('Lc', 'broadcast', 13), L('Lc2', 'broadcast', 14)];
+  eq('昼休みの枠（lunch: true）にも、黒板・お便り・放送を1つずつ（4.5）。同じ伝え方の2つ目は、ふつうの頼みとして空いている時限へ', E.periods(lb), { Lk: 4.5, Ll: 4.5, Lc: 4.5, Lc2: 1 });
+  eq('その日の昼休みの枠の頼み（黒板 → お便り → 放送）', ids(E.slotBoards(lb, D18, E.LUNCH_SLOT)), ['Lk', 'Ll', 'Lc']);
+  eq('昼休みは時限を使わない（空いている時限は 1限 をのぞく 2〜6限）', E.freePeriods(lb, D18), [2, 3, 4, 5, 6]);
+  eq('空いている時限: どれかの伝え方が入っている時限はのぞく', E.freePeriods(bs, D18), [1, 2, 3, 5, 6]);
+  eq('… 枠ごと動かすときは、その枠の頼み（id の配列）を空きとみなす', E.freePeriods(bs, D18, ['k4', 'l4', 'c4']), [1, 2, 3, 4, 5, 6]);
+  eq('… 今までどおり id 1つでもよい（同じ枠にほかの伝え方が残るので 4限 は空きではない）', E.freePeriods(bs, D18, 'k4'), [1, 2, 3, 5, 6]);
+  eq('頼みの枠（slotOf）: 4限・昼休み・はみ出て1限・見つからなければ 0', [E.slotOf(bs, bs[1]), E.slotOf(lb, lb[0]), E.slotOf(lb, lb[3]), E.slotOf(bs, B('nope'))], [4, 4.5, 1, 0]);
+  eq('日がちがえば同じ時限・同じ伝え方でもよい', byKey(E.periods([B('a', { period: 2 }), B('b', { period: 2, createdAt: at(17, 9) })]), ['a', 'b']), [2, 2]);
+}
+
+/* ================= B2. 科目名は枠で1つ（そろえる） ================= */
+section('B2. 科目名は枠で1つ（alignSubject・slotMates・slotSubject）');
+{
+  const bs = [B('k', { period: 2, subject: '手伝い' }), B('l', { period: 2, channel: 'letter', subject: '手伝い', createdAt: at(18, 10) }), B('o', { period: 3, subject: 'ゼミ' }),
+    B('y', { period: 2, subject: '手伝い', createdAt: at(17, 10) })];
+  const nb = E.alignSubject(bs, bs[1], '  発表の準備  ');
+  eq('お便りで科目名を直すと、同じ枠（10/18 の2限）の全部がそろう。ほかの枠・ほかの日はそのまま（前後の空白はつめる）', nb.map((b) => b.subject), ['発表の準備', '発表の準備', 'ゼミ', '手伝い']);
+  ok('… 新しい配列を返す。そろえた頼みは写し・ほかの頼みは同じもの・元の頼みは変えない', nb !== bs && nb[0] !== bs[0] && nb[2] === bs[2] && nb[3] === bs[3] && bs[0].subject === '手伝い');
+  eq('… 空なら「授業」・10字まで', [E.alignSubject(bs, bs[0], '')[1].subject, E.alignSubject(bs, bs[0], '来月の発表会の準備と片づけ')[0].subject], ['授業', '来月の発表会の準備と']);
+  eq('同じ枠の頼み（slotMates）: 黒板 → お便り の順', ids(E.slotMates(bs, bs[1])), ['k', 'l']);
+  const outs = [B('z', { period: 0 }), B('w', { period: 0, channel: 'letter', createdAt: at(18, 10) })];
+  eq('… 時間割の外の頼みは、それだけ（ほかの外の頼みとそろえない）', [ids(E.slotMates(outs, outs[1])), E.alignSubject(outs, outs[1], 'ゼミ').map((b) => b.subject)], [['w'], ['授業', 'ゼミ']]);
+  eq('枠の科目名（黒板 → お便り → 放送 の順の最初の頼みのもの）・空の枠は空', [E.slotSubject(bs, D18, 2), E.slotSubject(bs, D18, 5)], ['手伝い', '']);
+}
+
+/* ================= B3. その日の並び ================= */
+section('B3. その日の並び（dayList）');
+{
+  const bs = [B('c4', { period: 4, channel: 'broadcast', createdAt: at(18, 9) }), B('l4', { period: 4, channel: 'letter', createdAt: at(18, 10) }), B('k4', { period: 4, createdAt: at(18, 11) }),
+    B('k5', { period: 5, createdAt: at(18, 8) }), B('L', { lunch: true, period: 0, channel: 'letter', createdAt: at(18, 12) }), B('k1', { period: 1, createdAt: at(18, 15) }),
+    B('x2', { period: 0, channel: 'broadcast', createdAt: at(18, 16) }), B('x1', { period: 0, createdAt: at(18, 17) })];
+  eq('枠の順（1〜4限・昼休み・5限）、同じ枠では 黒板 → お便り → 放送。時間割の外は最後に出した順（伝え方では並べない）', ids(E.dayList(bs, D18)), ['k1', 'k4', 'l4', 'c4', 'L', 'k5', 'x2', 'x1']);
+}
+
+/* ================= B4. 前の日の枠に伝え方を足したときの日 ================= */
+section('B4. 前の日の枠に伝え方を足したときの日（slotCreatedAt）');
+{
+  const bs = [B('y4', { period: 4, createdAt: at(17, 13) }), B('y4l', { period: 4, channel: 'letter', createdAt: at(17, 14) })];
+  const now = at(18, 10), t = E.slotCreatedAt(bs, D17, 4, now);
+  eq('前の日（10/17）の4限に放送を足す: createdAt はその枠のいちばん新しい時刻＋1ミリ秒（日は 10/17 のまま）', [t, E.dayKey(t)], [at(17, 14) + 1, D17]);
+  const added = bs.concat([B('y4c', { period: 4, channel: 'broadcast', createdAt: t })]);
+  eq('… 足した放送は 10/17 の4限に入り（黒板 → お便り → 放送）、10/18 の時間割には出ない', [E.periods(added).y4c, ids(E.slotBoards(added, D17, 4)), E.dayList(added, D18).length], [4, ['y4', 'y4l', 'y4c'], 0]);
+  ok('… （今の時刻のまま足すと 10/18 の頼みになってしまう）', E.dayKey(now) === D18);
+  eq('今日の枠に足すときは now のまま', E.slotCreatedAt(bs, D18, 2, now), now);
+  const edge = [B('e', { period: 2, createdAt: at(18, 2, 59) + 59999 })];
+  eq('午前3時の区切りの直前（10/18 2:59:59.999＝10/17）の枠に足す: ＋1ミリ秒だと 10/18 になるので同じ時刻（日は 10/17）', [E.slotCreatedAt(edge, D17, 2, now) - edge[0].createdAt, E.dayKey(E.slotCreatedAt(edge, D17, 2, now))], [0, D17]);
+  eq('枠が空の前の日に足すとき（ふつうは起きない）は、その日の正午', [E.slotCreatedAt([], D17, 3, now), E.dayKey(E.slotCreatedAt([], D17, 3, now))], [at(17, 12), D17]);
+  eq('10/19 の 1:30（＝10/18）に 10/18 の枠に足す: 今日の枠なので now のまま', E.slotCreatedAt(bs, D18, 5, at(19, 1, 30)), at(19, 1, 30));
+  const lunchY = [B('Ly', { lunch: true, period: 0, channel: 'broadcast', createdAt: at(17, 12, 10) })];
+  eq('前の日の昼休みの枠に黒板を足す: その日の昼休みに入る', E.periods(lunchY.concat([B('Lyk', { lunch: true, period: 0, createdAt: E.slotCreatedAt(lunchY, D17, E.LUNCH_SLOT, now) })])).Lyk, 4.5);
+}
+
+/* ================= B5. 生徒の目線（伝え方ごとのまとまり） ================= */
+section('B5. 生徒の目線：その枠でその生徒あての頼みを、伝え方ごとの区切りで（slotView）');
+{
+  const st = { id: 's', answers: FIRST }, tt = { id: 't', answers: USED }, uu = { id: 'u', answers: UNKNOWN };
+  const bs = [B('k', { period: 4, subject: '手伝い', text: '資料を作って', targets: ['s', 't'] }),
+    B('l', { period: 4, channel: 'letter', subject: '手伝い', text: '印刷もお願いね', targets: ['s'], createdAt: at(18, 10) }),
+    B('c', { period: 4, channel: 'broadcast', subject: '手伝い', text: '片づけもお願い', targets: ['t'], createdAt: at(18, 11) })];
+  const vs = E.slotView(bs, D18, 4, st), vt = E.slotView(bs, D18, 4, tt), vu = E.slotView(bs, D18, 4, uu);
+  eq('その枠でその生徒あての頼みを伝え方ごとに（s＝黒板・お便り／t＝黒板・放送。お便りは s だけに配った）', [vs.sections.map((x) => x.label), vt.sections.map((x) => x.label)], [['黒板', 'お便り'], ['黒板', '放送']]);
+  eq('… 枠の名前と科目名・相手', [vs.name, vs.subject, vs.off, vs.day, vs.slot], ['4限', '手伝い', false, D18, 4]);
+  eq('… 区切りの目線は、studentView をその伝え方で呼んだものと同じ（お便り）', vs.sections[1].view.voices, E.studentView(E.readBoard('印刷もお願いね'), FIRST, { channel: 'letter' }).voices);
+  eq('… 放送の区切りは、放送の声がいちばん上・「要点をお便りでも送る」', [vt.sections[1].view.voices[0].key, vt.sections[1].view.chips[0].act], ['broadcast', 'letter']);
+  eq('… この生徒あての頼みが枠になければ、枠の頼みを全部「相手ではない（見え方は参考）」で', [vu.off, vu.sections.map((x) => x.label), vu.sections.every((x) => x.off), vu.voices], [true, ['黒板', 'お便り', '放送'], true, []]);
+  ok('… 区切りごとの足すとよいものは6つまで', vs.sections.concat(vt.sections).every((x) => x.chips.length <= 6));
+  ok('… その日の足すもの「お便りも見てね」は黒板の区切りだけ（お便りの区切りには出ない）', vs.sections[0].chips.some((c) => c.key === 'boardLetter') && !vs.sections[1].chips.some((c) => c.key === 'boardLetter'), J(vs.sections.map((x) => x.chips.map((c) => c.key))));
+  eq('… その日の心の声は枠で1つ（s: 同じ枠に別々の頼み・黒板とお便り）', vkeys(vs), ['sameSlot', 'boardLetter']);
+  eq('空の枠・時間割の外（0）は区切りなし', [E.slotView(bs, D18, 2, st).sections, E.slotView(bs, D18, 0, st).sections], [[], []]);
+  const lunchB = [B('Lc', { lunch: true, period: 0, channel: 'broadcast', text: 'あとで部屋の片づけ、お願いね', createdAt: at(18, 12) })];
+  const vl = E.slotView(lunchB, D18, E.LUNCH_SLOT, { id: 's', answers: USED });
+  ok('昼休みの枠は昼休みとして目線を作る（「せっかくの昼休み…休めなかったかも」）・名前は「昼休み」', vl.sections[0].view.voices.some((v) => /せっかくの昼休み/.test(v.text)) && vl.name === '昼休み', J(vl.sections[0].view.voices));
+}
+
+/* ================= B6. 同じ枠に別々の頼みの心の声 ================= */
+section('B6. その日の心の声：同じ枠に別々の頼み（dayView）');
+{
+  const two = [B('k', { period: 4, text: '資料を作って' }), B('l', { period: 4, channel: 'letter', text: '印刷もお願いね', createdAt: at(18, 10) })];
+  const dv = E.dayView(E.dayList(two, D18), two[0], 's', two);
+  eq('同じ枠（4限）に黒板とお便りで別々の頼み → 同じ枠に別々の頼み・黒板とお便り（同じ枠のほかの伝え方は割り込みにしない）', vkeys(dv), ['sameSlot', 'boardLetter']);
+  eq('… 文言', dv.voices[0].text, '同じ時間に別々の頼み…どれからやればいいか迷うかも');
+  eq('… 枠のどの頼みから見ても、その日の心の声は同じ', E.dayView(E.dayList(two, D18), two[1], 's', two).voices, dv.voices);
+  const sameT = [two[0], B('l', { period: 4, channel: 'letter', text: ' 資料を作って\n', createdAt: at(18, 10) })];
+  eq('… 同じ文（黒板の書き写しのお便り）なら別々の頼みではない', vkeys(E.dayView(E.dayList(sameT, D18), sameT[0], 's')), ['boardLetter']);
+  const castPt = [B('c', { period: 4, channel: 'broadcast', text: '片づけお願い' }), B('p', { period: 4, channel: 'letter', text: '何を：片づけ\nいつまで：今日', fromCast: 'c', createdAt: at(18, 10) })];
+  eq('… 放送とその要点のお便り（fromCast）は同じ頼み（別々ではない・放送だけでもない）', E.dayView(E.dayList(castPt, D18), castPt[0], 's', castPt).voices, []);
+  const other = [two[0], Object.assign({}, two[1], { targets: ['t'] })];
+  eq('… お便りがほかの生徒あてなら、この生徒には別々の頼みではない', E.dayView(E.dayList(other, D18), other[0], 's').voices, []);
+  const kc = [B('k', { period: 4, text: '資料を作って' }), B('c', { period: 4, channel: 'broadcast', text: '片づけお願い', createdAt: at(18, 10) })];
+  eq('同じ枠の放送は目線に出ている（放送の区切りに放送の声）ので「放送で聞いたことは、忘れるかも」に数えない', vkeys(E.dayView(E.dayList(kc, D18), kc[0], 's', kc)), ['sameSlot']);
+  const lots = [B('c1', { period: 1, channel: 'broadcast', text: '放送の頼み', createdAt: at(18, 9) }), B('k4', { period: 4, text: '資料を作って', createdAt: at(18, 11) }),
+    B('l4', { period: 4, channel: 'letter', text: '印刷も', createdAt: at(18, 12) })];
+  eq('並びは 放送だけ → 3本以上 → 割り込み → 同じ枠に別々の頼み → 黒板とお便り で3つまで（5つ重なると、別々の頼みと黒板とお便りは出ない）', vkeys(E.dayView(E.dayList(lots, D18), lots[1], 's', lots)), ['castOnly', 'many', 'interrupt']);
+  const two2 = [B('k1', { period: 1, text: '前の頼み', createdAt: at(18, 8) })].concat(two);
+  eq('… 放送がなければ 3本以上 → 割り込み → 同じ枠に別々の頼み（黒板とお便りが押し出される）', vkeys(E.dayView(E.dayList(two2, D18), two2[1], 's', two2)), ['many', 'interrupt', 'sameSlot']);
+  const dvm = E.dayView(E.dayList(two2, D18), two2[1], 's', two2), dvl = E.dayView(E.dayList(two2, D18), two2[2], 's', two2);
+  eq('… 足すとよいもの: 3本以上と割り込みは枠の最初の頼み（黒板）にだけ出す（お便りから見ると出ない）', [dvm.chips.map((c) => c.key), dvl.chips.map((c) => c.key)], [['many', 'interrupt'], []]);
+  const saidL = two2.map((b) => (b.id === 'l' ? Object.assign({}, b, { text: '印刷もお願いね\n今日の順番：先に資料、印刷は明日でいいよ' }) : b));
+  eq('… その枠のどれかの文に「今日の順番」がもうあれば、黒板にも出さない', E.dayView(E.dayList(saidL, D18), saidL[1], 's', saidL).chips.map((c) => c.key), ['interrupt']);
+}
+
+/* ================= B7. 割り込み ================= */
+section('B7. 割り込み（interrupted）：前の枠だけ・同じ枠のほかの伝え方は数えない');
+{
+  const p = B('p', { period: 2, text: '前の頼み', createdAt: at(18, 9), results: { s: { kind: 'asExpected', submitted: true, at: at(18, 12) } } });
+  const k = B('k', { period: 4, text: '資料を作って', createdAt: at(18, 11) }), l = B('l', { period: 4, channel: 'letter', text: '印刷も', createdAt: at(18, 13) });
+  const list = E.dayList([p, k, l], D18);
+  eq('2限が提出される前（11時）に出した4限の黒板は割り込み・提出のあと（13時）に出した4限のお便りは割り込みではない', [E.interrupted(list, k, 's'), E.interrupted(list, l, 's')], [true, false]);
+  eq('… 枠の目線ではどちらから見ても割り込みの声が出る・「いまの作業は…」は割り込みになった黒板にだけ', [vkeys(E.dayView(list, l, 's')).indexOf('interrupt') >= 0, E.dayView(list, k, 's').chips.some((c) => c.key === 'interrupt'), E.dayView(list, l, 's').chips.some((c) => c.key === 'interrupt')], [true, true, false]);
+  eq('… 同じ枠のほかの伝え方は前の頼みにしない（4限の黒板が出しっぱなしでも、4限のお便りは割り込みではない）', E.interrupted(E.dayList([k, l], D18), l, 's'), false);
+  const L = B('L', { lunch: true, period: 0, channel: 'letter', text: '昼の頼み', createdAt: at(18, 12) }), k5 = B('k5', { period: 5, text: '午後の頼み', createdAt: at(18, 13) });
+  eq('… 昼休みの枠（4.5）のお便りは、5限から見ると前の頼み・4限から見るとあとの頼み', [E.interrupted(E.dayList([L, k5], D18), k5, 's'), E.interrupted(E.dayList([L, k], D18), k, 's')], [true, false]);
+}
+
+/* ================= B8. 伝え方の内訳・放送だけ・1日の頼み ================= */
+section('B8. 伝え方の内訳・放送だけで終わった頼み・1日の頼み（枠に複数）');
+{
+  const slot3 = [B('k', { period: 3, text: '資料' }), B('l', { period: 3, channel: 'letter', text: '印刷' }), B('c', { period: 3, channel: 'broadcast', text: '片づけ' })];
+  eq('1つの枠に3つでも、伝え方ごとに1件ずつ数える（放送だけで終わった頼み 1）', E.channelCounts(slot3), { board: 1, letter: 1, broadcast: 1, castOnly: 1 });
+  const withPt = [B('c', { period: 3, channel: 'broadcast', text: '片づけ' }), B('p', { period: 3, channel: 'letter', text: '何を：片づけ', fromCast: 'c' })];
+  eq('… 同じ枠の要点のお便り（fromCast）があれば、放送だけで終わった頼みは 0', E.channelCounts(withPt), { board: 0, letter: 1, broadcast: 1, castOnly: 0 });
+  eq('1日の頼み: 同じ枠の3つは3本', E.busiestDay(slot3), { key: D18, n: 3 });
+}
+
+/* ================= B9. 掃除の時間（枠に複数） ================= */
+section('B9. 掃除の時間（sweepList・carryOver・sweepCtx）：枠に複数の頼み');
+{
+  const bs = [B('c', { period: 2, channel: 'broadcast', text: '片づけ', createdAt: at(18, 9), targets: ['s', 't'] }), B('k', { period: 2, createdAt: at(18, 11), targets: ['s'] }),
+    B('l', { period: 2, channel: 'letter', createdAt: at(18, 10), targets: ['t'] }), B('k1', { period: 1, createdAt: at(18, 12) })];
+  eq('掃除に出すもの: 枠の順、同じ枠では 黒板 → お便り → 放送（伝え方ごとの頼みを1件ずつ、それぞれの相手で）', E.sweepList(bs, D18).map((it) => it.board.id + ':' + it.sids.join('')), ['k1:s', 'k:s', 'l:t', 'c:st']);
+  eq('「まだ」の出し分けの「その日3本以上」は、伝え方ごとの頼みを1本ずつ数える（s は1限・2限の黒板・2限の放送で3本）', [E.sweepCtx(bs, bs[1], 's', D18).many, E.sweepCtx(bs, bs[2], 't', D18).many], [true, false]);
+  const left = bs.map((b) => Object.assign({}, b, { sweep: {} }));
+  left.forEach((b) => b.targets.forEach((sid) => { b.sweep[sid] = E.markSweep(null, { st: 'mid' }, D18, 1); }));
+  eq('次の日の前の日からの続きも、同じ枠は 黒板 → お便り → 放送', E.carryOver(left, D19).map((c) => c.board.id), ['k1', 'k', 'l', 'c']);
+}
+
+/* ================= B10. 書き出し（枠に複数） ================= */
+section('B10. 書き出し（exportMarkdown）：枠に複数の頼み');
+{
+  const data = { students: [{ id: 's', name: '生徒S', answers: FIRST, notes: {}, history: [] }], boards: [
+    B('c', { period: 4, channel: 'broadcast', subject: '手伝い', text: '片づけもお願い', createdAt: at(18, 9) }),
+    B('k', { period: 4, subject: '手伝い', text: '資料を作って', createdAt: at(18, 11), due: { kind: 'day' } }),
+    B('l', { period: 4, channel: 'letter', subject: '手伝い', text: '印刷もお願いね', createdAt: at(18, 10), due: { kind: 'date', date: D20 } })] };
+  const md = E.exportMarkdown(data, at(18, 20));
+  const ik = md.indexOf('  - 2026-10-18 4限 手伝い（黒板） 〆 今日中「資料を作って」'), il = md.indexOf('  - 2026-10-18 4限 手伝い（お便り） 〆 10/20まで「印刷もお願いね」'), ic = md.indexOf('  - 2026-10-18 4限 手伝い（放送）「片づけもお願い」');
+  ok('同じ枠の頼みは 黒板 → お便り → 放送 の順に1件ずつ・締め切りも書く（決めないなら書かない）', ik > 0 && il > ik && ic > il, md);
+  ok('… 伝え方の内訳・頼みごとの数は1件ずつ', md.indexOf('- 伝え方の内訳: 黒板 1・お便り 1・放送 1（放送だけで終わった頼み 1）') >= 0 && md.indexOf('- 頼みごと: 3 件') >= 0, md);
+  ok('… 「足りなかったもの」の期限かかける時間に、締め切りの欄も数える（3件のうち、締め切りのない放送だけ）', md.indexOf('・期限かかける時間 1・') >= 0, md.split('\n').find((x) => x.indexOf('足りなかったもの') >= 0));
+}
+
+/* ================= B11. 古いデータ ================= */
+section('B11. 古いデータ（v0.2・v0.3 のデータを読む）');
+{
+  const v03 = [B('a', { period: 1 }), B('b', { period: 2, channel: 'letter', createdAt: at(18, 10) }), B('c', { period: 3, channel: 'broadcast', createdAt: at(18, 11) }),
+    B('L', { channel: 'broadcast', lunch: true, period: 0, createdAt: at(18, 12) })];
+  eq('v0.3 のデータ（1つの時限に1つ・昼休みの放送）は、時限も並びもそのまま', [byKey(E.periods(v03), ['a', 'b', 'c', 'L']), ids(E.dayList(v03, D18))], [[1, 2, 3, 4.5], ['a', 'b', 'c', 'L']]);
+  const v02 = [{ id: 'x', text: 'x', createdAt: at(18, 9), targets: ['s'] }, { id: 'y', text: 'y', createdAt: at(18, 10), targets: ['s'] }, { id: 'z', text: 'z', createdAt: at(18, 11), targets: ['s'] }];
+  eq('v0.2 のデータ（伝え方も時限もない）は、出した順に 1限・2限・3限（別々の枠。同じ枠にまとめない）', byKey(E.periods(v02), ['x', 'y', 'z']), [1, 2, 3]);
+  eq('… その日の心の声に「同じ枠に別々の頼み」は出ない（今までどおり 3本以上・割り込み）', vkeys(E.dayView(E.dayList(v02, D18), v02[2], 's')), ['many', 'interrupt']);
+  eq('… 締め切りは「決めない」・掃除の記録はそのまま読める', [E.normDue(v02[0].due), E.normLogEntry({ day: D18, st: 'mid', next: '表の3行目から' })], [{ kind: 'none' }, { day: D18, st: 'mid', next: '表の3行目から' }]);
+}
+
+/* ================= C1. 締め切りの形と古いデータ ================= */
+section('C1. 締め切りの形（due）と古いデータ');
+{
+  eq('無い（古いデータ）・読めないもの → 決めない', [E.normDue(undefined), E.normDue(null), E.normDue('day'), E.normDue({ kind: 'week' }), E.normDue({ kind: 'date' }),
+    E.normDue({ kind: 'date', date: '2026-02-30' }), E.normDue({ kind: 'date', date: '10/20' })], Array(7).fill({ kind: 'none' }));
+  eq('この時間中・今日中・日付まで（いらない項目は持たない）', [E.normDue({ kind: 'slot', date: D20 }), E.normDue({ kind: 'day' }), E.normDue({ kind: 'date', date: D20, x: 1 })],
+    [{ kind: 'slot' }, { kind: 'day' }, { kind: 'date', date: D20 }]);
+  eq('シートの選択肢は4つ（この時間中・今日中・日付・決めない）', E.DUE_KINDS.map((k) => k.key + ':' + k.label), ['slot:この時間中', 'day:今日中', 'date:日付', 'none:決めない']);
+  eq('頼みの締め切りの日: この時間中・今日中＝頼みの日・日付＝その日・決めない＝なし',
+    [E.boardDueDay(B('a', { due: { kind: 'slot' } })), E.boardDueDay(B('b', { due: { kind: 'day' } })), E.boardDueDay(B('c', { due: { kind: 'date', date: D20 } })), E.boardDueDay(B('d'))], [D18, D18, D20, '']);
+}
+
+/* ================= C2. 締め切りの表示の文字 ================= */
+section('C2. 締め切りの表示の文字（dueLabel）');
+{
+  eq('「〆 この時間中」「〆 今日中」「〆 10/20まで」「〆 1/5まで」・決めないなら空', [E.dueLabel({ kind: 'slot' }), E.dueLabel({ kind: 'day' }), E.dueLabel({ kind: 'date', date: D20 }),
+    E.dueLabel({ kind: 'date', date: '2027-01-05' }), E.dueLabel(undefined), E.dueLabel({ kind: 'none' })], ['〆 この時間中', '〆 今日中', '〆 10/20まで', '〆 1/5まで', '', '']);
+}
+
+/* ================= C3. 「いつまで？」が消える ================= */
+section('C3. 締め切りを選んである頼みは「いつまで？」の吹き出しと声を出さない（withDue）');
+{
+  const f = E.readBoard(SAMPLE), plain = E.studentView(f, FIRST), withD = E.studentView(E.withDue(f, { kind: 'day' }), FIRST);
+  // 期限だけが足りない文（main の試験の「そろった黒板」から「明日10時の」を消したもの）
+  const g = E.readBoard('ゼミで使う図を、去年のスライドを見本にA4 1枚で。30分まで。途中で一度見せてね。詰まったら声をかけて。進め方は任せるね。いつもありがとう');
+  const gp = E.studentView(g, FIRST, { channel: 'letter' }), gd = E.studentView(E.withDue(g, { kind: 'date', date: D20 }), FIRST, { channel: 'letter' });
+  eq('（前提）締め切りのない頼みには「いつまで？」の吹き出し・足すもの（いつまで：◯日◯時まで）がある', [plain.bubbles.some((b) => b.key === 'deadline'), gp.bubbles.map((b) => b.text), gp.chips.map((c) => c.text)],
+    [true, ['いつまで？'], ['いつまで：◯日◯時まで']]);
+  eq('締め切りを選んである頼み: 「いつまで？」の吹き出し・声・足すものが出ない', [withD.bubbles.some((b) => b.key === 'deadline'), withD.issues.some((x) => x.key === 'deadline'), gd.bubbles, gd.chips],
+    [false, false, [], []]);
+  eq('… 期限だけが足りない文に締め切りを選ぶと、心の声は前向きの2つになる', [gd.voices.length, gd.voices.every((x) => x.tone === 'pos')], [2, true]);
+  ok('… この時間中・今日中・日付のどれでも出ない・決めないなら出る', [{ kind: 'slot' }, { kind: 'day' }, { kind: 'date', date: D20 }].every((d) => !E.studentView(E.withDue(f, d), FIRST).bubbles.some((b) => b.key === 'deadline')) &&
+    E.studentView(E.withDue(f, { kind: 'none' }), FIRST).bubbles.some((b) => b.key === 'deadline'));
+  ok('… withDue は読み取った特徴を変えない（写しを返す。決めないならそのもの）', f.deadline === false && E.withDue(f, { kind: 'day' }) !== f && E.withDue(f, {}) === f && E.withDue(f, { kind: 'day' }).dueSet === true);
+  const q4e = Object.assign({}, UNKNOWN, { q4: 'E' });
+  eq('… Q4 が E（締め切りがないと後回し）の声も、締め切りを選んであれば出ない', [E.studentView(f, q4e).issues.some((x) => x.key === 'deadline'), E.studentView(E.withDue(f, { kind: 'day' }), q4e).issues.some((x) => x.key === 'deadline')], [true, false]);
+  eq('通知表: 締め切りの欄も「期限かかける時間」に数える（点の式は同じ）', [E.scoreSaved({ text: SAMPLE, targets: [] }, {}).d.when, E.scoreSaved({ text: SAMPLE, targets: [], due: { kind: 'day' } }, {}).d.when], [0, 1]);
+  const sv = E.slotView([B('k', { period: 1, text: SAMPLE, due: { kind: 'slot' } })], D18, 1, { id: 's', answers: FIRST });
+  eq('生徒の目線（枠）でも「いつまで？」は出ない・区切りに締め切りの文字', [sv.sections[0].view.bubbles.some((b) => b.key === 'deadline'), sv.sections[0].due], [false, '〆 この時間中']);
+}
+
+/* ================= C4. 「この時間中」の聞く相手と答え ================= */
+section('C4. 「この時間中」の報告（slotAsk・answerSlot・normSlotCheck）');
+{
+  const k = B('k', { period: 2, due: { kind: 'slot' }, targets: ['s', 't', 'u'], results: { u: { kind: 'asExpected', submitted: true, at: at(18, 10) } } });
+  const l = B('l', { period: 2, channel: 'letter', due: { kind: 'day' }, targets: ['s'], createdAt: at(18, 10) });
+  const c = B('c', { period: 2, channel: 'broadcast', due: { kind: 'slot' }, targets: ['t'], createdAt: at(18, 9, 30) });
+  const bs = [k, l, c], ask = () => E.slotAsk(bs, D18, 2, D18).map((x) => x.board.id + ':' + x.sids.join(''));
+  eq('聞く相手: 締め切りが「この時間中」の頼みだけ（今日中のお便りは聞かない）・提出済み（u）は聞かない（黒板 → 放送）', ask(), ['k:st', 'c:t']);
+  eq('… 前の日の枠を見ているとき（今日ではない）・時間割の外は聞かない', [E.slotAsk(bs, D18, 2, D19), E.slotAsk(bs, D18, 0, D18)], [[], []]);
+  k.slotCheck = { s: { ans: 'later', at: 1 } };
+  eq('… もう答えた生徒（「あとで」も答え）は聞かない', ask(), ['k:t', 'c:t']);
+  const r1 = E.answerSlot(null, 'done', D18, 100), r2 = E.answerSlot(null, 'not', D18, 100), r3 = E.answerSlot(null, 'later', D18, 100);
+  eq('答えの記録: 終わった → 掃除の「終わった」・まだ → 掃除の「まだ」・あとで → 掃除の記録は作らない', [r1.check, r1.sweep.st, r2.sweep.log, r3.check.ans, r3.sweep],
+    [{ ans: 'done', at: 100 }, 'done', [{ day: D18, st: 'not' }], 'later', null]);
+  eq('… あとでは、前の掃除の記録をそのまま返す・知らない答えは null', [E.answerSlot(r2.sweep, 'later', D18, 5).sweep === r2.sweep, E.answerSlot(null, 'maybe', D18, 1)], [true, null]);
+  k.sweep = { t: r2.sweep };
+  eq('… その日の掃除の記録がもうある生徒も聞かない', ask(), ['c:t']);
+  eq('答えた頼みも、その日の掃除には出る（記録した状態から始まる）', [E.sweepList(bs, D18).find((it) => it.board.id === 'k').sids, E.logOn(k.sweep.t, D18).st], [['s', 't'], 'not']);
+  c.closedAt = at(18, 11);
+  eq('… 締めた頼みは聞かない', ask(), []);
+  eq('slotCheck を読む: 答えが3つのどれかのものだけ・ok で生徒をしぼる', E.normSlotCheck({ s: { ans: 'done', at: 5 }, t: { ans: 'x' }, u: null, v: { ans: 'later' } }, (id) => id !== 'v'), { s: { ans: 'done', at: 5 } });
+  eq('… 古いデータ（無い）は空', E.normSlotCheck(undefined), {});
+}
+
+/* ================= C5. 今日中 → 締め切りを延ばすと宿題 ================= */
+section('C5. 今日中の頼み：掃除で途中・まだ → 締め切りを延ばす（宿題になる）');
+{
+  const k = B('k', { period: 3, subject: '手伝い', due: { kind: 'day' }, targets: ['s', 't'], sweep: {} }), bs = [k];
+  eq('今日中の頼みは、その日の掃除に出る・「延ばす・居残り」を出せる', [ids(E.sweepList(bs, D18).map((it) => it.board)), E.dueChoice(k, 's', D18)], [['k'], true]);
+  k.sweep.s = E.markSweep(E.markSweep(null, { st: 'mid', next: '表の3行目から' }, D18, 1), { ext: D20 }, D18, 2);
+  eq('締め切りを 10/20 に延ばす: その日の掃除の記録に ext', k.sweep.s.log, [{ day: D18, st: 'mid', next: '表の3行目から', ext: D20 }]);
+  eq('… その生徒の締め切りの日は 10/20（ほかの生徒は 10/18 のまま）', [E.dueDayFor(k, 's', D18), E.dueDayFor(k, 't', D18)], [D20, D18]);
+  eq('… その日の掃除の中では、延ばしても一覧から消えない・「延ばす・居残り」も出たまま（選び直せる）', [E.sweepList(bs, D18).map((it) => it.sids.join('')), E.dueChoice(k, 's', D18)], [['st'], true]);
+  eq('… 宿題になる（残っているタスクの種類。t は今日中で終わっていない）', E.remainingTasks(bs, D18).map((x) => x.sid + ':' + x.kind), ['s:homework', 't:today']);
+  eq('次の日（10/19）: 宿題はまだ締め切りの日ではないので掃除に出ない（t は今日中を過ぎたので出る）', E.sweepList(bs, D19).map((it) => it.sids.join('')), ['t']);
+  eq('… 前の日からの続きには出る（s：宿題 〆 10/20・t：締め切りを過ぎた）', E.carryOver(bs, D19)[0].pairs.map((p) => [p.sid, p.st, p.due, p.hw, p.late]),
+    [['s', 'mid', D20, true, false], ['t', '', D18, false, true]]);
+  eq('締め切りの日（10/20）: 掃除に出る・もう一度「延ばす・居残り」を出せる', [E.sweepList(bs, D20).map((it) => it.sids.join('')), E.dueChoice(k, 's', D20)], [['st'], true]);
+  k.sweep.s = E.markSweep(k.sweep.s, { st: 'done' }, D20, 3);
+  eq('終わったら消える（10/21 の続き・掃除・残っているタスクに s は出ない）', [E.carryOver(bs, D21).map((c) => c.pairs.map((p) => p.sid).join('')), E.sweepList(bs, D21).map((it) => it.sids.join('')), E.remainingTasks(bs, D21).map((x) => x.sid)],
+    [['t'], ['t'], ['t']]);
+  let e = E.markSweep(null, { st: 'not' }, D18, 1);
+  eq('延ばす日は、その日より後のほんとうの日だけ（同じ日・前の日・ない日・空は延ばさない）', [D18, D17, '2026-10-32', ''].map((x) => E.markSweep(e, { ext: x }, D18, 2).log[0].ext || ''), ['', '', '', '']);
+  e = E.markSweep(e, { ext: D20 }, D18, 2);
+  eq('… 同じ日に状態や一言を選び直しても、延ばした日は残る', [E.markSweep(e, { st: 'mid' }, D18, 3).log[0].ext, E.markSweep(e, { next: '資料を開く' }, D18, 3).log[0]], [D20, { day: D18, st: 'not', next: '資料を開く', ext: D20 }]);
+  eq('… 居残りを選ぶと延ばした日は消える（どちらか1つ）・「終わった」にすると両方消える・空で取り消し',
+    [E.markSweep(e, { stay: true }, D18, 3).log[0], E.markSweep(e, { st: 'done' }, D18, 3).log[0], E.markSweep(e, { ext: '' }, D18, 3).log[0]],
+    [{ day: D18, st: 'not', stay: true }, { day: D18, st: 'done' }, { day: D18, st: 'not' }]);
+  eq('… 次の日の記録は別（前の日に延ばした日は、その日の記録に残る）', E.markSweep(e, { st: 'mid' }, D19, 4).log, [{ day: D18, st: 'not', ext: D20 }, { day: D19, st: 'mid' }]);
+  eq('… 状態を選ぶ前に延ばしても記録しない（今までどおり）', E.markSweep(null, { ext: D20 }, D18, 1).log, []);
+  eq('掃除の記録の1件を読む（ext・stay を残す。終わったなら持たない。だめなものは null）',
+    [E.normLogEntry({ day: D18, st: 'mid', next: 'a', ext: D20 }), E.normLogEntry({ day: D18, st: 'not', stay: true }), E.normLogEntry({ day: D18, st: 'done', ext: D20, stay: true }),
+      E.normLogEntry({ day: D18, st: 'mid', ext: D17 }), E.normLogEntry({ day: 'x', st: 'mid' }), E.normLogEntry({ day: D18, st: 'zz' })],
+    [{ day: D18, st: 'mid', next: 'a', ext: D20 }, { day: D18, st: 'not', stay: true }, { day: D18, st: 'done' }, { day: D18, st: 'mid' }, null, null]);
+  eq('書き出しの掃除の行に、延ばした日と居残り', E.sweepLogText({ st: 'mid', log: [{ day: D18, st: 'not', next: '資料を開く', ext: D20 }, { day: D20, st: 'mid', stay: true }] }),
+    '10/18 まだ（最初の一歩: 資料を開く・締め切りを10/20まで延ばした）→ 10/20 途中（居残り）');
+}
+
+/* ================= C6. 居残り ================= */
+section('C6. 居残り（stayList・stayVoice・掃除のまとめ）');
+{
+  const k = B('k', { period: 3, due: { kind: 'day' }, targets: ['s', 't'], sweep: {} });
+  const l = B('l', { period: 4, channel: 'letter', due: { kind: 'slot' }, targets: ['s'], createdAt: at(18, 13), sweep: {} });
+  k.sweep.s = E.markSweep(E.markSweep(null, { st: 'not' }, D18, 1), { stay: true }, D18, 2);
+  l.sweep.s = E.markSweep(E.markSweep(null, { st: 'mid' }, D18, 1), { stay: true }, D18, 2);
+  k.sweep.t = E.markSweep(null, { st: 'mid' }, D18, 1);
+  const bs = [k, l];
+  eq('その日の放課後に残る生徒（s）と、その頼み（枠の順）', E.stayList(bs, D18).map((x) => x.sid + ':' + ids(x.boards).join('')), ['s:kl']);
+  eq('… 居残りはその日だけ（次の日は誰も残らない）', E.stayList(bs, D19), []);
+  eq('… 生徒の目線（その日）に「居残りになると、今日は気持ちを切り替えにくいかも」。次の日・ほかの生徒には出ない',
+    [E.stayVoice(bs, 's', D18), E.stayVoice(bs, 's', D19), E.stayVoice(bs, 't', D18)], [{ key: 'stay', text: '居残りになると、今日は気持ちを切り替えにくいかも' }, null, null]);
+  eq('… 枠の目線（slotView）にも、その日の居残りの声', [E.slotView(bs, D18, 3, { id: 's', answers: UNKNOWN }).stay.key, E.slotView(bs, D18, 3, { id: 't', answers: UNKNOWN }).stay], ['stay', null]);
+  eq('… その日に提出した頼みでは残らない', E.stayList([Object.assign({}, k, { results: { s: { kind: 'asExpected', submitted: true, at: at(18, 20) } } })], D18), []);
+  const s = E.sweepSummary(E.sweepList(bs, D18), D18);
+  eq('掃除のまとめ: 居残り（s の2つ）・延ばした（なし）・まだ選んでいない（t：今日中で途中、どちらも選んでいない）',
+    [s.stay.map((x) => x.board.id + ':' + x.sid), s.ext.length, s.undecided.map((x) => x.board.id + ':' + x.sid), s.mid, s.not], [['k:s', 'l:s'], 0, ['k:t'], 2, 1]);
+  k.sweep.t = E.markSweep(k.sweep.t, { ext: D20 }, D18, 3);
+  const s2 = E.sweepSummary(E.sweepList(bs, D18), D18);
+  eq('… 延ばしたら「延ばした（宿題にした）」に日付つきで・まだ選んでいないはなくなる', [s2.ext.map((x) => x.sid + ':' + x.date), s2.undecided.length, s2.carry.map((c) => c.sid + ':' + c.ext + ':' + c.stay)],
+    [['t:' + D20], 0, ['s::true', 't:' + D20 + ':false', 's::true']]);
+  eq('残っているタスクの種類: その日は居残り（s）・宿題（t）', E.remainingTasks(bs, D18).map((x) => x.board.id + ':' + x.sid + ':' + x.kind), ['k:s:stay', 'k:t:homework', 'l:s:stay']);
+  const none = B('n', { period: 5, targets: ['s'], sweep: { s: E.markSweep(null, { st: 'not' }, D18, 1) } });
+  eq('締め切りを決めない頼みは「延ばす・居残り」を出さない（まだ選んでいないにも入らない）', [E.dueChoice(none, 's', D18), E.sweepSummary(E.sweepList([none], D18), D18).undecided.length], [false, 0]);
+}
+
+/* ================= C7. 日付までの頼み（宿題） ================= */
+section('C7. 宿題（日付まで）：締め切りの日まで残り、終わったら消える');
+{
+  const hw = B('h', { period: 2, channel: 'letter', subject: 'ゼミ', due: { kind: 'date', date: D20 }, targets: ['s'], sweep: {} }), bs = [hw];
+  eq('出した日の掃除には出ない（締め切りの日に出す）・残っているタスクには宿題として入る', [E.sweepList(bs, D18), E.remainingTasks(bs, D18).map((x) => x.kind)], [[], ['homework']]);
+  eq('次の日: 掃除には出ない・前の日からの続きに宿題として出る', [E.sweepList(bs, D19), E.carryOver(bs, D19).map((c) => c.pairs.map((p) => p.sid + ':' + p.due + ':' + p.hw + ':' + p.st))],
+    [[], [['s:' + D20 + ':true:']]]);
+  eq('締め切りの日（10/20）の掃除に出る（前の日からの続きとして）', E.sweepList(bs, D20).map((it) => it.board.id + (it.carry ? '*' : '')), ['h*']);
+  eq('何も選ばずに締め切りを過ぎても、終わるまで残る（10/21：続き・掃除・残っているタスク（過ぎた））', [E.carryOver(bs, D21).length, E.sweepList(bs, D21).length, E.remainingTasks(bs, D21).map((x) => x.late)], [1, 1, [true]]);
+  hw.results = { s: { kind: 'asExpected', submitted: true, at: at(21, 10) } };
+  eq('提出したら消える（10/21）。10/20 の時点ではまだ残っている（その日の終わりの時点で数える）', [E.remainingTasks(bs, D21).length, E.carryOver(bs, D21).length, E.remainingTasks(bs, D20).length], [0, 0, 1]);
+  const closed = B('x', { due: { kind: 'date', date: D20 }, closedAt: at(19, 9) });
+  eq('締めたら消える（締めた日から）', [E.remainingTasks([closed], D18).length, E.remainingTasks([closed], D19).length, E.carryOver([closed], D20).length], [1, 0, 0]);
+}
+
+/* ================= C8. 正の字 ================= */
+section('C8. 残っているタスクの正の字（tally・taskBoard）');
+{
+  eq('正の字の画の数: 7 → [5, 2]・5 → [5]・1 → [1]・12 → [5, 5, 2]・0 → []', [7, 5, 1, 12, 0].map((n) => E.tally(n)), [[5, 2], [5], [1], [5, 5, 2], []]);
+  eq('… 数でないもの・負の数は []', [E.tally(-3), E.tally('x'), E.tally(null)], [[], [], []]);
+  let h = 0;
+  const T = (sub, sids, due) => B('b' + (++h), { period: 0, subject: sub, targets: sids, due: due === undefined ? { kind: 'day' } : due, createdAt: at(18, 4) + h * 60000 });
+  const bs = [];
+  for (let i = 0; i < 7; i++) bs.push(T('授業', ['s']));
+  bs.push(T('手伝い', ['s', 't']), T('授業', ['t']), T('ゼミ', ['u'], { kind: 'date', date: D20 }), T('雑務', ['w'], { kind: 'slot' }), T('雑務', ['w'], { kind: 'slot' }), T('その他', ['v'], null));
+  const students = ['s', 't', 'u', 'v', 'w'].map((id) => ({ id: id }));
+  const tb = E.taskBoard(bs, D18, students);
+  eq('生徒ごとの数: 多い生徒から3人まで＋ほか N 人（同じ数なら生徒の並び。t と w は2つずつ）', [tb.rows.map((r) => r.sid + ':' + r.n), tb.more, tb.people, tb.total], [['s:8', 't:2', 'w:2'], 1, 4, 13]);
+  eq('… 科目ごとの数と正の字（多い順）：「授業 正丅」「手伝い 一」', tb.rows[0].subjects.map((x) => [x.subject, x.n, x.strokes]), [['授業', 7, [5, 2]], ['手伝い', 1, [1]]]);
+  eq('… 締め切りを決めない頼みは数えない（v は出ない・ほかにも数えない）', tb.rows.some((r) => r.sid === 'v') || tb.people !== 4, false);
+  eq('… students を渡さなければ全員を数え、同じ数は先にタスクが出てきた順', E.taskBoard(bs, D18).rows.map((r) => r.sid), ['s', 't', 'w']);
+  eq('… students にいない生徒は数えない', E.taskBoard(bs, D18, [{ id: 'u' }]).rows.map((r) => r.sid + ':' + r.n), ['u:1']);
+  const done = bs.map((b) => (b.subject === '授業' && b.targets[0] === 's' ? Object.assign({}, b, { sweep: { s: E.markSweep(null, { st: 'done' }, D18, 1) } }) : b));
+  eq('… 掃除で「終わった」にしたものは数えない（s は 手伝い 1 だけ）', E.taskBoard(done, D18, students).rows.map((r) => r.sid + ':' + r.n), ['t:2', 'w:2', 's:1']);
+  eq('… 居残りの生徒には印（stay）・種類ごとの数', (() => { const x = bs.slice(); x[7] = Object.assign({}, x[7], { sweep: { t: E.markSweep(E.markSweep(null, { st: 'not' }, D18, 1), { stay: true }, D18, 2) } });
+    const r = E.taskBoard(x, D18, students).rows.find((y) => y.sid === 't'); return [r.stay, r.subjects.map((y) => y.subject + ':' + J(y.kinds))]; })(),
+    [true, ['手伝い:{"today":0,"homework":0,"stay":1}', '授業:{"today":1,"homework":0,"stay":0}']]);
+  eq('タスクがなければ空', E.taskBoard([], D18, students), { rows: [], more: 0, people: 0, total: 0 });
+}
+
+/* ================= C9. 机のお便り ================= */
+section('C9. 机のお便り（deskLetters）：終わるまで残る・3枚まで');
+{
+  const L = (id, p, o) => B(id, Object.assign({ channel: 'letter', period: p, text: id, createdAt: at(18, 8 + p) }, o));
+  const l1 = L('l1', 1, {}), l2 = L('l2', 2, { due: { kind: 'day' } }), l3 = L('l3', 3, { due: { kind: 'slot' } }), l5 = L('l5', 5, {});
+  const y = L('y', 2, { createdAt: at(17, 10), due: { kind: 'date', date: D20 } });   // 前の日の宿題
+  const yn = L('yn', 3, { createdAt: at(17, 11) });                                  // 前の日・締め切りなし・掃除の記録なし
+  const ym = L('ym', 4, { createdAt: at(17, 12), sweep: { s: E.markSweep(null, { st: 'mid' }, D17, 1) } });   // 前の日からの続き
+  const ot = L('ot', 4, { targets: ['t'] });                                          // ほかの生徒あて
+  const bs = [l1, l2, l3, l5, y, yn, ym, ot];
+  const d3 = E.deskLetters(bs, D18, 3, 's');
+  eq('3限の机: その枠のお便りが上、その下に前の枠・前の日のまだ終わっていないお便り（新しい順）。3枚まで＋ほか N 枚', [ids(d3.letters), d3.more, d3.total, d3.current.id], [['l3', 'l2', 'l1'], 2, 5, 'l3']);
+  l3.sweep = { s: E.answerSlot(null, 'done', D18, 1).sweep };
+  eq('「この時間中」で終わったら、次の枠（4限）の机にはもうない・その枠（3限）を見ている間は置く', [ids(E.deskLetters(bs, D18, 4, 's').letters).indexOf('l3'), E.deskLetters(bs, D18, 3, 's').current.id], [-1, 'l3']);
+  const d4 = E.deskLetters(bs, D18, 4, 's');
+  eq('4限の机（その枠のお便りなし）: 2限・1限・前の日からの続き（ほか1枚＝前の日の宿題）。締め切りを決めず記録もない前の日のお便りは残らない', [ids(d4.letters), d4.more, d4.total, d4.current], [['l2', 'l1', 'ym'], 1, 4, null]);
+  eq('… 同じ日のあとの枠（5限）のお便りは、まだ配っていないので置かない', ids(E.deskLetters(bs, D18, 2, 's').letters), ['l2', 'l1', 'ym']);
+  eq('… 放課後など（枠でない）は、その日の枠のお便りを全部「前のもの」として見る', ids(E.deskLetters(bs, D18, 'after', 's').letters), ['l5', 'l2', 'l1']);
+  eq('… ほかの生徒あてのお便りは置かない', ids(E.deskLetters(bs, D18, 4, 't').letters), ['ot']);
+  y.results = { s: { kind: 'asExpected', submitted: true, at: at(18, 12) } };
+  l2.sweep = { s: E.markSweep(null, { st: 'done' }, D18, 2) };
+  eq('宿題・今日中のお便りも、終わったら消える（4限の机: 1限・前の日からの続きだけ）', [ids(E.deskLetters(bs, D18, 4, 's').letters), E.deskLetters(bs, D18, 4, 's').more], [['l1', 'ym'], 0]);
+  eq('次の日（10/19）の1限の机: 前の日の締め切りなしで記録のないお便り（l1・l5）は残らない・続き（ym）は残る', ids(E.deskLetters(bs, D19, 1, 's').letters), ['ym']);
+}
+
+/* ================= C10. 午前3時の区切り ================= */
+section('C10. 午前3時の区切りでずれない');
+{
+  const today = E.dayKey(at(19, 2, 0));
+  eq('（前提）10/19 の 2:00 は 10/18', today, D18);
+  const late = B('n', { period: 5, due: { kind: 'day' }, createdAt: at(19, 1, 30) });
+  eq('10/19 1:30 に出した今日中の頼み: 締め切りの日は 10/18・10/19 2:00 に開いた掃除（＝10/18）に出る・「延ばす・居残り」を出せる',
+    [E.boardDueDay(late), ids(E.sweepList([late], today).map((it) => it.board)), E.dueChoice(late, 's', today)], [D18, ['n'], true]);
+  eq('… 10/19（3時から）は締め切りを過ぎたタスク', E.remainingTasks([late], E.dayKey(at(19, 3))).map((x) => x.late), [true]);
+  const e = E.markSweep(null, { st: 'mid' }, today, at(19, 2, 0));
+  eq('… 10/19 2:00 の掃除（＝10/18）で、締め切りを 10/19 に延ばせる（その日より後）', E.markSweep(e, { ext: D19 }, today, at(19, 2, 1)).log[0], { day: D18, st: 'mid', ext: D19 });
+  const st = Object.assign({}, late, { sweep: { s: E.markSweep(e, { stay: true }, today, at(19, 2, 1)) } });
+  eq('… 10/19 2:00 に選んだ居残りは 10/18 の放課後（10/19 の 3時からは残らない）', [E.stayList([st], today).length, E.stayList([st], E.dayKey(at(19, 3))).length], [1, 0]);
+  const q = B('q', { period: 6, due: { kind: 'slot' }, createdAt: at(19, 0, 30) });
+  eq('「この時間中」: 10/19 1:00 に 10/18 の6限から別の行へ → 聞く（今日の枠）。3:00 を過ぎたら前の日なので聞かない',
+    [E.slotAsk([q], D18, 6, E.dayKey(at(19, 1))).length, E.slotAsk([q], D18, 6, E.dayKey(at(19, 3))).length], [1, 0]);
+  const tb = [B('a', { period: 1, due: { kind: 'day' }, createdAt: at(18, 2, 59) }), B('b', { period: 1, due: { kind: 'day' }, createdAt: at(18, 3, 0) })];
+  eq('10/18 2:59 の頼みは 10/17 の今日中（10/18 には過ぎている）・3:00 の頼みは 10/18 の今日中', E.remainingTasks(tb, D18).map((x) => x.board.id + ':' + x.due + ':' + x.late), ['a:' + D17 + ':true', 'b:' + D18 + ':false']);
+  eq('机のお便りの「その日」も午前3時で分ける（10/19 1:00 に配ったお便りは 10/18 の5限）', ids(E.deskLetters([B('m', { channel: 'letter', period: 5, createdAt: at(19, 1) })], D18, 5, 's').letters), ['m']);
+}
+
+/* ================= V. 心の声の言い方の決まり ================= */
+section('V. 心の声の言い方の決まり（「〜かも」・「やり残し」「覚えている」を使わない・数字を出さない）');
+{
+  const rule = (t) => /かも$/.test(t) && !/やり残し|覚えて/.test(t) && !/[0-9０-９]/.test(t);
+  ok('新しい声（同じ枠に別々の頼み・居残り）は決まりどおり', [E.SAME_SLOT_VOICE, E.STAY_VOICE].every(rule), J([E.SAME_SLOT_VOICE, E.STAY_VOICE]));
+  // いろいろな枠×生徒で、目線に出る声を全部集めて見る
+  const TEXTS = [SAMPLE, '資料を作って', '印刷もお願いね', 'あとで部屋の片づけ、お願いね。ついでに鍵も返して。それと掃除も', 'また雑。直しておいて', '至急、資料を直して'];
+  const ANS = [FIRST, USED, UNKNOWN, { q1: 'B', q2: 'E', q3: 'E', q4: 'E', q5: 'E' }];
+  let bad = '', n = 0;
+  TEXTS.forEach((t1, i) => TEXTS.forEach((t2, j) => {
+    const bs = [B('p', { period: 1, channel: 'broadcast', text: t2, createdAt: at(18, 8) }), B('k', { period: 3, text: t1, due: i % 2 ? { kind: 'day' } : undefined, createdAt: at(18, 10) }),
+      B('l', { period: 3, channel: 'letter', text: t2, createdAt: at(18, 11) }), B('c', { period: 3, channel: 'broadcast', text: t1 + '。あと印刷も', createdAt: at(18, 12) })];
+    bs[1].sweep = { s: E.markSweep(E.markSweep(null, { st: 'not' }, D18, 1), { stay: j % 2 === 0 }, D18, 2) };
+    ANS.forEach((a) => {
+      const v = E.slotView(bs, D18, 3, { id: 's', answers: a });
+      const day = v.voices.map((x) => x.text).concat(v.stay ? [v.stay.text] : []), all = day.concat(...v.sections.map((x) => x.view.voices.map((y) => y.text)));
+      n += all.length;
+      if (!bad && !(day.every(rule) && all.every((x) => /かも$/.test(x)) && v.voices.length <= 3)) bad = J(all);
+    });
+  }));
+  ok('枠の目線 ' + TEXTS.length * TEXTS.length * ANS.length + ' 通り（声 ' + n + ' 個）: その日の声と居残りの声は決まりどおり・3つまで、区切りの声も全部「〜かも」', !bad && n > 0, bad);
+}
+}
+
+/* ================= Q. v0.4 段B・段C（画面のために足した小さな判定：空いている枠・掃除するものがないわけ・枠の掃除の印） ================= */
+section('Q. 空いている枠（枠ごと動かす）・掃除するものがないわけ（宿題）・枠の掃除のあとの印');
+{
+  const B = (id, o) => Object.assign({ id: id, text: id, channel: 'board', subject: '授業', targets: ['s'], createdAt: at(18, 9), firstTime: {}, results: {} }, o || {});
+  const bs = [B('k4', { period: 4 }), B('l4', { period: 4, channel: 'letter', createdAt: at(18, 10) }), B('L', { lunch: true, period: 0, channel: 'broadcast', createdAt: at(18, 12) })];
+  eq('空いている枠：どれかの伝え方が入っている枠（4限・昼休み）はのぞく', E.freeSlots(bs, D18), [1, 2, 3, 5, 6]);
+  eq('… 枠ごと動かすときは、その枠の頼み（id の配列）を空きとみなす・id 1つなら同じ枠のほかの伝え方が残る', [E.freeSlots(bs, D18, ['k4', 'l4']), E.freeSlots(bs, D18, 'k4')], [[1, 2, 3, 4, 5, 6], [1, 2, 3, 5, 6]]);
+  const hw = B('h', { period: 2, due: { kind: 'date', date: '2026-10-20' } });
+  eq('掃除するものがないわけ：今日の頼みが締め切りのまだ先の宿題だけ＝homework（前の日の宿題だけでも）', [E.sweepEmptyWhy([hw], D18), E.sweepEmptyWhy([Object.assign({}, hw, { createdAt: at(17, 9) })], D18)], ['homework', 'homework']);
+  eq('… 宿題を提出・締めたら、ふつうのわけ（全員提出済み・今日の頼みがない）', [E.sweepEmptyWhy([Object.assign({}, hw, { results: { s: { kind: 'asExpected', submitted: true, at: at(18, 11) } } })], D18),
+    E.sweepEmptyWhy([Object.assign({}, hw, { createdAt: at(17, 9), closedAt: at(17, 20) })], D18)], ['allDone', 'none']);
+  const log = (st) => ({ st: st, next: '', good: false, at: 1, log: [{ day: D18, st: st }] });
+  const done = B('d', { sweep: { s: log('done') } }), left = B('m', { sweep: { s: log('mid') } }), none = B('n');
+  eq('枠の掃除のあとの印：どれかに途中・まだが残る＝続き・全部終わった＝✓・まだ掃除していないものがあれば印なし・空の枠は印なし',
+    [E.slotMarkOf([done, left]), E.slotMarkOf([done, done]), E.slotMarkOf([done, none]), E.slotMarkOf([])], ['left', 'done', '', '']);
 }
 
 console.log('\n' + (fails.length ? '通らなかった: ' + fails.length + ' 件 ／ 通った: ' + pass + ' 件' : 'すべて通った: ' + pass + ' 件'));

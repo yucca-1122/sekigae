@@ -175,6 +175,25 @@ h1, h2, h3 { text-wrap: balance; }
 .chalk-text.is-long { --fs: 16.5px; }
 .chalk-text.is-empty { color: var(--chalk-dim); font-weight: 400; }
 .board-date { position: absolute; top: 14px; right: 12px; margin: 0; writing-mode: vertical-rl; font: 400 13px/1.3 var(--font-chalk); color: var(--chalk-dim); letter-spacing: .1em; }
+/* 締め切り（段C）：黒板・机の紙・吹き出しの端に、黄色いチョークで「〆 今日中」 */
+.due-chalk { display: inline-block; font: 600 14px/1.4 var(--font-chalk); color: var(--chalk-yellow); letter-spacing: .06em; text-shadow: 0 0 6px var(--chalk-glow); white-space: nowrap; transform: rotate(-2deg); }
+.board-due { margin: 6px 0 0; }
+.board-due:empty { display: none; }
+/* 大きい黒板は縦に並べる（字 → 締め切り → 右下に残っているタスク） */
+.board-face { display: flex; flex-direction: column; }
+/* 大きい黒板の右下：残っているタスク（生徒ごと・科目ごとの正の字。3人まで＋ほか N 人） */
+.board-tasks { margin-top: auto; padding-top: 10px; align-self: flex-end; max-width: 100%; text-align: right; font: 600 13px/1.55 var(--font-chalk); color: var(--chalk); text-shadow: 0 0 5px var(--chalk-glow); }
+.board-tasks p { margin: 0; }
+.task-k { font-size: 11px; color: var(--chalk-dim); letter-spacing: .06em; }
+.task-row b { font-weight: 600; color: var(--chalk-yellow); }
+.task-sub { margin-left: 8px; white-space: nowrap; }
+.tally { margin-left: 3px; letter-spacing: .04em; }
+.task-stay { margin-left: 4px; padding: 0 5px; border: 1px dashed var(--chalk-pink); border-radius: 4px; color: var(--chalk-pink); font-size: 10.5px; }
+.task-more { font-size: 11.5px; color: var(--chalk-dim); }
+.pa-due, .paper-due { margin: 6px 0 0; text-align: right; }
+.pa-due:empty { display: none; }
+.pa-say .due-chalk, .paper .due-chalk, .print .due-chalk { padding: 0 8px; border-radius: 6px; background: var(--board); text-shadow: none; transform: rotate(-1.5deg); }
+.paper-due { display: block; width: fit-content; margin-left: auto; }
 /* 大きい黒板の右上：縦書きの日付（2けたの数字は縦中横で立てる）と、その下に今の時間 */
 #room-date { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
 .bd-time { font-size: 14px; font-weight: 600; color: var(--chalk); letter-spacing: .04em; }
@@ -343,6 +362,17 @@ button.tt-row.tt-break { cursor: pointer; color: var(--chalk-yellow); letter-spa
 .tt-p { color: var(--chalk-yellow); font-size: 13.5px; white-space: nowrap; }
 .tt-s { min-width: 0; overflow-wrap: anywhere; }
 .tt-ch { display: inline-flex; align-items: center; gap: 3px; color: var(--chalk-dim); font: 600 11px/1.2 var(--font-chalk); white-space: nowrap; }
+/* 1つの枠に伝え方が2つ以上：印を少し重ねて並べ、字は読み上げの文だけ */
+.tt-ics { display: inline-flex; align-items: center; }
+.tt-row.is-many .tt-ics .ch-ico + .ch-ico { margin-left: -3px; }
+.tt-row.is-many .tt-ch-t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* 伝え方が2つ以上の選んでいる行：「直す」の場所のぶん、印を小さく（パソコン）・小さく縦に重ねる（スマホの2列。科目名と「直す」を残す） */
+.tt-now .tt-row.is-many .tt-ics .ch-ico { width: 15px; height: 11px; }
+@media (max-width: 759.98px) {
+  /* スマホの2列の選んでいる行：印を小さく縦に重ねて（幅をとらずに）出す */
+  .tt-now .tt-row.is-many .tt-ics { display: grid; gap: 1px; }
+  .tt-now .tt-row.is-many .tt-ics .ch-ico, .tt-now .tt-row.is-many .tt-ics .ch-ico + .ch-ico { width: 14px; height: 10px; margin: 0; }
+}
 .tt-nav { display: flex; justify-content: space-between; gap: 6px; margin-top: auto; padding-top: 4px; }
 .tt-nav button { min-height: 34px; padding: 4px 6px; border: 0; border-radius: 6px; background: none; color: var(--chalk); font: 600 12.5px/1.2 var(--font-chalk); }
 .tt-nav button:disabled { color: var(--chalk-dim); opacity: .55; cursor: default; }
@@ -377,6 +407,17 @@ button.tt-row.tt-break { cursor: pointer; color: var(--chalk-yellow); letter-spa
 .print-meta { font: 500 11.5px/1.4 var(--font-body); color: var(--print-muted); }
 .print-text { margin: 0; font: 500 14.5px/1.85 var(--font-print); white-space: pre-wrap; overflow-wrap: anywhere; }
 .print-to { margin: 10px 0 0; padding-top: 6px; border-top: 1px dashed var(--print-line); font: 500 11.5px/1.5 var(--font-body); color: var(--print-muted); }
+.print-due { margin: 8px 0 0; text-align: right; }
+.print-due:empty { display: none; }
+.lp-under { display: grid; gap: 6px; margin-top: 6px; }
+.lp-under:empty { display: none; }
+.lp-item { margin: 0; padding: 7px 12px 8px; border-radius: 2px; background: var(--print); color: var(--print-ink); box-shadow: 0 1px 0 var(--print-edge), 0 6px 14px var(--shadow); font: 500 12.5px/1.6 var(--font-print); overflow-wrap: anywhere; }
+.lp-item b { display: block; font: 700 11px/1.5 var(--font-round); color: var(--print-head); }
+.lp-item .due-chalk { display: block; width: fit-content; margin: 4px 0 0 auto; padding: 0 8px; border-radius: 6px; background: var(--board); text-shadow: none; transform: rotate(-1.5deg); }
+.tag-due { background: var(--board); color: var(--chalk-yellow); }
+/* 明るい面（シート）の上の締め切りは、黒板色の札にして読みやすく */
+.sheet .due-chalk { padding: 0 8px; border-radius: 6px; background: var(--board); text-shadow: none; transform: rotate(-1.5deg); }
+.lp-more { margin: 0; padding: 2px 10px; width: fit-content; justify-self: end; border-radius: 999px; background: var(--surface); color: var(--muted); font: 700 11.5px/1.7 var(--font-round); box-shadow: 0 2px 6px var(--shadow); }
 /* 配ったお便り：相手の生徒それぞれの机の右上に小さな紙（字は小さい）。机のボタンとは別のボタンで、机の上に重ねる。
    押す（パソコンはカーソルを合わせる）と、大きく読める。昼休みに生徒が移っても、紙は自分の机に置いたまま */
 .seat { position: relative; display: grid; min-width: 0; }
@@ -396,6 +437,13 @@ button.tt-row.tt-break { cursor: pointer; color: var(--chalk-yellow); letter-spa
 .desk-paper:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .desk-paper[aria-expanded="true"] .dp-sheet { box-shadow: 0 0 0 2.5px var(--primary), 0 4px 8px var(--shadow); }
 .desk.has-paper .desk-badges { right: 34px; }
+.desk-paper.is-stack .dp-sheet { box-shadow: 0 1px 0 var(--print-edge), 3px -3px 0 -1px var(--print), 3px -3px 0 0 var(--print-edge), 0 4px 8px var(--shadow); }
+.desk-paper.is-stack3 .dp-sheet { box-shadow: 0 1px 0 var(--print-edge), 3px -3px 0 -1px var(--print), 3px -3px 0 0 var(--print-edge), 6px -6px 0 -1px var(--print), 6px -6px 0 0 var(--print-edge), 0 4px 8px var(--shadow); }
+.dp-more { position: absolute; right: 1px; bottom: 1px; min-width: 16px; padding: 0 3px; border-radius: 4px; background: var(--primary); color: var(--on-primary); font: 700 9.5px/1.45 var(--font-round); text-align: center; box-shadow: 0 1px 2px var(--btn-drop); }
+/* 放課後：居残りの生徒だけ席に残る */
+.rows.is-after .desk.is-stay > .kid { opacity: 1; filter: none; }
+.rows.is-after .desk.is-stay .kid-chair { opacity: 0; }
+.badge-stay { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-fg); }
 @media (min-width: 760px) { .desk-paper { right: -8px; } }
 /* 大きく読むお便り（机の紙の近くに浮かぶ。外を押す・Esc・もう一度押すと閉じる） */
 .letter-pop { position: absolute; z-index: 30; left: 16px; top: 0; width: min(340px, calc(100vw - 32px)); }
@@ -553,6 +601,30 @@ textarea.field { resize: vertical; }
 /* 昼休みの間は放送だけ（黒板・お便りは選べない） */
 .ch-opt input:disabled { cursor: not-allowed; }
 .ch-opt input:disabled + span { opacity: .4; border-style: dashed; }
+/* 伝え方のタブの印（書いてある＝出した頼み・書きかけ＝まだ出していない文） */
+.ch-has { position: absolute; z-index: 1; top: -8px; right: -4px; padding: 0 7px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font: 700 10.5px/1.7 var(--font-round); font-style: normal; pointer-events: none; box-shadow: 0 1px 3px var(--btn-drop); }
+.ch-has.is-draft { background: var(--surface); color: var(--primary); border: 1.5px solid var(--primary); line-height: 1.5; }
+.ch-note { margin: -8px 2px 14px; }
+.dues .res-opts { margin-bottom: 8px; }
+.due-date { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; margin: 0 0 8px; }
+.due-date .field { width: auto; min-width: 0; max-width: 100%; }
+/* 「この時間中」の報告：頼みごとに、生徒ごとの 終わった・まだ・あとで */
+.ask-sub { margin: -6px 0 12px; }
+.ask-b { padding: 12px 0; border-top: 1px solid var(--line); }
+.ask-b-h { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; margin: 0 0 8px; font: 700 14.5px/1.6 var(--font-round); }
+.ask-b-h .ch-ico { align-self: center; }
+.ask-b-t { min-width: 0; color: var(--muted); font-weight: 500; overflow-wrap: anywhere; }
+.ask-st { display: grid; gap: 6px; padding: 8px 0; }
+.ask-st + .ask-st { border-top: 1px dashed var(--line); }
+.ask-who { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+/* 掃除の時間：締め切りの日（か過ぎた）で途中・まだ → 締め切りを延ばす（宿題）か居残り */
+.sw-due { display: grid; gap: 8px; padding: 10px 12px 12px; border-radius: 12px; border: 1.5px dashed var(--chalk-yellow); background: var(--surface-2); }
+.sw-due .lbl { margin: 0; }
+.sw-due-date { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+.sw-due-date .field { width: auto; max-width: 100%; }
+.sw-sum-list { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
+.sw-sum-list li { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; padding: 8px 12px; border-radius: 10px; background: var(--surface-2); font-size: 13.5px; }
+.write-del-row { margin: 16px 0 0; text-align: right; }
 /* 要点のお便り：書く欄の下に、元の放送の文を小さく */
 .cast-src { margin: 4px 0 0; padding: 8px 12px; border-radius: 12px; border: 1.5px dashed var(--muted); background: var(--surface-2); color: var(--muted); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
 .cast-src-tip { display: block; margin-top: 2px; font: 700 13px/1.5 var(--font-round); color: var(--fg); }
@@ -790,6 +862,17 @@ textarea.field { resize: vertical; }
 .voice.is-pos { color: var(--good-fg); }
 /* その日の頼みの数と伝え方の重なりから足す心の声 */
 .voices-day { margin-top: 12px; }
+/* 生徒の目線：伝え方ごとの見出しで分ける（心の声・本人に聞くなら・足すとよいもの） */
+.vsecs { display: grid; gap: 26px; min-width: 0; }
+.vsec { display: grid; gap: 12px; min-width: 0; padding-top: 18px; border-top: 1.5px dashed var(--line); }
+.vsec:first-child { padding-top: 0; border-top: 0; }
+.vsec-h { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin: 0; font: 700 16.5px/1.4 var(--font-round); }
+.vsec-h .ch-ico { width: 26px; height: 18px; }
+.vsec-due { padding: 1px 9px; border-radius: 999px; background: var(--board); color: var(--chalk-yellow); font: 600 12.5px/1.65 var(--font-chalk); letter-spacing: .04em; }
+.vsec-grid { display: grid; gap: 22px; min-width: 0; }
+@media (min-width: 860px) { .vsec-grid { grid-template-columns: 1.1fr 1fr; align-items: start; } }
+.view-day .voices-day { margin-top: 6px; }
+.voice.is-stay .voice-k { background: var(--chalk-pink); color: var(--tag-fg); }
 .voice.is-day, .voice.is-day::before, .voice.is-day::after { border-style: dashed; background: var(--surface-2); }
 .voice-k { display: block; width: fit-content; margin: 0 0 3px; padding: 0 8px; border-radius: 999px; background: var(--board); color: var(--chalk); font: 600 11px/1.75 var(--font-chalk); vertical-align: 1px; }
 .ask { padding: 14px 16px; border-radius: 16px; background: var(--ask-bg); color: var(--ask-fg); }
@@ -937,12 +1020,14 @@ textarea.field { resize: vertical; }
             <div class="pa" id="room-pa">
               <button class="speaker" type="button" id="room-speaker" aria-label="スピーカー（放送の頼みのとき、押すと流れる）" disabled><svg viewBox="0 0 60 38" aria-hidden="true" focusable="false"><circle class="spk-ring" cx="30" cy="18" r="11"/><circle class="spk-ring" cx="30" cy="18" r="6.5"/><circle class="spk-dot" cx="30" cy="18" r="2.4"/><circle class="spk-dot" cx="6" cy="6" r="1.3"/><circle class="spk-dot" cx="54" cy="6" r="1.3"/><circle class="spk-dot" cx="6" cy="32" r="1.3"/><circle class="spk-dot" cx="54" cy="32" r="1.3"/></svg></button>
               <svg class="waves" viewBox="0 0 18 26" aria-hidden="true" focusable="false"><path d="M3 8 Q7 13 3 18"/><path d="M8 3 Q15 13 8 23"/></svg>
-              <div class="pa-say" id="room-say" hidden><p class="pa-k" id="room-say-k">放送中…</p><p class="pa-text" id="room-say-text"></p></div>
+              <div class="pa-say" id="room-say" hidden><p class="pa-k" id="room-say-k">放送中…</p><p class="pa-text" id="room-say-text"></p><p class="pa-due" id="room-say-due"></p></div>
             </div>
             <div class="board" id="room-board">
               <div class="board-face">
                 <p class="chalk-text" id="room-chalk"></p>
+                <p class="board-due" id="room-board-due"></p>
                 <div class="board-memos" id="room-memos" hidden></div>
+                <div class="board-tasks" id="room-tasks" hidden></div>
                 <i class="wiper" aria-hidden="true"></i>
                 <p class="board-date" id="room-date"></p>
               </div>
@@ -1015,7 +1100,8 @@ textarea.field { resize: vertical; }
 <div class="letter-pop" id="letter-pop" hidden>
   <button class="icon-btn lp-close" type="button" id="letter-pop-close" aria-label="お便りを閉じる">×</button>
   <article class="print" aria-labelledby="letter-pop-title"><p class="print-head"><span class="print-title" id="letter-pop-title">おたより</span><span class="print-meta" id="letter-pop-meta"></span></p>
-    <p class="print-text" id="letter-pop-text"></p><p class="print-to" id="letter-pop-to"></p></article>
+    <p class="print-text" id="letter-pop-text"></p><p class="print-due" id="letter-pop-due"></p><p class="print-to" id="letter-pop-to"></p></article>
+  <div class="lp-under" id="letter-pop-under"></div>
 </div>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -1028,15 +1114,22 @@ textarea.field { resize: vertical; }
   <form id="write-form" novalidate>
     <fieldset class="chs" id="write-chs">
       <legend class="lbl">伝え方（どうやって伝えた？）</legend>
-      <label class="ch-opt"><input type="radio" name="write-ch" id="write-ch-board" value="board" checked><span><svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><rect class="i-board" x="1" y="1" width="18" height="12" rx="1.5"/><path class="i-chalk" d="M4.5 5 H11 M4.5 8.5 H14"/></svg><b>黒板</b><small>その場で説明</small></span></label>
-      <label class="ch-opt"><input type="radio" name="write-ch" id="write-ch-letter" value="letter"><span><svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><path class="i-paper" d="M4.5 .8 H12.5 L15.5 3.8 V13.2 H4.5 Z"/><path class="i-ink" d="M6.8 5.5 H13.2 M6.8 8 H13.2 M6.8 10.5 H11"/></svg><b>お便り</b><small>文字で配る</small></span></label>
-      <label class="ch-opt"><input type="radio" name="write-ch" id="write-ch-broadcast" value="broadcast"><span><svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><rect class="i-spk" x="1" y="2.5" width="10" height="9" rx="1.6"/><circle class="i-grille" cx="6" cy="7" r="2.3"/><path class="i-wave" d="M13.5 4.5 Q15.5 7 13.5 9.5 M16 2.5 Q19.5 7 16 11.5"/></svg><b>放送</b><small>口や Zoom で伝えた</small></span></label>
+      <label class="ch-opt"><input type="radio" name="write-ch" id="write-ch-board" value="board" checked><i class="ch-has" id="write-has-board" hidden></i><span><svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><rect class="i-board" x="1" y="1" width="18" height="12" rx="1.5"/><path class="i-chalk" d="M4.5 5 H11 M4.5 8.5 H14"/></svg><b>黒板</b><small>その場で説明</small></span></label>
+      <label class="ch-opt"><input type="radio" name="write-ch" id="write-ch-letter" value="letter"><i class="ch-has" id="write-has-letter" hidden></i><span><svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><path class="i-paper" d="M4.5 .8 H12.5 L15.5 3.8 V13.2 H4.5 Z"/><path class="i-ink" d="M6.8 5.5 H13.2 M6.8 8 H13.2 M6.8 10.5 H11"/></svg><b>お便り</b><small>文字で配る</small></span></label>
+      <label class="ch-opt"><input type="radio" name="write-ch" id="write-ch-broadcast" value="broadcast"><i class="ch-has" id="write-has-broadcast" hidden></i><span><svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><rect class="i-spk" x="1" y="2.5" width="10" height="9" rx="1.6"/><circle class="i-grille" cx="6" cy="7" r="2.3"/><path class="i-wave" d="M13.5 4.5 Q15.5 7 13.5 9.5 M16 2.5 Q19.5 7 16 11.5"/></svg><b>放送</b><small>口や Zoom で伝えた</small></span></label>
     </fieldset>
+    <p class="small ch-note" id="write-chs-note">伝え方ごとに、別の頼みを書ける（科目名と時限は同じ）</p>
     <label class="lbl" for="write-text" id="write-text-lbl">頼みごと（書いた字が黒板に映る）</label>
     <div class="slate" id="write-slate" data-ch="board"><textarea id="write-text" name="write-text" maxlength="400" rows="4" autocomplete="off" placeholder="例：明日10時のゼミで使う図を、A4 1枚にまとめて。30分くらいで。途中で一度見せてね"></textarea></div>
     <p class="count" id="write-count">0/400</p>
     <p class="err" id="write-err" hidden>頼みごとを書いてね</p>
     <p class="cast-src" id="write-cast" hidden><span>さっきの放送：「<span id="write-cast-text"></span>」</span><b class="cast-src-tip">要点だけ書くと残りやすい</b></p>
+    <fieldset class="subj dues" id="write-dues-f">
+      <legend class="lbl">締め切り（この伝え方の頼みは、いつまで？）</legend>
+      <div class="res-opts" id="write-dues"></div>
+      <div class="due-date" id="write-due-date-wrap" hidden><label class="small" for="write-due-on">締め切りの日</label><input class="field" type="date" id="write-due-on" name="write-due-on"></div>
+      <p class="small" id="write-due-note">選ぶと、黒板・机の紙・放送の吹き出しの端に「〆 今日中」のように出る（「いつまで？」は出ない）</p>
+    </fieldset>
     <fieldset class="subj periods">
       <legend class="lbl" id="write-period-lbl">時限（時間割のどこに入れる？）</legend>
       <div class="res-opts" id="write-periods"></div>
@@ -1052,6 +1145,7 @@ textarea.field { resize: vertical; }
       <legend class="lbl">だれに向けた頼み？</legend>
       <div id="write-targets"></div>
     </fieldset>
+    <p class="write-del-row"><button class="link-btn danger" type="button" id="write-del" hidden>この伝え方の頼みを消す</button></p>
     <div class="row-btns">
       <button class="btn" type="button" id="write-copy">コピー</button>
       <button class="btn btn-primary" type="submit" id="write-submit">頼みごとを出す</button>
@@ -1080,6 +1174,16 @@ textarea.field { resize: vertical; }
   </form>
 </section>
 
+<section class="sheet is-low" id="sheet-ask" role="dialog" aria-modal="true" aria-labelledby="ask-title" hidden>
+  <div class="grabber" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <h2 id="ask-title" tabindex="-1">この時間の頼み、終わった？</h2>
+    <button class="icon-btn" type="button" data-close aria-label="閉じる">×</button>
+  </div>
+  <p class="small ask-sub">締め切りが「この時間中」の頼み。生徒ごとに選んでね（「あとで」は掃除の時間に見る）</p>
+  <div id="ask-body"></div>
+  <div class="row-btns one"><button class="btn btn-primary" type="button" id="ask-done">次の時間へ</button></div>
+</section>
 <section class="sheet is-low is-sweep" id="sheet-sweep" role="dialog" aria-modal="true" aria-labelledby="sweep-title" hidden>
   <div class="grabber" aria-hidden="true"></div>
   <div class="sheet-head">
@@ -1128,10 +1232,11 @@ textarea.field { resize: vertical; }
     <p><b>生徒は「あなたから見たその人」の仮の像</b>で、本人の評価ではありません。いつでも書き直せます。</p>
     <p><b>席の前後</b>は、その人に言葉が届くのに必要なはっきりさ（カードの Q1「慣れ」）。出来の良し悪しではありません。机を押すと、その生徒の目線に切り替わります。<b>席替え</b>は、前後は「慣れ」のまま、左右の席だけくじで入れ替えます。</p>
     <p><b>時間割</b>は、その日の頼みごとを1限から6限と昼休みの枠に入れたものです。行は9つ（1〜4限・昼休み・5〜6限・掃除・放課後）で、どの行も押すとその時間になります（空いている時限を押すと、そこに書けます。選んでいる行の右の「直す」で直せます）。大きい黒板の右上には、日付と今の時間が出ます。日付は午前3時に切り替わります（0時から2時台は、前の日として数えます）。</p>
-    <p>伝え方は3つ。<b>黒板</b>（その場で説明。黒板に字が出る）・<b>お便り</b>（文字で配る。相手の机に小さな紙が置かれ、紙を押すと大きく読める。パソコンはカーソルを合わせても出る）・<b>放送</b>（口や Zoom で伝えた。紙に残らない。その時間の間はスピーカーの下に吹き出しが出て、スピーカーを押すと消える・もう一度押すと出る）。同じ日に頼みが重なると、生徒の目線に「今日の頼みから」の心の声が足されます。放送（口だけ）は、黒板やお便りより残りにくいとされます。要点（何を・いつまで）を文字でも送ると残りやすくなります。1日の頼みが多いときや、前の頼みの途中で次を頼むときは、迷ったり続きを忘れたりしやすくなります。</p>
+    <p>伝え方は3つ。1つの時限（昼休みも）に、伝え方ごとに別の頼みを1つずつ出せます（シートの伝え方のカードはタブ。文と相手は伝え方ごと、科目名と時限は同じ。伝え方ごとに消せます）。<b>黒板</b>（その場で説明。黒板に字が出る）・<b>お便り</b>（文字で配る。相手の机に小さな紙が置かれ、紙を押すと大きく読める。パソコンはカーソルを合わせても出る）・<b>放送</b>（口や Zoom で伝えた。紙に残らない。その時間の間はスピーカーの下に吹き出しが出て、スピーカーを押すと消える・もう一度押すと出る）。同じ日に頼みが重なると、生徒の目線に「今日の頼みから」の心の声が足されます。放送（口だけ）は、黒板やお便りより残りにくいとされます。要点（何を・いつまで）を文字でも送ると残りやすくなります。1日の頼みが多いときや、前の頼みの途中で次を頼むときは、迷ったり続きを忘れたりしやすくなります。</p>
     <p><b>昼休み</b>は、時間割の「昼休み」を押すと始まり、ほかの行を押すと終わります。生徒は、今ある机のうちとなりあう席に2〜4人ずつ移って、まとまりの真ん中を向きます（並びは昼休みを選んだ時刻で決まり、開き直しても同じです）。先生は教卓で休みます（輪には入りません）。生徒を押すと「話を聞いた（雑談）」を記録できます。昼休みの枠にも頼みごとを入れられます（1日1つ。どの伝え方でも、生徒の目線に「休めなかったかも」が出ます）。</p>
     <p><b>掃除の時間</b>は、1日の終わりに、今日の頼み（と前の日からの続き）を記録から1つずつ出して、生徒ごとに「終わった・途中・まだ」を選ぶ時間です。掃除の行はいつでも押せます（掃除するものがないときは、わけを知らせます）。途中・まだは、続きをいつ・どこからやるか（最初の一歩）を一言で決めておくと、次の日の時間割の下に「前の日からの続き」として出ます。掃除のあと、時間割の行に印が付きます（全員終わった＝✓、途中・まだが残る＝「続き」）。</p>
-    <p><b>放課後</b>を押すと、生徒は帰ります（机は残ります）。</p>
+    <p><b>放課後</b>を押すと、生徒は帰ります（机は残ります。居残りの生徒だけ席に残ります）。</p>
+    <p><b>締め切り</b>は、伝え方ごとに「この時間中」「今日中」「日付」「決めない」から選べます。選ぶと、黒板・机の紙・放送の吹き出しの端に「〆 今日中」のように出て、生徒の目線の「いつまで？」は出なくなります（通知表でも期限があるとして数えます）。「この時間中」の頼みは、その時間からほかの行を押したときに「終わった？」と聞きます（終わった・まだ・あとで）。「今日中」の頼みは掃除の時間で見て、途中・まだなら「締め切りを延ばす（宿題）」か「居残り」を選べます。宿題は終わるまで「前の日からの続き」に出て、締め切りの日の掃除に出ます。大きい黒板の右下には、残っているタスク（宿題・居残り・今日中で終わっていないもの）が生徒ごと・科目ごとに正の字で出ます。お便りは、終わるまで相手の机に残ります（重なるのは3枚まで）。</p>
     <p><b>心の声は「〜かも」の仮説</b>です。相手の立場を想像するより、本人に聞いたほうが当たります。「本人に聞くなら」の一言で確かめよう。</p>
     <p><b>通知表</b>は、黒板の文を言葉の一覧で機械的に数えた目安です。ずれたときは、まず黒板を疑う（何人もずれたら、なおさら）。</p>
     <p>データはこの端末のブラウザにだけ保存されます。</p>
@@ -1153,12 +1258,12 @@ textarea.field { resize: vertical; }
       <div class="scene-board">
         <div class="scene-pa" id="view-pa" hidden>
           <div class="speaker-art" aria-hidden="true"><svg viewBox="0 0 60 38" focusable="false"><circle class="spk-ring" cx="30" cy="18" r="11"/><circle class="spk-ring" cx="30" cy="18" r="6.5"/><circle class="spk-dot" cx="30" cy="18" r="2.4"/><circle class="spk-dot" cx="6" cy="6" r="1.3"/><circle class="spk-dot" cx="54" cy="6" r="1.3"/><circle class="spk-dot" cx="6" cy="32" r="1.3"/><circle class="spk-dot" cx="54" cy="32" r="1.3"/></svg></div>
-          <div class="pa-say is-faded"><p class="pa-k">さっきの放送（消えかけている）</p><p class="pa-text" id="view-pa-text"></p></div>
+          <div class="pa-say is-faded"><p class="pa-k">さっきの放送（消えかけている）</p><p class="pa-text" id="view-pa-text"></p><p class="pa-due" id="view-pa-due"></p></div>
         </div>
         <div class="board-hold">
           <div class="wall-clock" id="view-clock" data-size="1" aria-hidden="true"></div>
           <div class="board">
-            <div class="board-face"><p class="chalk-text" id="view-chalk"></p><p class="board-date" id="view-date"></p></div>
+            <div class="board-face"><p class="chalk-text" id="view-chalk"></p><p class="board-due" id="view-board-due"></p><p class="board-date" id="view-date"></p></div>
             <div class="tray" aria-hidden="true"><i class="ch-w"></i><i class="ch-y"></i><i class="ch-p"></i><i class="eraser"></i></div>
           </div>
         </div>
@@ -1178,23 +1283,12 @@ textarea.field { resize: vertical; }
   </div>
   <div class="wrap view-body">
     <p class="face-why span2" id="view-face"></p>
-    <section aria-labelledby="voices-h">
-      <h3 class="lbl" id="voices-h">心の声（〜かも。仮説です）</h3>
-      <ul class="voices" id="view-voices"></ul>
-      <ul class="voices voices-day" id="view-day-voices" hidden></ul>
+    <!-- 伝え方ごとの見出しで分ける（心の声・本人に聞くなら・足すとよいもの）。いちばん上の区切りに view-voices などの id -->
+    <div class="vsecs span2" id="view-secs"></div>
+    <section class="view-day span2" id="view-day" aria-labelledby="day-h" hidden>
+      <h3 class="lbl" id="day-h">その日のことから（心の声・〜かも）</h3>
+      <ul class="voices voices-day" id="view-day-voices"></ul>
     </section>
-    <div class="view-side">
-      <section class="ask" aria-labelledby="ask-h">
-        <h3 class="lbl" id="ask-h">本人に聞くなら</h3>
-        <p class="ask-q" id="view-ask"></p>
-        <div class="ask-row"><button class="btn btn-small" type="button" id="view-ask-copy">この一言をコピー</button></div>
-      </section>
-      <section aria-labelledby="adds-h">
-        <h3 class="lbl" id="adds-h">黒板に足すとよいもの</h3>
-        <div class="chips" id="view-chips"></div>
-        <p class="small" id="view-chips-note">押すと、黒板の最後にひな形が入る。◯ はあとで書きかえてね</p>
-      </section>
-    </div>
     <p class="view-note span2">見え方は、あなたが答えたカードから作った仮の像です。当たっているかは、本人に聞いて確かめよう。</p>
     <div class="view-actions span2">
       <button class="btn" type="button" id="view-back-2">先生にもどる</button>
@@ -1480,29 +1574,6 @@ var SekigaeEngine = (function () {
   var PERIOD_MAX = 6;
   function validPeriod(p) { return typeof p === 'number' && p >= 1 && p <= PERIOD_MAX && Math.floor(p) === p; }
   function pkey(b, i) { return b && b.id != null ? String(b.id) : '#' + i; }
-  /* 1日に1つずつ入る枠の名前（段Bで「1つの枠に伝え方ごとに1つ」にするときは、ここに伝え方を足す） */
-  function slotKey(slot, b) { return String(slot); }
-  /* 頼みごとごとの時限。持っている時限はそのまま（同じ日に重なったら先に出したほう）。
-     持っていない頼み（古いデータ）は、その日の出した順に空いている時限を小さい順に入れ、7番目からは 0。
-     はっきり 0（時間割に入らない）としてあるものは 0 のまま */
-  function periods(boards) {
-    var out = {}, used = {}, rest = [];
-    var arr = (boards || []).map(function (b, i) { return { b: b, i: i }; }).sort(byTime);
-    arr.forEach(function (x) {
-      var k = dayKey(x.b.createdAt), u = used[k] || (used[k] = {});
-      // 昼休みの枠の頼み：その日の昼休み（1日1つ。2つ目からは、ふつうの頼みとして空いている時限へ）
-      if (isLunch(x.b) && !u[slotKey(LUNCH_SLOT, x.b)]) { u[slotKey(LUNCH_SLOT, x.b)] = true; out[pkey(x.b, x.i)] = LUNCH_SLOT; }
-      else if (validPeriod(x.b.period) && !u[slotKey(x.b.period, x.b)]) { u[slotKey(x.b.period, x.b)] = true; out[pkey(x.b, x.i)] = x.b.period; }
-      else rest.push(x);
-    });
-    rest.forEach(function (x) {
-      var k = dayKey(x.b.createdAt), u = used[k], p = 0;
-      if (x.b.period !== 0 || isLunch(x.b)) for (var n = 1; n <= PERIOD_MAX; n++) if (!u[slotKey(n, x.b)]) { p = n; break; }
-      if (p) u[slotKey(p, x.b)] = true;
-      out[pkey(x.b, x.i)] = p;
-    });
-    return out;
-  }
   function isLunch(b) { return !!(b && b.lunch === true); }
   /* その日の昼休みの枠の頼み（なければ null） */
   function lunchOf(boards, key) {
@@ -1510,17 +1581,11 @@ var SekigaeEngine = (function () {
     (boards || []).forEach(function (b, i) { if (!hit && dayKey(b.createdAt) === key && per[pkey(b, i)] === LUNCH_SLOT) hit = b; });
     return hit;
   }
-  /* その日の空いている時限（exceptId の頼みの時限は空きとみなす＝直すときは今の時限も選べる） */
-  function freePeriods(boards, key, exceptId) {
-    var per = periods(boards), used = {}, out = [];
-    (boards || []).forEach(function (b, i) { if (dayKey(b.createdAt) === key && String(b.id) !== String(exceptId) && per[pkey(b, i)]) used[per[pkey(b, i)]] = true; });
-    for (var n = 1; n <= PERIOD_MAX; n++) if (!used[n]) out.push(n);
-    return out;
-  }
-  /* その日の空いている枠（1〜4限・昼休み・5〜6限の順。exceptId の頼みの枠は空きとみなす） */
+  /* その日の空いている枠（1〜4限・昼休み・5〜6限の順。どの伝え方の頼みも入っていない枠）。
+     exceptId の頼み（id 1つか id の配列。枠ごと動かすときは、その枠の頼み全部）の枠は空きとみなす */
   function freeSlots(boards, key, exceptId) {
-    var per = periods(boards), used = {};
-    (boards || []).forEach(function (b, i) { if (dayKey(b.createdAt) === key && String(b.id) !== String(exceptId) && per[pkey(b, i)]) used[per[pkey(b, i)]] = true; });
+    var per = periods(boards), used = {}, ex = (exceptId == null ? [] : [].concat(exceptId)).map(String);
+    (boards || []).forEach(function (b, i) { if (dayKey(b.createdAt) === key && ex.indexOf(String(b.id)) < 0 && per[pkey(b, i)]) used[per[pkey(b, i)]] = true; });
     return SLOTS.filter(function (s) { return !used[s]; });
   }
   /* その日のその枠の頼み（段A は1つまで。並びは 黒板・お便り・放送 の順） */
@@ -1531,13 +1596,6 @@ var SekigaeEngine = (function () {
       .filter(function (x) { return dayKey(x.b.createdAt) === key && per[pkey(x.b, x.i)] === slot; })
       .sort(function (x, y) { return (CH_ORDER[normChannel(x.b.channel)] - CH_ORDER[normChannel(y.b.channel)]) || byTime(x, y); })
       .map(function (x) { return x.b; });
-  }
-  /* その日の頼み（時限の順。時間割に入らない頼みは最後に、出した順） */
-  function dayList(boards, key) {
-    var per = periods(boards);
-    return (boards || []).map(function (b, i) { return { b: b, i: i, p: per[pkey(b, i)] || 99 }; })
-      .filter(function (x) { return dayKey(x.b.createdAt) === key; })
-      .sort(function (x, y) { return (x.p - y.p) || byTime(x, y); }).map(function (x) { return x.b; });
   }
   /* 時間割で行き来できる日：頼みのある日と今日（古い順） */
   function dayKeys(boards, today) {
@@ -1571,42 +1629,7 @@ var SekigaeEngine = (function () {
     return n ? n + joins : 0;
   }
   function sameBoard(a, b) { return a === b || !!(a && b && a.id != null && a.id === b.id); }
-  /* 割り込み：見ている頼みより前の時限に、同じ生徒への頼みがあって、見ている頼みを出す前に「締め」も「提出」もしていない */
-  function interrupted(list, cur, sid) {
-    var idx = -1;
-    (list || []).forEach(function (b, i) { if (sameBoard(b, cur)) idx = i; });
-    if (idx < 0) return false;
-    return list.slice(0, idx).some(function (p) {
-      if ((p.targets || []).indexOf(sid) < 0) return false;
-      var r = (p.results || {})[sid], t = cur.createdAt || 0;
-      var doneBefore = (r && r.submitted && (r.at || 0) <= t) || (p.closedAt && p.closedAt <= t);
-      return !doneBefore;
-    });
-  }
-  /* その日この生徒に降ってきた頼み（ほかの時限も含む）から足す心の声と、その足すとよいもの。
-     並びは 放送だけ → 3本以上 → 割り込み → 黒板とお便り で、3つまで。list はその日の頼み（出した順）、cur は見ている頼み */
   var DAY_CHIP = { many: '今日の順番：先に◯◯、◯◯は明日でいいよ', interrupt: 'いまの作業は、区切りのいいところまででいいよ', boardLetter: 'お便りも見てね（何を・いつまでが書いてある）' };
-  function dayView(list, cur, sid, all) {
-    var mine = (list || []).filter(function (b) { return (b.targets || []).indexOf(sid) >= 0; });
-    var has = { board: 0, letter: 0, broadcast: 0 }, curText = cur ? String(cur.text || '') : '';
-    mine.forEach(function (b) { has[normChannel(b.channel)]++; });
-    var v = [];
-    /* 見ている頼みそのものが放送なら、その放送は数えない（放送の心の声と重なるため） */
-    if (mine.some(function (b) { return !sameBoard(b, cur) && normChannel(b.channel) === 'broadcast' && !hasLetterCopy(all || list, b, sid); })) {
-      v.push({ key: 'castOnly', text: '放送で聞いたことは、忘れるかも' });
-    }
-    if (mine.length >= 3) v.push({ key: 'many', text: '今日は頼みごとが多くて、どれから手をつけるか迷うかも', chip: !/今日の順番|明日でいい/.test(curText) });
-    if (cur && (cur.targets || []).indexOf(sid) >= 0 && interrupted(list, cur, sid)) {
-      v.push({ key: 'interrupt', text: 'さっきの続き、どこまでやったっけ…ってなるかも', chip: !/区切り/.test(curText) });
-    }
-    if (has.board && has.letter) v.push({ key: 'boardLetter', text: '黒板のほうに気を取られて、お便りを見返すのを忘れるかも',
-      chip: !!cur && normChannel(cur.channel) === 'board' && !/お便りも見て/.test(curText) });
-    v = v.slice(0, 3);
-    return {
-      voices: v.map(function (x) { return { key: x.key, text: x.text }; }),
-      chips: v.filter(function (x) { return x.chip; }).map(function (x) { return { key: x.key, text: DAY_CHIP[x.key], act: 'add' }; })
-    };
-  }
   /* 1日の頼み：いちばん多い日（同じ数なら新しい日） */
   function busiestDay(boards) {
     var n = {}, best = null;
@@ -1624,45 +1647,6 @@ var SekigaeEngine = (function () {
   function logBefore(e, day) { var l = (e && e.log) || []; for (var i = l.length - 1; i >= 0; i--) if (l[i].day < day) return l[i]; return null; }
   function isLeft(st) { return st === 'mid' || st === 'not'; }
   function submittedBy(b, sid) { var r = (b.results || {})[sid]; return !!(r && r.submitted); }
-  /* 選んだ状態を記録する。同じ日に選び直したら、その日の記録を書きかえる。うまくいった印は「終わった」のときだけ */
-  function markSweep(prev, patch, day, now) {
-    prev = prev || {};
-    var e = { st: SWEEP_ST[prev.st] ? prev.st : '', next: String(prev.next || ''), good: !!prev.good, at: Number(prev.at) || 0, log: (prev.log || []).slice() };
-    patch = patch || {};
-    // その日はじめて選ぶときは、一言を空から書く（前の日の一言は記録に残る）
-    var newDay = !(e.log.length && e.log[e.log.length - 1].day === day);
-    if (newDay && SWEEP_ST[patch.st] && patch.next === undefined) e.next = '';
-    if (SWEEP_ST[patch.st]) e.st = patch.st;
-    if (patch.next !== undefined) e.next = Array.from(String(patch.next)).slice(0, SWEEP_NEXT_MAX).join('');
-    if (patch.good !== undefined) e.good = !!patch.good;
-    if (e.st !== 'done') e.good = false;
-    if (!e.st) return e;
-    e.at = now;
-    var entry = { day: day, st: e.st };
-    if (e.st !== 'done' && e.next.trim()) entry.next = e.next.trim();
-    if (e.log.length && e.log[e.log.length - 1].day === day) e.log[e.log.length - 1] = entry; else e.log.push(entry);
-    e.log = e.log.slice(-SWEEP_LOG_MAX);
-    return e;
-  }
-  /* 掃除の時間に出すもの：前の日からの続き（いちばん新しい前の日の記録が途中かまだ）と、その日の頼み。
-     締めた頼みと、提出済みの生徒は出さない（終わった扱い）。続きが先（古い日から）、その日の頼みは時限の順 */
-  function sweepList(boards, day) {
-    var per = periods(boards), carry = [], today = [];
-    (boards || []).forEach(function (b, i) {
-      var d = dayKey(b.createdAt);
-      if (b.closedAt || d > day) return;
-      var sids = (b.targets || []).filter(function (sid) {
-        if (submittedBy(b, sid)) return false;
-        if (d === day) return true;
-        var l = logBefore(sweepOf(b, sid), day);
-        return !!(l && isLeft(l.st));
-      });
-      if (sids.length) (d === day ? today : carry).push({ b: b, i: i, d: d, p: per[pkey(b, i)] || 0, sids: sids });
-    });
-    var ord = function (x, y) { return (x.d < y.d ? -1 : x.d > y.d ? 1 : 0) || ((x.p || 99) - (y.p || 99)) || byTime(x, y); };
-    var item = function (isCarry) { return function (x) { return { board: x.b, sids: x.sids, carry: isCarry, period: x.p, day: x.d }; }; };
-    return carry.sort(ord).map(item(true)).concat(today.sort(ord).map(item(false)));
-  }
   /* 「まだ」の心の声を出し分けるための、その頼みとその生徒のようす（その日＝掃除をする日） */
   function sweepCtx(boards, b, sid, day) {
     var mine = dayList(boards, day).filter(function (x) { return (x.targets || []).indexOf(sid) >= 0; });
@@ -1684,36 +1668,15 @@ var SekigaeEngine = (function () {
     v.placeholder = '例：去年の資料を開くところまで';
     return v;
   }
-  /* まとめ：その日に選んだ数（生徒ごと）・出しすぎ（途中かまだが残った頼みが2つ以上で、半分以上）・
-     全部決まった（途中・まだの一言が全部ある）・明日の続き */
-  function sweepSummary(items, day) {
-    var s = { done: 0, mid: 0, not: 0, items: (items || []).length, left: 0, carry: [] };
-    (items || []).forEach(function (it) {
-      var left = false;
-      it.sids.forEach(function (sid) {
-        var l = logOn(sweepOf(it.board, sid), day);
-        if (!l || !SWEEP_ST[l.st]) return;
-        s[l.st]++;
-        if (isLeft(l.st)) { left = true; s.carry.push({ board: it.board, sid: sid, st: l.st, next: l.next || '', period: it.period }); }
-      });
-      if (left) s.left++;
-    });
-    s.tooMany = s.left >= 2 && s.left * 2 >= s.items;
-    s.allPlanned = s.carry.length > 0 && s.carry.every(function (c) { return !!c.next; });
-    return s;
-  }
-  /* 前の日からの続き（その日の時間割の下に出すもの）：その日に「終わった」にした生徒はのぞく */
-  function carryOver(boards, day) {
-    return sweepList(boards, day).filter(function (it) { return it.carry; }).map(function (it) {
-      var pairs = it.sids.map(function (sid) { var e = sweepOf(it.board, sid), l = logBefore(e, day); return { sid: sid, st: l.st, next: l.next || '', from: l.day }; })
-        .filter(function (p) { var t = logOn(sweepOf(it.board, p.sid), day); return !(t && t.st === 'done'); });
-      return { board: it.board, period: it.period, day: it.day, pairs: pairs };
-    }).filter(function (c) { return c.pairs.length; });
-  }
-  /* 掃除するものがないわけ（あれば ''）：今日の頼みがない＝none／頼みの相手がいない＝noTargets／相手が全員提出済みか締めた＝allDone */
+  /* 掃除するものがないわけ（あれば ''）：今日の頼みがない＝none／頼みの相手がいない＝noTargets／
+     締め切りがまだ先の宿題だけ＝homework（締め切りの日の掃除に出る）／相手が全員提出済みか締めた＝allDone */
   function sweepEmptyWhy(boards, day) {
     if (sweepList(boards, day).length) return '';
+    var waiting = (boards || []).some(function (b) {
+      return !b.closedAt && dayKey(b.createdAt) <= day && (b.targets || []).some(function (sid) { return !doneBy(b, sid, day) && dueDayFor(b, sid, day, false) > day; });
+    });
     var mine = (boards || []).filter(function (b) { return dayKey(b.createdAt) === day; });
+    if (waiting) return 'homework';
     if (!mine.length) return 'none';
     if (mine.every(function (b) { return !(b.targets || []).length; })) return 'noTargets';
     return 'allDone';
@@ -1732,15 +1695,13 @@ var SekigaeEngine = (function () {
     if (!swept) return '';
     return left ? 'left' : done ? 'done' : '';
   }
-  function mdDay(day) { var p = String(day).split('-'); return Number(p[1]) + '/' + Number(p[2]); }
-  /* 書き出しの「掃除: 10/18 途中（続き: …）→ 10/19 終わった」 */
-  function sweepLogText(e) {
-    var l = (e && e.log) || [];
-    if (!l.length) return '';
-    // 「…）→ 10/19」のように、かっこのあとは空けずにつなぐ
-    return l.map(function (x) { return mdDay(x.day) + ' ' + SWEEP_ST[x.st] + (x.next ? '（' + (x.st === 'mid' ? '続き' : '最初の一歩') + ': ' + oneLine(x.next) + '）' : ''); })
-      .reduce(function (t, s) { return t ? t + (/）$/.test(t) ? '→ ' : ' → ') + s : s; }, '') + (e.st === 'done' && e.good ? '（うまくいった頼み方）' : '');
+  /* 枠（同じ時間の伝え方ごとの頼み）の掃除のあとの印：どれかに途中・まだが残る＝left（続き）、全部が全員終わった＝done（✓）、ほかは '' */
+  function slotMarkOf(list) {
+    var marks = (list || []).map(sweepMark);
+    if (marks.indexOf('left') >= 0) return 'left';
+    return marks.length && marks.every(function (m) { return m === 'done'; }) ? 'done' : '';
   }
+  function mdDay(day) { var p = String(day).split('-'); return Number(p[1]) + '/' + Number(p[2]); }
   /* ===== 昼休み：仕事以外のくだけた関わり（雑談）を「話を聞いた」として記録する =====
      生徒の talks: [{ day, at, topic, listened }]（1日に1人1回・30件まで）。「雑談すると関係が良くなる」とは言わない */
   var TALK_MAX = 30, TALK_TOPIC_MAX = 40, TALK_DAYS = 7, TALK_BONUS_MAX = 0.1;
@@ -2081,7 +2042,6 @@ var SekigaeEngine = (function () {
       .map(function (id) { return effectiveFam(byId[id].answers, !!(board.firstTime && board.firstTime[id])); });
   }
   function boardAcked(board) { var r = board.results || {}; return Object.keys(r).some(function (k) { return r[k] && r[k].ack; }); }
-  function scoreSaved(board, byId) { return scoreBoard(readBoard(board.text), boardFams(board, byId), boardAcked(board)); }
   function reportCard(scores) {
     if (!scores.length) return null;
     var d = r2(avg(scores.map(function (x) { return x.demand; }))), s = r2(avg(scores.map(function (x) { return x.support; })));
@@ -2146,6 +2106,525 @@ var SekigaeEngine = (function () {
   function fmt(x) { return (Math.round(x * 100) / 100).toFixed(2); }
   function oneLine(t) { return String(t).replace(/\s*\r?\n\s*/g, ' / ').trim(); }
   function studentName(s) { return (s.example ? '見本：' : '') + s.name; }
+
+  /* ===================================================================================
+     v0.4 段B・段C の判定（1つの枠に伝え方ごとの頼み・締め切り・宿題・居残り・正の字・机のお便り）。
+     periods・freePeriods・dayList・interrupted・dayView・scoreSaved・markSweep・sweepList・carryOver・sweepSummary・sweepLogText・exportMarkdown は、
+     段B・段C に合わせてここに置きかえた（変えた点はそれぞれの説明に「変えた点」として書いた）
+     データ（保存の名前 sekigae:v1 のまま。どれも古いデータには無く、無ければ今までどおりに読む）
+       頼みごと.due        締め切り { kind: 'slot'（この時間中）|'day'（今日中）|'date'（日付まで）|'none'（決めない）, date: 'YYYY-MM-DD'（date のときだけ） }
+       頼みごと.slotCheck  「この時間中」の答え { 生徒id: { ans: 'done'|'not'|'later', at: 時刻 } }
+       頼みごと.sweep[生徒id].log の1件に  ext: 'YYYY-MM-DD'（締め切りを延ばした日）か  stay: true（その日は居残り）
+       頼みごと.lunch      昼休みの枠の頼み（段A：どの伝え方でも。period は 0）
+     頼みの日は今までどおり dayKey(createdAt)。前の日の枠に伝え方を足すときだけ、createdAt を slotCreatedAt で決める
+     =================================================================================== */
+
+  /* ----- 段B：枠（1〜4限・昼休み・5〜6限）と、枠の中の伝え方 ----- */
+  /* 伝え方の並びの番号（黒板 0・お便り 1・放送 2）。画面で並べるときの比べ方に */
+  function channelOrder(c) { return CH_ORDER[normChannel(c)]; }
+  function chOrd(b) { return CH_ORDER[normChannel(b && b.channel)]; }
+  /* 'YYYY-MM-DD' の、ほんとうにある日か（2026-02-30 などはだめ） */
+  function validDay(d) { return typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d) && ymd(keyNoon(d)) === d; }
+  function copyOf(o) { var c = {}; Object.keys(o || {}).forEach(function (k) { c[k] = o[k]; }); return c; }
+  /* 日 → 枠 → 伝え方 → 出した順。時間割の外（p＝99）は、その日の最後に出した順（伝え方では並べない） */
+  function seqCmp(x, y) { return (x.d < y.d ? -1 : x.d > y.d ? 1 : 0) || (x.p - y.p) || (x.p !== 99 ? chOrd(x.b) - chOrd(y.b) : 0) || byTime(x, y); }
+  function ordered(boards, per) {
+    per = per || periods(boards);
+    return (boards || []).map(function (b, i) { return { b: b, i: i, d: dayKey(b.createdAt), p: per[pkey(b, i)] || 99 }; }).sort(seqCmp);
+  }
+
+  /* periods：頼みごとごとの枠（1〜6・昼休み 4.5・時間割の外 0）。
+     段B：「同じ日・同じ枠・同じ伝え方」は1つまで（1つの枠に黒板・お便り・放送を1つずつ、最大3つ）。
+     ・持っている時限（1〜6）はそのまま。同じ日・同じ時限・同じ伝え方が重なったら、先に出したほうを残す
+     ・lunch: true の頼みは、その日の昼休み（4.5）。同じ日・同じ伝え方の2つ目からは、ふつうの頼みとして空きへ
+     ・時限のない頼み（古いデータ）と、重なってはみ出た頼みは、その日の出した順に「どの伝え方も入っていない時限」を小さい順に。
+       なければ 0（ほかの頼みと同じ枠にはしない＝古いデータの1件は、それだけで1つの枠のまま）
+     ・はっきり 0（時間割に入らない）としてあるものは 0 のまま
+     変えた点：重なりの見方を「同じ時限」から「同じ時限・同じ伝え方」に。昼休みを放送だけからどの伝え方にも（isLunch） */
+  function periods(boards) {
+    var out = {}, used = {}, rest = [];
+    var arr = (boards || []).map(function (b, i) { return { b: b, i: i }; }).sort(byTime);
+    function take(u, p, ch) { u[p] = true; u[p + ':' + ch] = true; }
+    arr.forEach(function (x) {
+      var k = dayKey(x.b.createdAt), u = used[k] || (used[k] = {}), ch = normChannel(x.b.channel);
+      if (isLunch(x.b) && !u[LUNCH_SLOT + ':' + ch]) { take(u, LUNCH_SLOT, ch); out[pkey(x.b, x.i)] = LUNCH_SLOT; }
+      else if (validPeriod(x.b.period) && !u[x.b.period + ':' + ch]) { take(u, x.b.period, ch); out[pkey(x.b, x.i)] = x.b.period; }
+      else rest.push(x);
+    });
+    rest.forEach(function (x) {
+      var k = dayKey(x.b.createdAt), u = used[k], p = 0;
+      if (x.b.period !== 0 || isLunch(x.b)) for (var n = 1; n <= PERIOD_MAX; n++) if (!u[n]) { p = n; break; }
+      if (p) take(u, p, normChannel(x.b.channel));
+      out[pkey(x.b, x.i)] = p;
+    });
+    return out;
+  }
+  /* freePeriods：その日の空いている時限（どの伝え方も入っていない時限）。新しい頼みは空いている時限に出す。
+     変えた点：exceptId に id の配列も渡せる（枠ごと別の時限へ動かすときは、その枠の頼みを全部「空き」とみなす） */
+  function freePeriods(boards, key, exceptId) {
+    var per = periods(boards), used = {}, out = [], ex = (exceptId == null ? [] : [].concat(exceptId)).map(String);
+    (boards || []).forEach(function (b, i) { if (dayKey(b.createdAt) === key && ex.indexOf(String(b.id)) < 0 && per[pkey(b, i)]) used[per[pkey(b, i)]] = true; });
+    for (var n = 1; n <= PERIOD_MAX; n++) if (!used[n]) out.push(n);
+    return out;
+  }
+  /* dayList：その日の頼み。枠の順（1〜4限・昼休み・5〜6限）、同じ枠では 黒板 → お便り → 放送。時間割に入らない頼みは最後に出した順。
+     変えた点：同じ枠の中を伝え方の順に（今までは出した順） */
+  function dayList(boards, key) {
+    return ordered(boards).filter(function (x) { return x.d === key; }).map(function (x) { return x.b; });
+  }
+  /* その頼みの枠（1〜6・昼休み 4.5・時間割の外 0。見つからなければ 0） */
+  function slotOf(boards, b) {
+    var per = periods(boards), hit = 0;
+    (boards || []).forEach(function (x, i) { if (sameBoard(x, b)) hit = per[pkey(x, i)] || 0; });
+    return hit;
+  }
+  /* 同じ日・同じ枠の頼み（b も入る。黒板 → お便り → 放送）。時間割の外（0）なら b だけ */
+  function slotMates(boards, b) {
+    var list = boards || [], me = null;
+    list.forEach(function (x) { if (sameBoard(x, b)) me = x; });
+    if (!me) return b ? [b] : [];
+    var p = slotOf(list, me);
+    return p ? slotBoards(list, dayKey(me.createdAt), p) : [me];
+  }
+  /* 科目名をそろえる（科目名は枠で1つ。どれかで直すと同じ枠の全部がそろう）。
+     b と同じ枠の頼みを全部 subject（normSubject：10字まで・空なら授業）にした、新しい配列を返す（そろえた頼みは写し・ほかの頼みはそのまま）。
+     画面でそのまま書きかえるなら、slotMates(boards, b) を回して subject を入れてもよい */
+  function alignSubject(boards, b, subject) {
+    var s = normSubject(subject), mates = slotMates(boards, b);
+    return (boards || []).map(function (x) { if (mates.indexOf(x) < 0) return x; var c = copyOf(x); c.subject = s; return c; });
+  }
+  /* 枠の科目名（枠の最初の頼み＝黒板 → お便り → 放送の順のもの）。空の枠は '' */
+  function slotSubject(boards, key, slot) { var l = slotBoards(boards, key, slot); return l.length ? normSubject(l[0].subject) : ''; }
+  /* 枠に伝え方を足す（その枠に新しい頼みを出す）ときの createdAt。
+     頼みの日は createdAt で決まるので、前の日の枠に今の時刻で足すと今日の頼みになってしまう。その答え：
+     ・その枠の日が今日（now の日。午前3時の区切り）なら now
+     ・前の日などなら、その枠の頼みのいちばん新しい createdAt ＋1ミリ秒（午前3時の区切りをまたぐなら同じ時刻）。枠が空ならその日の正午
+     本当に書いた時刻は updatedAt に残る（画面は保存のとき updatedAt＝now にしている） */
+  function slotCreatedAt(boards, key, slot, now) {
+    if (dayKey(now) === key) return now;
+    var t = null;
+    slotBoards(boards, key, slot).forEach(function (b) { var c = Number(b.createdAt) || 0; if (t === null || c > t) t = c; });
+    if (t === null) return keyNoon(key);
+    return dayKey(t + 1) === key ? t + 1 : t;
+  }
+
+  /* ----- 段B：生徒の目線（その枠の頼みを伝え方ごとに）と、その日の心の声 ----- */
+  /* 同じ頼みか：要点のお便り（fromCast がその放送）か、同じ文（前後と途中の空白の違いは同じ） */
+  function sameRequest(a, b) {
+    var cast = function (l, c) { return normChannel(l.channel) === 'letter' && c.id != null && l.fromCast === c.id; };
+    return cast(a, b) || cast(b, a) || sameText(a.text, b.text);
+  }
+  /* 別々の頼みの数（同じ頼みの書き写し・要点のお便りは1つに数える） */
+  function distinctRequests(list) {
+    list = list || [];
+    return list.filter(function (b, i) { return !list.slice(0, i).some(function (a) { return sameRequest(a, b); }); }).length;
+  }
+  /* 割り込みの中身（per＝periods(list)）：見ている頼みより前の枠（時限の数が小さい枠。昼休みは 4.5。時間割の外どうしは list の順）に
+     この生徒への頼みがあって、それを見ている頼みを出す前に「締め」も「提出」もしていない */
+  function interruptedIn(list, per, cur, sid) {
+    var ci = -1;
+    list.forEach(function (b, i) { if (sameBoard(b, cur)) ci = i; });
+    if (ci < 0) return false;
+    var cs = per[pkey(list[ci], ci)] || 99, t = cur.createdAt || 0;
+    return list.some(function (p, i) {
+      if (i === ci || (p.targets || []).indexOf(sid) < 0) return false;
+      var ps = per[pkey(p, i)] || 99;
+      if (!(ps < cs || (ps === 99 && cs === 99 && i < ci))) return false;
+      var r = (p.results || {})[sid];
+      var doneBefore = (r && r.submitted && (r.at || 0) <= t) || (p.closedAt && p.closedAt <= t);
+      return !doneBefore;
+    });
+  }
+  /* interrupted：割り込み。
+     変えた点：「list で前にある頼み」から「前の枠の頼み」に（段B：同じ枠のほかの伝え方は、前の頼みにしない） */
+  function interrupted(list, cur, sid) { list = list || []; return interruptedIn(list, periods(list), cur, sid); }
+
+  /* 同じ枠に別々の頼み（段B・○〜△：量と負担・連絡の過多） */
+  var SAME_SLOT_VOICE = '同じ時間に別々の頼み…どれからやればいいか迷うかも';
+  /* dayView：その日この生徒に降ってきた頼みから足す心の声（3つまで）と、その足すとよいもの。
+     段B：生徒の目線にはその枠の頼みが全部出るので、「見ている頼み」を「cur と、cur と同じ日・同じ枠のこの生徒あての頼み」にした。
+     → 心の声は、その枠のどの頼みを cur にしても同じになる。
+     並び：放送だけ → 3本以上 → 割り込み → 同じ枠に別々の頼み（新しい） → 黒板とお便り。3つまで。
+       「同じ枠に別々の頼み」は ○〜△ なので、○ の3つのあと・△ の「黒板とお便り」の前に入れた（今の3つの出方は変わらない。押し出されるのは △ の「黒板とお便り」だけ）
+     放送だけ：見ている枠の放送は数えない（その放送の区切りに放送の声が出るため。今までの「見ている頼みそのものの放送は数えない」を枠に広げた）
+     割り込み：見ている枠のこの生徒あての頼みのどれかが割り込みなら出す。同じ枠のほかの伝え方は前の頼みにしない
+     別々の頼み：見ている枠のこの生徒あての頼みが、2つ以上の伝え方で別々（要点のお便り・同じ文は1つ）のとき
+     足すとよいものは、その枠の1つの頼みにだけ出す（cur がその頼みのときだけ chips に入る）：
+       3本以上＝枠の最初の頼み（黒板 → お便り → 放送）・割り込み＝割り込みになった最初の頼み・黒板とお便り＝黒板（今までどおり）。
+       3本以上と割り込みは、その枠のどれかの文にもう書いてあれば出さない。「同じ枠に別々の頼み」には足すものを付けない（仕様にないため） */
+  function dayView(list, cur, sid, all) {
+    list = list || [];
+    var per = periods(list), mine = list.filter(function (b) { return (b.targets || []).indexOf(sid) >= 0; });
+    var ci = -1;
+    list.forEach(function (b, i) { if (sameBoard(b, cur)) ci = i; });
+    var cs = ci >= 0 ? per[pkey(list[ci], ci)] || 0 : 0, cday = cur ? dayKey(cur.createdAt) : '';
+    var seen = list.map(function (b, i) { return { b: b, i: i }; }).filter(function (x) {
+      return sameBoard(x.b, cur) || (!!cs && per[pkey(x.b, x.i)] === cs && dayKey(x.b.createdAt) === cday && (x.b.targets || []).indexOf(sid) >= 0);
+    }).sort(function (x, y) { return (chOrd(x.b) - chOrd(y.b)) || byTime(x, y); }).map(function (x) { return x.b; });
+    if (cur && !seen.length) seen = [cur];
+    var isSeen = function (b) { return seen.some(function (x) { return sameBoard(x, b); }); };
+    var said = function (re) { return seen.some(function (x) { return re.test(String(x.text || '')); }); };
+    var to = seen.filter(function (b) { return (b.targets || []).indexOf(sid) >= 0; });
+    var lead = to[0] || cur, curText = cur ? String(cur.text || '') : '';
+    var has = { board: 0, letter: 0, broadcast: 0 };
+    mine.forEach(function (b) { has[normChannel(b.channel)]++; });
+    var v = [];
+    if (mine.some(function (b) { return !isSeen(b) && normChannel(b.channel) === 'broadcast' && !hasLetterCopy(all || list, b, sid); })) {
+      v.push({ key: 'castOnly', text: '放送で聞いたことは、忘れるかも' });
+    }
+    if (mine.length >= 3) v.push({ key: 'many', text: '今日は頼みごとが多くて、どれから手をつけるか迷うかも', chip: sameBoard(cur, lead) && !said(/今日の順番|明日でいい/) });
+    var hit = to.filter(function (b) { return interruptedIn(list, per, b, sid); });
+    if (hit.length) v.push({ key: 'interrupt', text: 'さっきの続き、どこまでやったっけ…ってなるかも', chip: sameBoard(cur, hit[0]) && !said(/区切り/) });
+    if (distinctRequests(to) >= 2) v.push({ key: 'sameSlot', text: SAME_SLOT_VOICE });
+    if (has.board && has.letter) v.push({ key: 'boardLetter', text: '黒板のほうに気を取られて、お便りを見返すのを忘れるかも',
+      chip: !!cur && normChannel(cur.channel) === 'board' && !/お便りも見て/.test(curText) });
+    v = v.slice(0, 3);
+    return {
+      voices: v.map(function (x) { return { key: x.key, text: x.text }; }),
+      chips: v.filter(function (x) { return x.chip; }).map(function (x) { return { key: x.key, text: DAY_CHIP[x.key], act: 'add' }; })
+    };
+  }
+  /* 生徒の目線（段B）：その枠でその生徒あての頼みを、伝え方ごとの区切り（見出し）で返す。
+     student は { id, answers }。この生徒あての頼みが枠になければ、枠の頼みを全部「相手ではない（見え方は参考）」で返す（今の目線と同じ考え）。
+     区切りごとの目線は studentView を伝え方ごとに呼んだもの（締め切りを選んである頼みは withDue で読む＝「いつまで？」が出ない。
+     昼休みの枠なら lunch: true を渡す）。その日の心の声は枠で1つ（dayView。区切りの外に出す）。
+     返すもの: { day, slot, name（「4限」「昼休み」）, subject, off, sections, voices（その日の心の声・3つまで）, stay（居残りの声 or null） }
+     sections の1つ: { channel, label（黒板・お便り・放送）, board, off, due（「〆 今日中」など。なければ ''）, view（studentView の答え）,
+       chips（その頼みの足すとよいもの5つまで＋その日のもの。6つまで） } */
+  function slotView(boards, key, slot, student) {
+    var all = boards || [], sid = student && student.id, list = dayList(all, key), inSlot = slot ? slotBoards(all, key, slot) : [];
+    var mine = inSlot.filter(function (b) { return (b.targets || []).indexOf(sid) >= 0; }), off = !mine.length, use = off ? inSlot : mine;
+    var voices = [];
+    var sections = use.map(function (b, n) {
+      var ch = normChannel(b.channel);
+      var v = studentView(withDue(readBoard(b.text), b.due), student && student.answers, { firstTime: !!(b.firstTime && b.firstTime[sid]), channel: ch,
+        letterCopy: ch === 'broadcast' && hasLetterCopy(all, b, off ? '' : sid), lunch: slot === LUNCH_SLOT });
+      var dv = dayView(list, b, sid, all);
+      if (!n) voices = dv.voices;
+      return { channel: ch, label: channelLabel(ch), board: b, off: off, due: dueLabel(b.due), view: v, chips: v.chips.concat(dv.chips).slice(0, 6) };
+    });
+    return { day: key, slot: slot, name: periodName(slot), subject: use.length ? normSubject(use[0].subject) : '', off: off,
+      sections: sections, voices: voices, stay: stayVoice(all, sid, key) };
+  }
+
+  /* ----- 段C：締め切り ----- */
+  /* 締め切りの種類（シートのチップの順）。日付は、その頼みの日より後の日を選ぶ */
+  var DUE_KINDS = [{ key: 'slot', label: 'この時間中' }, { key: 'day', label: '今日中' }, { key: 'date', label: '日付' }, { key: 'none', label: '決めない' }];
+  /* 締め切りを読む：{ kind: 'slot'|'day'|'none' } か { kind: 'date', date: 'YYYY-MM-DD' }。
+     無い・読めないもの（古いデータ・ない日の日付）は「決めない」。保存は、決めないなら due を持たなくてよい */
+  function normDue(d) {
+    if (!d || typeof d !== 'object') return { kind: 'none' };
+    if (d.kind === 'slot' || d.kind === 'day') return { kind: d.kind };
+    if (d.kind === 'date' && validDay(d.date)) return { kind: 'date', date: d.date };
+    return { kind: 'none' };
+  }
+  function dueKind(d) { return normDue(d).kind; }
+  /* 締め切りの表示（黒板・プリント・吹き出しの端の黄色いチョーク）：「〆 この時間中」「〆 今日中」「〆 10/20まで」。決めないなら '' */
+  function dueLabel(d) {
+    var n = normDue(d);
+    return n.kind === 'slot' ? '〆 この時間中' : n.kind === 'day' ? '〆 今日中' : n.kind === 'date' ? '〆 ' + mdDay(n.date) + 'まで' : '';
+  }
+  /* 頼みの締め切りの日（延ばす前）：この時間中・今日中＝頼みの日（午前3時の区切り）、日付＝その日、決めない＝'' */
+  function boardDueDay(b) { var n = normDue(b && b.due); return n.kind === 'none' ? '' : n.kind === 'date' ? n.date : dayKey(b.createdAt); }
+  /* 掃除の記録で延ばした日（day までの記録でいちばん新しいもの。withToday が false なら day の日の記録は見ない。day がなければ全部から） */
+  function extOf(e, day, withToday) {
+    var l = (e && e.log) || [];
+    for (var i = l.length - 1; i >= 0; i--) {
+      if (day && (withToday === false ? l[i].day >= day : l[i].day > day)) continue;
+      if (l[i].ext) return l[i].ext;
+    }
+    return '';
+  }
+  /* その生徒の締め切りの日：延ばしていれば延ばした日、なければ頼みの締め切りの日（決めないなら ''）。
+     withToday が false なら、day の日の掃除で決めた延ばしは入れない（その日の掃除の中で延ばしても、一覧や「延ばす・居残り」が消えないように） */
+  function dueDayFor(b, sid, day, withToday) { return extOf(sweepOf(b, sid), day, withToday) || boardDueDay(b); }
+  /* 締め切りの欄を、読み取った特徴に足す（今の deadline の判定とのつなぎ）：締め切りを選んであれば「期限あり」として読む。
+     → 生徒の目線の「いつまで？」の吹き出し・声・聞く一言・足すもの（いつまで：◯日◯時まで）が出ない。通知表の「期限かかける時間」にも数える。
+     studentView・scoreBoard は変えずに、渡す特徴だけ変える（readBoard の答えは変えずに写しを返す。決めないならそのまま返す） */
+  function withDue(f, due) {
+    if (!f || dueKind(due) === 'none') return f;
+    var c = copyOf(f);
+    c.deadline = true;
+    c.dueSet = true;
+    return c;
+  }
+  /* 掃除の時間で「締め切りを延ばす」「居残り」を出すか：締め切りのある頼みで、その日が締め切りか、もう過ぎている
+     （その日の掃除で決めた延ばしは数えない）。画面は、途中・まだを選んだときだけ出す */
+  function dueChoice(b, sid, day) { var due = dueDayFor(b, sid, day, false); return !!due && due <= day; }
+  /* day の日の終わりまでに、その生徒にとって終わっているか：締めた・提出した・掃除で「終わった」（どれも day の日までの記録で） */
+  function doneBy(b, sid, day) {
+    if (b.closedAt && dayKey(b.closedAt) <= day) return true;
+    var r = (b.results || {})[sid];
+    if (r && r.submitted && (!r.at || dayKey(r.at) <= day)) return true;
+    var l = (sweepOf(b, sid) || {}).log || [];
+    for (var i = l.length - 1; i >= 0; i--) if (l[i].day <= day) return l[i].st === 'done';
+    return false;
+  }
+  /* day の日に、その生徒にとってまだ開いている頼みか：終わっていない かつ
+     （その日の頼み・締め切りのある頼み（宿題・締め切りを過ぎたもの）・前の日からの続き＝前の日の記録が途中かまだ）。先の日の頼みは開いていない */
+  function openOn(b, sid, key) {
+    var d = dayKey(b.createdAt);
+    if (d > key || doneBy(b, sid, key)) return false;
+    if (d === key || dueDayFor(b, sid, key, true)) return true;
+    var l = logBefore(sweepOf(b, sid), key);
+    return !!(l && isLeft(l.st));
+  }
+  /* scoreSaved：保存した頼みの通知表の点。変えた点：締め切りの欄（due）も「期限」に数える（withDue。点の式は同じ） */
+  function scoreSaved(board, byId) { return scoreBoard(withDue(readBoard(board.text), board.due), boardFams(board, byId), boardAcked(board)); }
+
+  /* ----- 段C：掃除の時間と、締め切りを延ばす（宿題）・居残り ----- */
+  /* markSweep：選んだ状態を記録する（今までの決まりはそのまま）。
+     変えた点：patch に ext（締め切りを延ばした日 'YYYY-MM-DD'。その日より後のほんとうの日だけ）と stay（居残り 真偽）を足した。
+     その日の記録（log の1件）に持ち、同じ日に状態や一言を選び直しても残る。ext と stay はどちらか1つ（あとから選んだほう。同時に渡すと stay）。
+     「終わった」にしたら両方消える。ext: '' や stay: false で取り消し。状態を選ぶ前は記録しない（今までどおり） */
+  function markSweep(prev, patch, day, now) {
+    prev = prev || {};
+    var e = { st: SWEEP_ST[prev.st] ? prev.st : '', next: String(prev.next || ''), good: !!prev.good, at: Number(prev.at) || 0, log: (prev.log || []).slice() };
+    patch = patch || {};
+    var last = e.log.length && e.log[e.log.length - 1].day === day ? e.log[e.log.length - 1] : null;
+    // その日はじめて選ぶときは、一言を空から書く（前の日の一言は記録に残る）
+    if (!last && SWEEP_ST[patch.st] && patch.next === undefined) e.next = '';
+    if (SWEEP_ST[patch.st]) e.st = patch.st;
+    if (patch.next !== undefined) e.next = Array.from(String(patch.next)).slice(0, SWEEP_NEXT_MAX).join('');
+    if (patch.good !== undefined) e.good = !!patch.good;
+    if (e.st !== 'done') e.good = false;
+    if (!e.st) return e;
+    var ext = last && last.ext ? last.ext : '', stay = !!(last && last.stay);
+    if (patch.ext !== undefined) { ext = validDay(patch.ext) && patch.ext > day ? patch.ext : ''; if (ext) stay = false; }
+    if (patch.stay !== undefined) { stay = !!patch.stay; if (stay) ext = ''; }
+    if (e.st === 'done') { ext = ''; stay = false; }
+    e.at = now;
+    var entry = { day: day, st: e.st };
+    if (e.st !== 'done' && e.next.trim()) entry.next = e.next.trim();
+    if (ext) entry.ext = ext;
+    if (stay) entry.stay = true;
+    if (last) e.log[e.log.length - 1] = entry; else e.log.push(entry);
+    e.log = e.log.slice(-SWEEP_LOG_MAX);
+    return e;
+  }
+  /* 掃除の記録の1件を読む（読み込み normalize の normSweep で使う。今の normSweep は ext・stay を落とすので、これに替える）。
+     { day, st, next?, ext?, stay? }。ext はその日より後のほんとうの日だけ、stay は true だけ、どちらも「終わった」なら持たない。読めないものは null */
+  function normLogEntry(l) {
+    if (!l || !/^\d{4}-\d{2}-\d{2}$/.test(String(l.day)) || !SWEEP_ST[l.st]) return null;
+    var o = { day: String(l.day), st: l.st };
+    if (l.next && l.st !== 'done') o.next = Array.from(String(l.next)).slice(0, SWEEP_NEXT_MAX).join('');
+    if (l.st !== 'done') {
+      if (validDay(l.ext) && l.ext > o.day) o.ext = l.ext;
+      else if (l.stay === true) o.stay = true;
+    }
+    return o;
+  }
+  /* sweepList：掃除の時間に出すもの。前の日からの続き（古い日から）→ その日の頼み（枠の順・同じ枠は 黒板 → お便り → 放送）。
+     締めた頼みと、提出済みの生徒は出さない（今までどおり）。
+     変えた点：(段B) 同じ枠の中を伝え方の順に。(段C)
+     ・宿題（その生徒の締め切りの日がまだ先）は出さない。締め切りの日の掃除に出す（その日に出した「日付まで」の頼みも、その日には出さない）
+     ・締め切りのある前の日の頼みは、締め切りの日か過ぎていれば、掃除の記録がなくても出す（終わるまで）
+     ・締め切りのない前の日の頼みは今までどおり（前の日の記録が途中かまだのときだけ）
+     ・その日の掃除で決めた延ばしでは一覧から消さない（dueDayFor の withToday＝false） */
+  function sweepList(boards, day) {
+    var per = periods(boards), carry = [], today = [];
+    (boards || []).forEach(function (b, i) {
+      var d = dayKey(b.createdAt);
+      if (b.closedAt || d > day) return;
+      var sids = (b.targets || []).filter(function (sid) {
+        if (submittedBy(b, sid)) return false;
+        var due = dueDayFor(b, sid, day, false);
+        if (due && due > day) return false;
+        if (d === day) return true;
+        var l = logBefore(sweepOf(b, sid), day);
+        if (l && l.st === 'done') return false;
+        return !!due || !!(l && isLeft(l.st));
+      });
+      if (sids.length) (d === day ? today : carry).push({ b: b, i: i, d: d, p: per[pkey(b, i)] || 0, sids: sids });
+    });
+    var ord = function (x, y) { return (x.d < y.d ? -1 : x.d > y.d ? 1 : 0) || ((x.p || 99) - (y.p || 99)) || (x.p ? chOrd(x.b) - chOrd(y.b) : 0) || byTime(x, y); };
+    var item = function (isCarry) { return function (x) { return { board: x.b, sids: x.sids, carry: isCarry, period: x.p, day: x.d }; }; };
+    return carry.sort(ord).map(item(true)).concat(today.sort(ord).map(item(false)));
+  }
+  /* carryOver：前の日からの続き（その日の時間割の下に出すもの）。その日に「終わった」にした生徒はのぞく（今までどおり）。
+     変えた点（段C）：締め切りのある前の日の頼み（宿題・締め切りを過ぎたもの）も、終わるまで出す。まだ締め切りの来ていない宿題も入る（掃除には出ない）。
+     pairs の1つ: { sid, st（前の日までの記録。無ければ ''）, next, from（その記録の日。無ければ ''）, due（その生徒の締め切りの日。決めないなら ''）,
+       hw（宿題＝締め切りの日が頼みの日より後）, late（締め切りを過ぎた） } */
+  function carryOver(boards, day) {
+    var out = [];
+    ordered(boards).forEach(function (x) {
+      var b = x.b, pairs = [];
+      if (b.closedAt || x.d >= day) return;
+      (b.targets || []).forEach(function (sid) {
+        if (submittedBy(b, sid)) return;
+        var e = sweepOf(b, sid), t = logOn(e, day), l = logBefore(e, day), due = dueDayFor(b, sid, day, true);
+        if ((t && t.st === 'done') || (l && l.st === 'done')) return;
+        if (!due && !(l && isLeft(l.st))) return;
+        pairs.push({ sid: sid, st: l ? l.st : '', next: l ? l.next || '' : '', from: l ? l.day : '', due: due, hw: !!due && due > x.d, late: !!due && due < day });
+      });
+      if (pairs.length) out.push({ board: b, period: x.p === 99 ? 0 : x.p, day: x.d, pairs: pairs });
+    });
+    return out;
+  }
+  /* sweepSummary：掃除のまとめ（今までの数・出しすぎ・全部決まった・明日の続きはそのまま）。
+     変えた点（段C）：carry の1つに ext・stay を足した。stay（居残りにした）・ext（締め切りを延ばした＝宿題にした。date つき）・
+     undecided（締め切りの日か過ぎた頼みで、途中かまだなのに、延ばす・居残りのどちらも選んでいない）を足した */
+  function sweepSummary(items, day) {
+    var s = { done: 0, mid: 0, not: 0, items: (items || []).length, left: 0, carry: [], stay: [], ext: [], undecided: [] };
+    (items || []).forEach(function (it) {
+      var left = false;
+      it.sids.forEach(function (sid) {
+        var l = logOn(sweepOf(it.board, sid), day);
+        if (!l || !SWEEP_ST[l.st]) return;
+        s[l.st]++;
+        if (!isLeft(l.st)) return;
+        left = true;
+        var c = { board: it.board, sid: sid, st: l.st, next: l.next || '', period: it.period, ext: l.ext || '', stay: !!l.stay };
+        s.carry.push(c);
+        if (l.stay) s.stay.push(c);
+        else if (l.ext) s.ext.push({ board: it.board, sid: sid, st: l.st, period: it.period, date: l.ext });
+        else if (dueChoice(it.board, sid, day)) s.undecided.push(c);
+      });
+      if (left) s.left++;
+    });
+    s.tooMany = s.left >= 2 && s.left * 2 >= s.items;
+    s.allPlanned = s.carry.length > 0 && s.carry.every(function (c) { return !!c.next; });
+    return s;
+  }
+  /* sweepLogText：書き出しの「掃除: 10/18 途中（続き: …）→ 10/19 終わった」。
+     変えた点（段C）：延ばした日と居残りも、かっこの中に「・」でつなぐ（「10/18 まだ（最初の一歩: …・締め切りを10/20まで延ばした）」「10/20 途中（居残り）」） */
+  function sweepLogText(e) {
+    var l = (e && e.log) || [];
+    if (!l.length) return '';
+    // 「…）→ 10/19」のように、かっこのあとは空けずにつなぐ
+    return l.map(function (x) {
+      var notes = [];
+      if (x.next) notes.push((x.st === 'mid' ? '続き' : '最初の一歩') + ': ' + oneLine(x.next));
+      if (x.ext) notes.push('締め切りを' + mdDay(x.ext) + 'まで延ばした');
+      if (x.stay) notes.push('居残り');
+      return mdDay(x.day) + ' ' + SWEEP_ST[x.st] + (notes.length ? '（' + notes.join('・') + '）' : '');
+    }).reduce(function (t, s) { return t ? t + (/）$/.test(t) ? '→ ' : ' → ') + s : s; }, '') + (e.st === 'done' && e.good ? '（うまくいった頼み方）' : '');
+  }
+
+  /* ----- 段C：「この時間中」の報告 ----- */
+  /* 「この時間中」の答え。終わった・まだ は掃除の記録（sweep）にも入れる（その日の掃除は、選んだ状態から始まる）。あとで は聞いた印だけ */
+  var CHECK_ANS = { done: '終わった', not: 'まだ', later: 'あとで（掃除の時間に）' };
+  /* 「この時間中」の報告で聞く相手（その枠から別の行を選ぶときに出す小さなシート「2限の頼み、終わった？」用）。
+     今日の枠だけ（key が today でなければ空＝前の日を見ているときは聞かない）・締め切りが「この時間中」の頼みだけ・締めた頼みは聞かない・
+     提出済み・もう答えた（slotCheck がある）・その日の掃除でもう選んだ生徒は聞かない。返すもの: [{ board, sids }]（黒板 → お便り → 放送） */
+  function slotAsk(boards, key, slot, today) {
+    if (!slot || key !== today) return [];
+    return slotBoards(boards, key, slot).filter(function (b) { return dueKind(b.due) === 'slot' && !b.closedAt; }).map(function (b) {
+      return { board: b, sids: (b.targets || []).filter(function (sid) {
+        return !submittedBy(b, sid) && !(b.slotCheck && b.slotCheck[sid]) && !logOn(sweepOf(b, sid), key);
+      }) };
+    }).filter(function (x) { return x.sids.length; });
+  }
+  /* 「この時間中」の答えを記録する（純粋な関数。画面は b.slotCheck[sid] = r.check、r.sweep があれば b.sweep[sid] = r.sweep）。
+     ans: 'done'（終わった → 掃除の「終わった」）・'not'（まだ → 掃除の「まだ」）・'later'（あとで → 掃除の記録は変えない＝prev のまま）。
+     day は掃除の記録の日（その頼みの日＝今日）。知らない答えは null */
+  function answerSlot(prevSweep, ans, day, now) {
+    if (!CHECK_ANS[ans]) return null;
+    var check = { ans: ans, at: now };
+    if (ans === 'later') return { check: check, sweep: prevSweep || null };
+    return { check: check, sweep: markSweep(prevSweep, { st: ans }, day, now) };
+  }
+  /* slotCheck を読む（読み込み normalize 用）：答えが3つのどれかのものだけ。ok（id → 真偽）を渡すと、その生徒だけ */
+  function normSlotCheck(raw, ok) {
+    var out = {};
+    if (!raw || typeof raw !== 'object') return out;
+    Object.keys(raw).forEach(function (id) {
+      var c = raw[id];
+      if (c && CHECK_ANS[c.ans] && (!ok || ok(id))) out[id] = { ans: c.ans, at: Number(c.at) || 0 };
+    });
+    return out;
+  }
+
+  /* ----- 段C：居残り・残っているタスク（正の字）・机のお便り ----- */
+  /* 居残りの声（○：仕事から頭を離すことのメタ分析） */
+  var STAY_VOICE = '居残りになると、今日は気持ちを切り替えにくいかも';
+  /* その日の放課後に残る生徒（居残り）。居残りはその日だけ（その日の掃除の記録に stay がある）。
+     締めた頼み・その日までに提出したものはのぞく。返すもの: [{ sid, boards }]（頼みの日・枠の順に、はじめて出てきた生徒から） */
+  function stayList(boards, day) {
+    var by = {}, out = [];
+    ordered(boards).forEach(function (x) {
+      (x.b.targets || []).forEach(function (sid) {
+        var l = logOn(sweepOf(x.b, sid), day);
+        if (!l || !l.stay || doneBy(x.b, sid, day)) return;
+        if (!by[sid]) { by[sid] = { sid: sid, boards: [] }; out.push(by[sid]); }
+        by[sid].boards.push(x.b);
+      });
+    });
+    return out;
+  }
+  /* 居残りの日の、その生徒の目線に足す声（なければ null）。画面は「放課後から」の印で、その日の心の声の下に（3つまでの外。昼休みからの声と同じ置き方） */
+  function stayVoice(boards, sid, day) { return stayList(boards, day).some(function (x) { return x.sid === sid; }) ? { key: 'stay', text: STAY_VOICE } : null; }
+  /* 残っているタスク（day の日の終わりの時点）：締め切りのある頼み（延ばしたものも）で、まだ終わっていないもの。
+     kind: 'stay'（その日は居残り）・'homework'（宿題＝その生徒の締め切りの日が頼みの日より後）・'today'（この時間中・今日中で終わっていない）。
+     締め切りを決めない頼みは数えない（前の日からの続きにはなる）。返すもの: [{ board, sid, subject, kind, due, late }]（頼みの日・枠の順） */
+  function remainingTasks(boards, day) {
+    var out = [];
+    ordered(boards).forEach(function (x) {
+      if (x.d > day) return;
+      (x.b.targets || []).forEach(function (sid) {
+        if (doneBy(x.b, sid, day)) return;
+        var due = dueDayFor(x.b, sid, day, true);
+        if (!due) return;
+        var t = logOn(sweepOf(x.b, sid), day);
+        out.push({ board: x.b, sid: sid, subject: normSubject(x.b.subject), kind: t && t.stay ? 'stay' : due > x.d ? 'homework' : 'today', due: due, late: due < day });
+      });
+    });
+    return out;
+  }
+  /* 正の字の画の数に分ける（7 → [5, 2]・5 → [5]・0 → []）。1つが「正」1字（5画で1字） */
+  function tally(n) { n = Math.max(0, Math.floor(Number(n) || 0)); var out = []; while (n > 0) { out.push(Math.min(5, n)); n -= 5; } return out; }
+  /* 大きい黒板の右下：生徒ごと・科目ごとの残っているタスク（正の字）。多い生徒から3人まで＋「ほか N 人」（more）。
+     students（あれば）：その中の生徒だけ数え、同じ数ならその並び（なければ、タスクがはじめて出てきた順）。科目は多い順（同じなら古いタスクから）。
+     返すもの: { rows: [{ sid, n, stay, subjects: [{ subject, n, strokes, kinds: { today, homework, stay } }] }], more, people, total } */
+  var TASK_ROWS_MAX = 3;
+  function taskBoard(boards, day, students) {
+    var order = null, by = {}, rows = [], total = 0;
+    if (students) { order = {}; students.forEach(function (s, i) { order[s.id] = i; }); }
+    remainingTasks(boards, day).forEach(function (t, i) {
+      if (order && order[t.sid] === undefined) return;
+      var r = by[t.sid];
+      if (!r) { r = by[t.sid] = { sid: t.sid, n: 0, stay: false, first: i, subs: {}, subjects: [] }; rows.push(r); }
+      var s = r.subs[t.subject];
+      if (!s) { s = r.subs[t.subject] = { subject: t.subject, n: 0, first: i, kinds: { today: 0, homework: 0, stay: 0 } }; r.subjects.push(s); }
+      r.n++; s.n++; s.kinds[t.kind]++; total++;
+      if (t.kind === 'stay') r.stay = true;
+    });
+    var rank = function (r) { return order ? order[r.sid] : r.first; };
+    rows.sort(function (a, b) { return b.n - a.n || rank(a) - rank(b); });
+    return {
+      rows: rows.slice(0, TASK_ROWS_MAX).map(function (r) {
+        return { sid: r.sid, n: r.n, stay: r.stay, subjects: r.subjects.slice().sort(function (a, b) { return b.n - a.n || a.first - b.first; })
+          .map(function (s) { return { subject: s.subject, n: s.n, strokes: tally(s.n), kinds: s.kinds }; }) };
+      }),
+      more: Math.max(0, rows.length - TASK_ROWS_MAX), people: rows.length, total: total
+    };
+  }
+  /* 机に置くお便り（段C：お便りは終わるまで相手の机に残る）。
+     いちばん上はその枠のお便り（あれば。その枠を見ている間は、終わっていても置く）。その下に、それより前の枠・前の日のお便りで、
+     その生徒にとってまだ開いているもの（openOn：その日のもの・締め切りのあるもの・前の日からの続き）を新しい順に。終わったら消える
+     （「この時間中」で終わっていれば、次の枠ではもうない）。締め切りを決めず掃除の記録もない前の日のお便りは残らない。
+     同じ日のあとの枠のお便りは、まだ配っていないので置かない。slot が枠でない（掃除・放課後など）ときは、その日の枠のお便りを全部「前のもの」として見る。
+     3枚まで＋「ほか N 枚」。返すもの: { letters: [頼み…]（上から）, current: その枠のお便り or null, more, total } */
+  var DESK_MAX = 3;
+  function deskLetters(boards, key, slot, sid) {
+    var inSlots = SLOTS.indexOf(slot) >= 0, at = inSlots ? slot : 98, cur = null, rest = [];
+    ordered(boards).forEach(function (x) {
+      var b = x.b;
+      if (normChannel(b.channel) !== 'letter' || (b.targets || []).indexOf(sid) < 0 || x.d > key) return;
+      if (x.d === key && inSlots && x.p === slot) { cur = b; return; }
+      if (x.d === key && x.p >= at) return;
+      if (openOn(b, sid, key)) rest.push(b);
+    });
+    rest.reverse();
+    var list = (cur ? [cur] : []).concat(rest);
+    return { letters: list.slice(0, DESK_MAX), current: cur, more: Math.max(0, list.length - DESK_MAX), total: list.length };
+  }
+
+  /* ----- 書き出し ----- */
+  /* exportMarkdown：書き出し（Markdown）。今までの中身と行の形はそのまま。変えた点：
+     (段B) 生徒ごとの頼みの並びを、同じ枠では 黒板 → お便り → 放送 に（ordered）
+     (段C) 頼みの行に締め切り（「… 授業（黒板） 〆 今日中「…」」）。「足りなかったもの」の「期限かかける時間」にも締め切りの欄を数える（withDue。
+           通知表の位置は scoreSaved で同じく数える）。掃除の行に延ばした日と居残り（sweepLogText） */
   function exportMarkdown(data, now) {
     var students = (data && data.students) || [], boards = (data && data.boards) || [];
     var byId = {};
@@ -2158,7 +2637,7 @@ var SekigaeEngine = (function () {
     L.push('## 自分の癖' + (!own.length && boards.length ? '（見本の黒板から）' : ''));
     if (!use.length) L.push('- まだ黒板がない');
     else {
-      var fs = use.map(function (b) { return readBoard(b.text); });
+      var fs = use.map(function (b) { return withDue(readBoard(b.text), b.due); });
       // 通知表の位置（「支える」には、直近7日の「話を聞いた」を小さく足す）
       var rc = withTalkBonus(reportCard(use.map(function (b) { return scoreSaved(b, byId); })), talkSummary(talkStudents(students), dayKey(now)));
       var mc = missingCounts(fs), tv = topVague(use.map(function (b) { return b.text; }), 5), n = use.length, cc = channelCounts(use, boards);
@@ -2204,14 +2683,12 @@ var SekigaeEngine = (function () {
           L.push('  - ' + dayKey(h.at) + ': ' + (ch.length ? ch.join('、') : '答えは同じ'));
         });
       }
-      // 日の順、同じ日は時限の順（時間割に入らない頼みはその日の最後）
-      var mine = boards.map(function (b, i) { return { b: b, i: i }; }).filter(function (x) { return (x.b.targets || []).indexOf(s.id) >= 0; })
-        .sort(function (x, y) { var dx = dayKey(x.b.createdAt), dy = dayKey(y.b.createdAt); return (dx < dy ? -1 : dx > dy ? 1 : 0) || ((per[pkey(x.b, x.i)] || 99) - (per[pkey(y.b, y.i)] || 99)) || byTime(x, y); })
-        .map(function (x) { return x.b; });
+      // 日の順、同じ日は枠の順・同じ枠は 黒板 → お便り → 放送（時間割に入らない頼みはその日の最後）
+      var mine = ordered(boards, per).filter(function (x) { return (x.b.targets || []).indexOf(s.id) >= 0; }).map(function (x) { return x.b; });
       L.push('- 頼みごとと提出物:' + (mine.length ? '' : '（まだない）'));
       mine.forEach(function (b) {
-        var r = (b.results || {})[s.id] || {};
-        L.push('  - ' + dayKey(b.createdAt) + ' ' + lessonLabel(b, per[b.id]) + (b.example ? '（見本）' : '') + '「' + oneLine(b.text) + '」' + (b.firstTime && b.firstTime[s.id] ? '（初めての作業）' : '') +
+        var r = (b.results || {})[s.id] || {}, due = dueLabel(b.due);
+        L.push('  - ' + dayKey(b.createdAt) + ' ' + lessonLabel(b, per[b.id]) + (b.example ? '（見本）' : '') + (due ? ' ' + due : '') + '「' + oneLine(b.text) + '」' + (b.firstTime && b.firstTime[s.id] ? '（初めての作業）' : '') +
           ' → ' + (r.submitted && r.kind && RESULT_BY[r.kind] ? '提出: ' + RESULT_BY[r.kind].label
             : b.closedAt ? '未提出のまま締めた' + (r.kind && RESULT_BY[r.kind] ? '（選んでいた記録: ' + RESULT_BY[r.kind].label + '）' : '')
             : r.kind && RESULT_BY[r.kind] ? RESULT_BY[r.kind].label + '（提出の前）' : 'まだ記録なし') +
@@ -2241,7 +2718,14 @@ var SekigaeEngine = (function () {
     lunchSizes: lunchSizes, seededRandom: seededRandom, facingOf: facingOf, lunchSeats: lunchSeats,
     sweepSummary: sweepSummary, carryOver: carryOver, sweepLogText: sweepLogText, goodBoards: goodBoards, logOn: logOn, logBefore: logBefore, mdDay: mdDay,
     QUESTIONS: QUESTIONS, RESULTS: RESULTS, RESULT_BY: RESULT_BY, SEAT_LABEL: SEAT_LABEL, DAY: DAY,
-    CHANNELS: CHANNELS, CHANNEL_BY: CHANNEL_BY, SUBJECTS: SUBJECTS, SUBJECT_MAX: SUBJECT_MAX
+    CHANNELS: CHANNELS, CHANNEL_BY: CHANNEL_BY, SUBJECTS: SUBJECTS, SUBJECT_MAX: SUBJECT_MAX,
+    /* v0.4 段B・段C */
+    channelOrder: channelOrder, validDay: validDay, slotOf: slotOf, slotMates: slotMates, alignSubject: alignSubject, slotSubject: slotSubject,
+    slotCreatedAt: slotCreatedAt, sameRequest: sameRequest, slotView: slotView, SAME_SLOT_VOICE: SAME_SLOT_VOICE, DUE_KINDS: DUE_KINDS, normDue: normDue,
+    dueKind: dueKind, dueLabel: dueLabel, boardDueDay: boardDueDay, dueDayFor: dueDayFor, withDue: withDue, dueChoice: dueChoice,
+    doneBy: doneBy, openOn: openOn, normLogEntry: normLogEntry, CHECK_ANS: CHECK_ANS, slotAsk: slotAsk, answerSlot: answerSlot,
+    normSlotCheck: normSlotCheck, STAY_VOICE: STAY_VOICE, stayList: stayList, stayVoice: stayVoice, remainingTasks: remainingTasks, tally: tally,
+    taskBoard: taskBoard, TASK_ROWS_MAX: TASK_ROWS_MAX, deskLetters: deskLetters, DESK_MAX: DESK_MAX, slotMarkOf: slotMarkOf
   };
 })();
 // ENGINE END
@@ -2326,8 +2810,8 @@ function normSweep(raw, seenS) {
   Object.keys(raw).forEach((id) => {
     const e = raw[id];
     if (!seenS.has(id) || !e || typeof e !== 'object' || !E.SWEEP_ST[e.st]) return;
-    const log = (Array.isArray(e.log) ? e.log : []).filter((l) => l && /^\d{4}-\d{2}-\d{2}$/.test(String(l.day)) && E.SWEEP_ST[l.st])
-      .map((l) => Object.assign({ day: String(l.day), st: l.st }, l.next && l.st !== 'done' ? { next: cut(l.next, E.SWEEP_NEXT_MAX) } : {})).slice(-10);
+    // 記録の1件は E.normLogEntry で読む（v0.4 段C：締め切りを延ばした日 ext・居残り stay も残す）
+    const log = (Array.isArray(e.log) ? e.log : []).map(E.normLogEntry).filter(Boolean).slice(-10);
     out[id] = { st: e.st, next: cut(e.next, E.SWEEP_NEXT_MAX), good: !!(e.good && e.st === 'done'), at: Number(e.at) || 0, log };
   });
   return out;
@@ -2383,6 +2867,11 @@ function normalize(raw) {
     if (b.lunch === true) nb.lunch = true;
     // 掃除の時間の記録（v0.3 第2段）。古いデータには無いので空
     nb.sweep = normSweep(b.sweep, seenS);
+    // 締め切り（v0.4 段C）：この時間中・今日中・日付まで。決めないなら持たない（古いデータと同じ形）
+    const due = E.normDue(b.due);
+    if (due.kind !== 'none') nb.due = due;
+    // 「この時間中」の答え（v0.4 段C）。いる生徒の分だけ
+    nb.slotCheck = E.normSlotCheck(b.slotCheck, (id) => seenS.has(id));
     out.boards.push(nb);
   });
   const per = E.periods(out.boards);
@@ -2498,7 +2987,7 @@ function syncInert() {
   const top = layers[layers.length - 1] || '', open = layers.length > 0;
   $('app').inert = open;
   $('bar').inert = open;
-  ['view', 'sheet-write', 'sheet-sweep', 'sheet-talk', 'sheet-card', 'sheet-help', 'confirm'].forEach((id) => { $(id).inert = open && layers.indexOf(id) >= 0 && id !== top; });
+  ['view', 'sheet-write', 'sheet-ask', 'sheet-sweep', 'sheet-talk', 'sheet-card', 'sheet-help', 'confirm'].forEach((id) => { $(id).inert = open && layers.indexOf(id) >= 0 && id !== top; });
   document.documentElement.classList.toggle('is-locked', open);
 }
 function pushLayer(id) { const i = layers.indexOf(id); if (i >= 0) layers.splice(i, 1); layers.push(id); syncInert(); }
@@ -2530,6 +3019,7 @@ function closeSheet(swap) {
   document.body.classList.remove('has-drawer');
   if (id === 'sheet-write') onWriteClosed();
   if (id === 'sheet-sweep') onSweepClosed();
+  if (id === 'sheet-ask') onAskClosed();
   if (swap === true) return;
   const o = sheetOpener;
   sheetOpener = null;
@@ -2582,8 +3072,8 @@ function renderActivePane() {
 }
 
 /* ===== 教室 ===== */
-let writeMode = 'new', writeDraft = '', writePreview = null, writeTargets = new Set(), writeFirst = new Set();
-let writeChannel = 'board', writeDraftMeta = null, writeFromCast = null;   // writeFromCast：要点のお便りの元の放送の id
+let writeMode = 'new', writePreview = null, writeTargets = new Set(), writeFirst = new Set();
+let writeChannel = 'board', writeDraftMeta = null, writeFromCast = null;   // writeChannel：いまのタブ。writeFromCast：要点のお便りの元の放送の id
 let writeBid = '', writeOpenerTT = false;   // writeBid：直している頼み。writeOpenerTT：時間割の「直す」から開いた
 let ttDay = '';                 // 時間割で見ている日（'' は今日）
 /* 伝え方の印（黒板・お便り・放送） */
@@ -2610,11 +3100,6 @@ function setChalk(el, text, hint) {
   el.textContent = empty ? (hint ? 'まだ頼みごとがない黒板。「頼みごとを出す」から始めよう' : '') : text;
   sizeClass(el, empty ? '' : text);
 }
-/* 生徒の目線の黒板：お便り・放送で伝えた頼みは、黒板には小さな注記だけ */
-function setChalkNote(el, ch, hint) {
-  el.classList.remove('is-empty', 'is-mid', 'is-long');
-  el.innerHTML = '<span class="chalk-note">' + (ch === 'letter' ? '（お便りで配った）' : '（放送で伝えた）') + '</span>' + (hint ? '<span class="chalk-hint">' + esc(hint) + '</span>' : '');
-}
 function targetNames(b) {
   const names = b.targets.map((id) => student(id)).filter(Boolean).map((s) => s.name + 'さん');
   if (!names.length) return '相手：まだいない';
@@ -2639,7 +3124,11 @@ function renderRoomBoard() {
   $('room-board').classList.remove('is-sweeping');
   const writing = writePreview != null, w = roomWhen(), shown = roomBoards(), day = w.day, name = w.name;
   const pick = (ch) => shown.find((x) => x.channel === ch) || null, bReq = pick('board'), cReq = pick('broadcast');
-  setChalk($('room-chalk'), writing && writeChannel === 'board' ? writePreview : bReq ? bReq.text : '', !writing && !state.boards.length);
+  // 書いている途中は、書いている枠の伝え方のタブの文（黒板のタブの文が黒板に、放送のタブの文が点線の吹き出しに）
+  setChalk($('room-chalk'), writing ? tabText('board') : bReq ? bReq.text : '', !writing && !state.boards.length);
+  // 締め切りは黒板の字の下に黄色いチョークで（書いている途中は、黒板のタブの締め切り）
+  $('room-board-due').innerHTML = writing ? (tabText('board').trim() ? dueHTML(tabDue('board')) : '') : bReq ? dueHTML(bReq.due) : '';
+  renderTasks(day);
   setBoardDate(day, name);
   /* 黒板の下の行：書いている途中と、昼休み（12:10から）のときだけ */
   const t = liveTime(), lunch = !!t && t.slot === 'lunch';
@@ -2647,20 +3136,33 @@ function renderRoomBoard() {
   $('room-note').textContent = writing ? '書いている途中（まだ出していない）' : lunch ? '昼休み（' + hhmm(t.at) + 'から）' : '';
   $('room-memos').hidden = true;
   /* 放送：その時間の放送は、選んでいる間ずっと吹き出しに出す（スピーカーで消す・出す）。書いている途中は点線の吹き出し */
-  if (writing && writeChannel === 'broadcast' && writePreview.trim()) showSay(writePreview, null);
-  else if (cReq) showSay(cReq.text, cReq);
+  const castDraft = writing ? tabText('broadcast') : '';
+  if (writing) { if (castDraft.trim()) showSay(castDraft, null, tabDue('broadcast')); else stopSay(); }
+  else if (cReq) showSay(cReq.text, cReq, cReq.due);
   else stopSay();
   const on = !!cReq && !writing, off = on && sayOffFor === cReq.id;
   $('room-speaker').disabled = !on;
   $('room-speaker').setAttribute('aria-label', on ? (off ? '放送の吹き出しを出す（' : '放送の吹き出しを消す（') + periodSubject(cReq, E.periods(state.boards)[cReq.id]) + '）'
     : 'スピーカー（放送の頼みがある時間に押すと、吹き出しを消す・出す）');
 }
+/* 大きい黒板の右下：残っているタスク（段C。締め切りのある頼みで終わっていないもの）を、生徒ごと・科目ごとの正の字で。3人まで＋ほか N 人 */
+const TALLY = ['', '一', '丅', '下', '止', '正'];
+function renderTasks(day) {
+  const box = $('room-tasks'), tb = E.taskBoard(state.boards, day, state.students);
+  box.hidden = !tb.rows.length;
+  box.innerHTML = !tb.rows.length ? '' : '<p class="task-k">残っているタスク</p>' + tb.rows.map((r) => {
+    const st = student(r.sid);
+    return '<p class="task-row" data-sid="' + esc(r.sid) + '"><b>' + esc(st ? st.name : '') + 'さん</b>' + (r.stay ? '<span class="task-stay">居残り</span>' : '') +
+      r.subjects.map((x) => '<span class="task-sub">' + esc(x.subject) + '<span class="tally" aria-hidden="true">' + x.strokes.map((n) => TALLY[n]).join('') + '</span><span class="sr-only">' + x.n + 'つ</span></span>').join('') + '</p>';
+  }).join('') + (tb.more ? '<p class="task-more">ほか ' + tb.more + ' 人</p>' : '');
+}
 /* スピーカーの吹き出し：放送の頼み b をずっと出す（sayOffFor＝スピーカーで消した放送。場所は空けたまま）。b が null なら書いている途中（点線） */
 let sayFor = '', sayOffFor = '';
-function showSay(text, b) {
+function showSay(text, b, due) {
   const say = $('room-say'), id = b ? b.id : '#draft', fresh = say.hidden || sayFor !== id, off = !!b && sayOffFor === id;
   sayFor = id;
   $('room-say-text').textContent = text;
+  $('room-say-due').innerHTML = dueHTML(due);
   $('room-say-k').textContent = !b ? '書いている途中' : E.dayKey(b.createdAt) === todayKey() ? '放送中…' : '放送で伝えた';
   say.hidden = false;
   say.classList.toggle('is-draft', !b);
@@ -2704,19 +3206,19 @@ function shownWhen() {
 /* 教室に出す頼み：書いている途中は、書いている枠（シートで選んでいる時限）のほかの頼み（直している頼みはのぞく）。ふだんは、選んだ時間の頼み */
 function roomBoards() {
   if (writePreview == null) return shownBoards();
-  const p = writePeriodValue(), editB = writeMode === 'edit' ? board(writeBid) : null, day = editB ? E.dayKey(editB.createdAt) : todayKey();
-  return p ? E.slotBoards(state.boards, day, p).filter((x) => !editB || x.id !== editB.id) : [];
+  const p = writePeriodValue();
+  return p ? E.slotBoards(state.boards, writeDay || todayKey(), p) : [];
 }
 function roomWhen() {
   if (writePreview == null) return shownWhen();
-  const editB = writeMode === 'edit' ? board(writeBid) : null;
-  return { day: editB ? E.dayKey(editB.createdAt) : todayKey(), name: E.periodName(writePeriodValue()) };
+  return { day: writeDay || todayKey(), name: E.periodName(writePeriodValue()) };
 }
 const isLunchTime = () => { const t = liveTime(); return !!t && t.slot === 'lunch'; };
 const isAfterTime = () => { const t = liveTime(); return !!t && t.slot === 'after'; };
 /* 時間が変わったときの一言（昼休みの説明は、ふだんは出さず、昼休みを選んだときにここで1回） */
 const LUNCH_NOTE = '生徒はとなりあう席に集まっている。生徒を押すと「話を聞いた（雑談）」を記録できる。先生は教卓で休けい中';
-const TIME_NOTE = { lunch: (t) => '昼休み（' + hhmm(t.at) + 'から）。' + LUNCH_NOTE, after: () => '放課後。生徒は帰った（机は残っている）', back: () => '生徒は自分の席にもどった' };
+const TIME_NOTE = { lunch: (t) => '昼休み（' + hhmm(t.at) + 'から）。' + LUNCH_NOTE, after: (t) => { const st = E.stayList(state.boards, t.day).map((x) => student(x.sid)).filter(Boolean).map((x) => x.name + 'さん');
+    return st.length ? '放課後。居残りの ' + st.join('・') + ' だけ席に残っている（ほかの生徒は帰った）' : '放課後。生徒は帰った（机は残っている）'; }, back: () => '生徒は自分の席にもどった' };
 /* 時間を選ぶ。bid はその時間の中で選ぶ頼み。quiet ならお知らせを出さずに、生徒の動きの種類（lunch・after・back・''）を返す */
 function setTime(day, slot, bid, quiet) {
   closeLetter();
@@ -2757,27 +3259,32 @@ function showBoard(b, quiet) {
   return was ? 'back' : '';
 }
 /* ===== 今日の時間割（小さい黒板） ===== */
-/* 掃除のあとの印：全員終わった＝✓、途中・まだが残る＝「続き」 */
-function ttMarkHTML(b) {
-  const m = E.sweepMark(b);
+/* 掃除のあとの印（枠でまとめる）：全員終わった＝✓、途中・まだが残る＝「続き」 */
+function ttMarkHTML(list) {
+  const m = E.slotMarkOf(list);
   return m === 'done' ? '<span class="tt-mark is-done" aria-hidden="true">✓</span><span class="sr-only">（掃除：全員終わった）</span>'
     : m === 'left' ? '<span class="tt-mark is-left" aria-hidden="true">続き</span><span class="sr-only">（掃除：途中・まだが残っている）</span>' : '';
 }
-/* 時間割の1行のボタン（now＝選んでいる行。extra.id＝行の id・extra.when＝昼休みを選んだ時刻・extra.mark＝掃除のあとの印を出す） */
-function ttRowBtn(b, p, off, now, extra) {
+/* 時間割の1行のボタン（段B：1つの枠＝時限に、伝え方ごとの頼みが1〜3つ）。list はその枠の頼み（黒板 → お便り → 放送）。
+   行は科目名と、入っている伝え方の印（1つなら印と字、2つ以上なら印だけ）。data-bid はいちばん上の頼み。
+   now＝選んでいる行。extra.id＝行の id・extra.when＝昼休みを選んだ時刻・extra.mark＝掃除のあとの印を出す */
+function ttRowBtn(list, p, off, now, extra) {
   extra = extra || {};
-  const mk = extra.mark ? ttMarkHTML(b) : '';
-  return '<button class="tt-row is-filled' + (now ? ' is-now' : '') + (mk ? ' has-mark' : '') + '" type="button" data-bid="' + esc(b.id) + '" data-slot="' + esc(String(p ? slotOfNum(p) : 0)) + '"' +
+  const b = list[0], many = list.length > 1, mk = extra.mark ? ttMarkHTML(list) : '';
+  return '<button class="tt-row is-filled' + (now ? ' is-now' : '') + (mk ? ' has-mark' : '') + (many ? ' is-many' : '') + '" type="button" data-bid="' + esc(b.id) + '" data-slot="' + esc(String(p ? slotOfNum(p) : 0)) + '"' +
     (extra.id ? ' id="' + extra.id + '"' : '') + (now ? ' aria-current="true"' : '') + '>' +
     '<span class="tt-p">' + (p ? E.periodName(p) : 'ほか') + (extra.when ? '<span class="tt-when">' + esc(extra.when) + '</span>' : '') + '</span>' +
-    '<span class="tt-s">' + esc(b.subject) + (off ? '<span class="tt-off">（相手ではない）</span>' : '') + '</span>' +
-    '<span class="tt-ch">' + mk + CH_ICON[b.channel] + '<span class="tt-ch-t">' + E.channelLabel(b.channel) + '</span></span>' +
+    '<span class="tt-s">' + esc(E.normSubject(b.subject)) + (off ? '<span class="tt-off">（相手ではない）</span>' : '') + '</span>' +
+    '<span class="tt-ch">' + mk + '<span class="tt-ics">' + list.map((x) => CH_ICON[x.channel]).join('') + '</span><span class="tt-ch-t">' + list.map((x) => E.channelLabel(x.channel)).join('・') + '</span></span>' +
     (now ? '<span class="sr-only">（いま選んでいる時間）</span>' : '') + '</button>';
 }
-/* 選んでいる行の右端の「直す」（押すと、その頼みの「頼みごとを直す」を開く） */
-function ttEditBtn(b, p) { return '<button class="tt-edit" type="button" data-edit="' + esc(b.id) + '" aria-label="' + esc(E.lessonLabel(b, p)) + 'を直す">直す</button>'; }
-/* 生徒の目線の小さな時間割の1行（いま見ている頼みを強調） */
-function ttRowHTML(b, p, off, now) { return '<li>' + ttRowBtn(b, p, off, now) + '</li>'; }
+/* 選んでいる行の右端の「直す」（押すと、その枠の「頼みごとを直す」を開く。伝え方はタブで選ぶ） */
+function ttEditBtn(list, p) {
+  const b = list[0];
+  return '<button class="tt-edit" type="button" data-edit="' + esc(b.id) + '" aria-label="' + esc((p ? E.periodName(p) + ' ' : '') + E.normSubject(b.subject) + '（' + list.map((x) => E.channelLabel(x.channel)).join('・') + '）') + 'を直す">直す</button>';
+}
+/* 生徒の目線の小さな時間割の1行（いま見ている枠を強調） */
+function ttRowHTML(list, p, off, now) { return '<li>' + ttRowBtn(list, p, off, now) + '</li>'; }
 const FULL_MSG = '今日の時間割は6限と昼休みまでうまっているよ。明日に回すか、どれかを直してね';
 function ttNeighbors(day) {
   let prev = '', next = '';
@@ -2788,7 +3295,7 @@ function ttNeighbors(day) {
 function renderTimetable() {
   const today = todayKey(), day = ttDay || today, isToday = day === today, nb = ttNeighbors(day), per = E.periods(state.boards), byP = {};
   let extra = 0;
-  E.dayList(state.boards, day).forEach((b) => { const p = per[b.id]; if (p) byP[p] = b; else extra++; });
+  E.dayList(state.boards, day).forEach((b) => { const p = per[b.id]; if (p) (byP[p] = byP[p] || []).push(b); else extra++; });
   const t = liveTime(), cur = currentBoard();
   // 選んでいる行：選んだ時間（その日を見ているとき）。時間を選んでいなければ、いまの黒板の頼みの行
   const sel = t ? (t.day === day ? t.slot : null) : (cur && E.dayKey(cur.createdAt) === day && per[cur.id] ? slotOfNum(per[cur.id]) : null);
@@ -2801,11 +3308,11 @@ function renderTimetable() {
     if (slot === 'sweep' || slot === 'after') {
       const name = slot === 'sweep' ? (isToday ? '掃除の時間' : '掃除') : '放課後';
       if (!isToday) return li('', '<div class="tt-row tt-break" data-slot="' + slot + '">' + name + '</div>');
-      const label = slot === 'sweep' ? '掃除の時間' + sr + '。押すと、今日の頼みを1つずつ見て、終わった・途中・まだを選ぶ' : '放課後' + sr + '。押すと、生徒が帰る（机は残る）';
+      const label = slot === 'sweep' ? '掃除の時間' + sr + '。押すと、今日の頼みを1つずつ見て、終わった・途中・まだを選ぶ' : '放課後' + sr + '。押すと、生徒が帰る（居残りの生徒は残る。机は残る）';
       return li('', '<button class="tt-row tt-break" type="button" id="tt-' + slot + '" data-slot="' + slot + '"' + (on ? ' aria-current="true"' : '') + ' aria-label="' + label + '">' + name + '</button>');
     }
-    const b = byP[slotNum(slot)], wide = slot === 'lunch' ? 'tt-wide' : '';
-    if (b) return li(wide, ttRowBtn(b, slotNum(slot), false, on, { id: isToday && slot === 'lunch' ? 'tt-lunch' : '', when: on ? when : '', mark: true }) + (on ? ttEditBtn(b, slotNum(slot)) : ''));
+    const list = byP[slotNum(slot)], wide = slot === 'lunch' ? 'tt-wide' : '';
+    if (list) return li(wide, ttRowBtn(list, slotNum(slot), false, on, { id: isToday && slot === 'lunch' ? 'tt-lunch' : '', when: on ? when : '', mark: true }) + (on ? ttEditBtn(list, slotNum(slot)) : ''));
     if (slot === 'lunch') {
       if (!isToday) return li(wide, '<div class="tt-row tt-break" data-slot="lunch">昼休み</div>');
       return li(wide, '<button class="tt-row tt-break tt-lunch" type="button" id="tt-lunch" data-slot="lunch"' + (on ? ' aria-current="true"' : '') +
@@ -2822,11 +3329,14 @@ function renderTimetable() {
   renderCarry(isToday ? E.carryOver(state.boards, today) : []);
   markSweepRow();
 }
-/* 前の日からの続き（時間割の枠の外・下）：1件1行。押すとその頼みを黒板に出す（時間割は今日のまま） */
+/* 前の日からの続き（時間割の枠の外・下）：1件1行。押すとその頼みを黒板に出す（時間割は今日のまま）。
+   段C：宿題（締め切りの日が先）は「宿題 〆 10/20まで」、締め切りを過ぎたものは「締め切りを過ぎた」。掃除の記録がまだない宿題は状態を出さない */
 function carryLine(c) {
   const b = c.board, p = c.pairs[0], s = student(p.sid);
-  return E.mdDay(E.dayKey(b.createdAt)) + ' ' + E.lessonLabel(b, c.period) + '・' + (s ? s.name + 'さん ' : '') + E.SWEEP_ST[p.st] +
-    (p.next ? '「' + p.next + '」' : '') + (c.pairs.length > 1 ? ' ほか' + (c.pairs.length - 1) + '人' : '');
+  const st = p.st ? E.SWEEP_ST[p.st] + (p.next ? '「' + p.next + '」' : '') : '';
+  const due = p.late ? '締め切りを過ぎた' : p.hw ? '宿題 〆 ' + E.mdDay(p.due) + 'まで' : '';
+  return E.mdDay(E.dayKey(b.createdAt)) + ' ' + E.lessonLabel(b, c.period) + '・' + (s ? s.name + 'さん' : '') + [st, due].filter(Boolean).map((x) => ' ' + x).join('') +
+    (c.pairs.length > 1 ? ' ほか' + (c.pairs.length - 1) + '人' : '');
 }
 function renderCarry(list) {
   const box = $('tt-carry'), shown = list.slice(0, 3);
@@ -2859,34 +3369,101 @@ $('tt-list').addEventListener('click', (e) => {
   if (ed) { openWrite('edit', ed, { bid: ed.dataset.edit }); return; }   // 選んでいる行の「直す」（その行の頼み）
   const r = e.target.closest('button.tt-row');
   if (!r) return;
-  const day = ttDay || todayKey(), slot = slotOfKey(r.dataset.slot), period = r.dataset.period;
+  const day = ttDay || todayKey(), slot = slotOfKey(r.dataset.slot), period = r.dataset.period, y0 = r.getBoundingClientRect().top;
+  $('room-pa').style.minHeight = '';   // 前にあけておいた吹き出しの場所は、いったんもどす（押したあとで、また合わせる）
   const again = () => document.querySelector('#tt-list button.tt-row[data-slot="' + slot + '"]');
-  if (slot === 'sweep') { setTime(day, 'sweep'); startSweep(again()); return; }
+  // 離れる時間（今日の枠）に、締め切りが「この時間中」でまだ答えていない頼みがあれば、移ったあとで聞く
+  const was = liveTime(), leaving = was && isReqSlot(was.slot) && !(was.day === day && was.slot === slot) ? E.slotAsk(state.boards, was.day, slotNum(was.slot), todayKey()) : [];
+  const ask = (then) => { if (leaving.length) openAsk(leaving, was.day, was.slot, again(), then); else if (then) then(); };
+  if (slot === 'sweep') { setTime(day, 'sweep'); ask(() => startSweep(again())); return; }
   setTime(day, slot, r.dataset.bid || '');
-  if (period) { openWrite('new', again(), { period: slot }); return; }
-  focusEl(again());
+  if (period) { ask(() => openWrite('new', again(), { period: slot })); return; }
+  keepRow(again(), y0);
+  if (leaving.length) ask(null); else focusEl(again());
 });
+/* ===== 「この時間中」の報告（段C）：生徒ごとに 終わった・まだ・あとで（掃除の時間に）。終わった・まだは、その日の掃除の記録にも入る ===== */
+let askUI = null;   // { day, slot, items: [{ board, sids }], prev: { 'bid:sid': 聞く前の掃除の記録 }, then }
+function openAsk(items, day, slot, opener, then) {
+  askUI = { day: day, slot: slot, items: items, prev: {}, then: then || null };
+  items.forEach((it) => it.sids.forEach((sid) => { const e = it.board.sweep && it.board.sweep[sid]; askUI.prev[it.board.id + ':' + sid] = e ? JSON.parse(JSON.stringify(e)) : null; }));
+  $('ask-title').textContent = E.periodName(slotNum(slot)) + 'の頼み、終わった？';
+  renderAsk();
+  openSheet('sheet-ask', { opener: opener, focus: 'ask-title' });
+}
+function renderAsk() {
+  $('ask-body').innerHTML = askUI.items.map((it) => {
+    const b = it.board;
+    return '<section class="ask-b" data-bid="' + esc(b.id) + '"><p class="ask-b-h">' + CH_ICON[b.channel] + esc(E.lessonLabel(b, slotNum(askUI.slot))) + dueHTML(b.due) +
+      '<span class="ask-b-t">「' + esc(b.text.length > 40 ? b.text.slice(0, 40) + '…' : b.text) + '」</span></p>' +
+      it.sids.map((sid) => {
+        const st = student(sid), c = b.slotCheck && b.slotCheck[sid], key = esc(b.id) + '-' + esc(sid);
+        if (!st) return '';
+        return '<div class="ask-st" data-sid="' + esc(sid) + '"><span class="ask-who"><span class="dot" style="--c: var(--k' + st.color + ')"></span>' + esc(st.name) + 'さん</span>' +
+          '<div class="res-opts" role="radiogroup" aria-label="' + esc(st.name) + 'さんは、終わった？">' + Object.keys(E.CHECK_ANS).map((k) => '<label class="res"><input type="radio" name="ask-' + key +
+          '" id="ask-' + key + '-' + k + '" value="' + k + '"' + (c && c.ans === k ? ' checked' : '') + '><span>' + esc(E.CHECK_ANS[k]) + '</span></label>').join('') + '</div></div>';
+      }).join('') + '</section>';
+  }).join('');
+}
+$('ask-body').addEventListener('change', (e) => {
+  const t = e.target, sec = t.closest('.ask-b'), row = t.closest('.ask-st'), b = sec && board(sec.dataset.bid);
+  if (!b || !row || !askUI) return;
+  // 選び直したときは、聞く前の記録から決め直す（「終わった」→「あとで」なら、掃除の記録は元のまま）
+  const sid = row.dataset.sid, r = E.answerSlot(askUI.prev[b.id + ':' + sid], t.value, askUI.day, Date.now());
+  if (!r) return;
+  b.slotCheck = b.slotCheck || {};
+  b.slotCheck[sid] = r.check;
+  b.sweep = b.sweep || {};
+  if (r.sweep) b.sweep[sid] = r.sweep; else delete b.sweep[sid];
+  save();
+  renderRoom();   // 「この時間中」で終わったお便りは、次の時間の机にはもうない
+  const st = student(sid);
+  announce((st ? st.name + 'さん：' : '') + E.CHECK_ANS[t.value]);
+});
+$('ask-done').addEventListener('click', () => closeSheet());
+/* 閉じたら、待っていたこと（頼みごとを出す・掃除の時間）を始める（シートを閉じ終えてから） */
+function onAskClosed() { const then = askUI && askUI.then; askUI = null; if (then) setTimeout(then, 0); }
+/* 押した行が指（カーソル）の下から動かないように：放送の吹き出しや黒板の下の行が出たり消えたりして時間割がずれたら、そのぶん画面を動かす */
+function keepRow(el, y0) {
+  if (!el) return;
+  let dy = el.getBoundingClientRect().top - y0;
+  if (Math.abs(dy) > 1) window.scrollBy(0, dy);
+  dy = el.getBoundingClientRect().top - y0;
+  // ページの上の端で、もう上へ動かせない（吹き出しが消えて時間割が上がった）ときは、吹き出しの場所をそのぶんあけておく（次に行を押すまで）
+  if (dy < -1) { const pa = $('room-pa'); pa.style.minHeight = Math.round(pa.getBoundingClientRect().height - dy) + 'px'; }
+}
 /* ===== 教室の机（席の前後は「慣れ」。机を押すと、その生徒の目線） ===== */
-function deskHTML(s, b, seat, paper) {
-  const first = !!(b && b.firstTime[s.id]), off = !!(b && b.targets.indexOf(s.id) < 0), away = isAfterTime();
+function deskHTML(s, b, seat, paper, stay) {
+  const first = !!(b && b.firstTime[s.id]), off = !!(b && b.targets.indexOf(s.id) < 0), away = isAfterTime() && !stay;
   const review = E.needsReview(s, state.boards, Date.now());
   const badges = [];
   if (s.example) badges.push('<span class="badge">見本</span>');
   if (first) badges.push('<span class="badge badge-first">初めて</span>');
   if (off) badges.push('<span class="badge">今回は対象外</span>');
   if (review) badges.push('<span class="badge badge-review">像の見直し？</span>');
+  if (stay) badges.push('<span class="badge badge-stay">居残り</span>');
   const label = 'あなたから見た' + (s.example ? '見本の' : '') + s.name + 'さん（' + E.SEAT_LABEL[seat] + (first ? '・この頼みは初めての作業' : '') +
-    (off ? '・この黒板の相手ではない' : '') + (review ? '・像の見直しどき' : '') + (away ? '・放課後でもう帰った' : '') + '）。押すと、この生徒の目線に切り替わる';
-  return '<button class="desk' + (off ? ' is-off' : '') + (paper ? ' has-paper' : '') + '" type="button" data-sid="' + esc(s.id) + '" style="--c: var(--k' + s.color + ')" aria-label="' + esc(label) + '">' +
+    (off ? '・この黒板の相手ではない' : '') + (review ? '・像の見直しどき' : '') + (away ? '・放課後でもう帰った' : '') + (stay ? '・居残りで残っている' : '') + '）。押すと、この生徒の目線に切り替わる';
+  return '<button class="desk' + (off ? ' is-off' : '') + (paper ? ' has-paper' : '') + (stay ? ' is-stay' : '') + '" type="button" data-sid="' + esc(s.id) + '" style="--c: var(--k' + s.color + ')" aria-label="' + esc(label) + '">' +
     (badges.length ? '<span class="desk-badges" aria-hidden="true">' + badges.join('') + '</span>' : '') +
     '<span class="desk-top" aria-hidden="true"><span class="desk-tag"><span class="tag-k">あなたから見た</span><span class="tag-n">' + esc(s.name) + 'さん</span></span></span>' +
     '<span class="kid-chair" aria-hidden="true">' + CHAIR_SVG + '</span><span class="kid" aria-hidden="true">' + kidSVG(s) + '</span></button>';
 }
 /* 配ったお便り：その生徒の机（授業の席）に置く小さな紙。机のボタンとは別のボタン（押す・パソコンはカーソルを合わせると、大きく読める） */
-function paperHTML(b, s) {
-  return '<button class="desk-paper" type="button" data-bid="' + esc(b.id) + '" data-sid="' + esc(s.id) + '" aria-expanded="false" aria-controls="letter-pop" aria-label="' +
-    esc(s.name + 'さんの机のお便り（' + periodSubject(b, E.periods(state.boards)[b.id]) + '）を大きく読む') + '">' +
-    '<span class="dp-sheet" aria-hidden="true"><span class="dp-head">おたより</span><span class="dp-line"></span><span class="dp-line"></span><span class="dp-line"></span><span class="dp-line"></span></span></button>';
+/* 机のお便りを見る時間：書いている途中は書いている枠、時間を選んでいればその時間（掃除・放課後は枠でない）、なければいまの黒板の頼みの枠 */
+function deskSlot() {
+  if (writePreview != null) return writePeriodValue() || 'x';
+  const t = liveTime(), b = currentBoard();
+  if (t) return isReqSlot(t.slot) ? slotNum(t.slot) : t.slot;
+  return (b && E.periods(state.boards)[b.id]) || 'x';
+}
+const slotAttr = (v) => (/^[0-9.]+$/.test(String(v)) ? Number(v) : String(v));
+function paperHTML(d, s, day, slot) {
+  const b = d.letters[0], n = d.letters.length, per = E.periods(state.boards);
+  return '<button class="desk-paper' + (n >= 3 ? ' is-stack is-stack3' : n === 2 ? ' is-stack' : '') + '" type="button" data-bid="' + esc(b.id) + '" data-sid="' + esc(s.id) + '" data-day="' + esc(day) +
+    '" data-slot="' + esc(String(slot)) + '" data-n="' + d.total + '" aria-expanded="false" aria-controls="letter-pop" aria-label="' +
+    esc(s.name + 'さんの机のお便り（' + periodSubject(b, per[b.id]) + (d.total > 1 ? '・ほか ' + (d.total - 1) + ' 枚' : '') + '）を大きく読む') + '">' +
+    '<span class="dp-sheet" aria-hidden="true"><span class="dp-head">おたより</span><span class="dp-line"></span><span class="dp-line"></span><span class="dp-line"></span><span class="dp-line"></span></span>' +
+    (d.more ? '<span class="dp-more" aria-hidden="true">＋' + d.more + '</span>' : '') + '</button>';
 }
 /* 1段の机の数（CSS の .row-desks と同じ境目：760px 以上は5列、それより狭いと3列） */
 const wideMQ = window.matchMedia ? window.matchMedia('(min-width: 760px)') : { matches: false };
@@ -2916,16 +3493,19 @@ function renderRoom() {
     const lay = E.lunchSeats(lines, nc, state.students.map((s) => home[s.id]), t.at);
     Object.keys(lay.seats).forEach((id) => { const p = lay.seats[id]; at[p.line + ':' + p.col] = Object.assign({ s: student(id) }, p); });
   }
-  /* 配ったお便り：選んだ時間のお便りを、相手の生徒それぞれの机（授業の席。昼休みに移っても自分の机）に置く */
-  const letter = roomBoards().find((x) => x.channel === 'letter') || null, papers = {};
-  if (letter) letter.targets.forEach((sid) => { const h = home[sid], s = student(sid); if (h && s) papers[h.line + ':' + h.col] = s; });
+  /* 配ったお便り（段C：終わるまで相手の机に残る）：その時間のお便りが上、まだ終わっていない前のお便りが下に重なる（3枚まで＋ほか N 枚）。
+     机は授業の席（昼休みに移っても自分の机）。掃除・放課後は、その日のお便りを全部「前のもの」として見る */
+  const w = roomWhen(), dslot = deskSlot(), papers = {};
+  state.students.forEach((s) => { const h = home[s.id]; if (!h) return; const d = E.deskLetters(state.boards, w.day, dslot, s.id); if (d.total) papers[h.line + ':' + h.col] = { s: s, d: d }; });
+  /* 放課後：居残りの生徒だけ席に残る */
+  const stays = new Set(after ? E.stayList(state.boards, t.day).map((x) => x.sid) : []);
   let html = '';
   rows.forEach((r) => {
     html += '<div class="row" data-seat="' + r.seat + '"><p class="row-label sr-only">' + E.SEAT_LABEL[r.seat] + '</p><div class="row-desks">';
     r.slots.forEach((s, i) => {
       const key = (r.line0 + Math.floor(i / nc)) + ':' + (i % nc), here = lunch ? at[key] : null, pp = papers[key];
-      const desk = lunch ? (here ? lunchDeskHTML(here.s, here, !!pp) : EMPTY_DESK) : (s ? deskHTML(s, b, r.seat, !!pp) : EMPTY_DESK);
-      html += '<div class="seat">' + desk + (pp ? paperHTML(letter, pp) : '') + '</div>';
+      const desk = lunch ? (here ? lunchDeskHTML(here.s, here, !!pp) : EMPTY_DESK) : (s ? deskHTML(s, b, r.seat, !!pp, stays.has(s.id)) : EMPTY_DESK);
+      html += '<div class="seat">' + desk + (pp ? paperHTML(pp.d, pp.s, w.day, dslot) : '') + '</div>';
     });
     html += '</div></div>';
   });
@@ -3014,9 +3594,15 @@ function openLetter(btn, pin) {
   if (letterFrom && letterFrom !== btn) letterFrom.setAttribute('aria-expanded', 'false');
   letterFrom = btn;
   letterPin = pin || (again && letterPin);
-  $('letter-pop-meta').textContent = periodSubject(b, E.periods(state.boards)[b.id]);
-  $('letter-pop-text').textContent = b.text;
-  $('letter-pop-to').textContent = targetNames(b).replace(/^相手：/, '配った相手：');
+  const per = E.periods(state.boards), day = btn.dataset.day || E.dayKey(b.createdAt);
+  const d = E.deskLetters(state.boards, day, slotAttr(btn.dataset.slot), btn.dataset.sid), list = d.letters.length ? d.letters : [b];
+  const label = (x) => (E.dayKey(x.createdAt) !== day ? E.mdDay(E.dayKey(x.createdAt)) + ' ' : '') + periodSubject(x, per[x.id]);
+  $('letter-pop-meta').textContent = label(list[0]);
+  $('letter-pop-text').textContent = list[0].text;
+  $('letter-pop-due').innerHTML = dueHTML(list[0].due);
+  $('letter-pop-to').textContent = targetNames(list[0]).replace(/^相手：/, '配った相手：');
+  $('letter-pop-under').innerHTML = list.slice(1).map((x) => '<p class="lp-item"><b>まだ終わっていないお便り：' + esc(label(x)) + '</b>' + esc(x.text) + dueHTML(x.due, 'lp-due') + '</p>').join('') +
+    (d.more ? '<p class="lp-more">ほか ' + d.more + ' 枚</p>' : '');
   $('letter-pop-close').hidden = !letterPin;
   btn.setAttribute('aria-expanded', 'true');
   pop.hidden = false;
@@ -3059,14 +3645,85 @@ window.addEventListener('resize', () => { if (letterFrom && !$('letter-pop').hid
 /* ===== 頼みごとを出す（伝え方・文・科目名・相手。書いている間も教室に映す） ===== */
 const WRITE_LABEL = { board: '頼みごと（書いた字が黒板に映る）', letter: '頼みごと（お便りに印刷される）', broadcast: '頼みごと（放送で言ったこと）' };
 $('write-subjects').innerHTML = E.SUBJECTS.map((s, i) => '<label class="res"><input type="radio" name="write-subj" id="write-subj-' + i + '" value="' + esc(s) + '"><span>' + esc(s) + '</span></label>').join('');
-function setWriteChannel(ch) {
+/* 伝え方のタブ（段B）：1つの枠（時限・昼休み）に、黒板・お便り・放送の頼みを1つずつ。タブを押すと、その伝え方の頼みに切り替わる
+   （あれば直す・なければ新しく書く）。文・相手・初めての作業・締め切りは伝え方ごと、科目名と時限は枠で1つ */
+const CHS = ['board', 'letter', 'broadcast'];
+let writeTabs = { board: null, letter: null, broadcast: null };   // 伝え方ごとの頼み：{ bid（書いてある頼み）, text, targets, first, due, fromCast }
+let writeDraftTabs = null;   // 新しく出す頼みの書きかけ（伝え方ごと。閉じても残す）
+let writeDay = '', writeSlot0 = 0, writeDue = { kind: 'none' };   // 書いている枠の日・直すときのもとの枠（0＝時間割の外）・いまのタブの締め切り
+const alive = (ids) => (ids || []).filter((id) => student(id));
+function newTab(meta) {
+  meta = meta || {};
+  return { bid: '', text: meta.text || '', targets: new Set(meta.targets ? alive(meta.targets) : state.students.map((s) => s.id)),
+    first: new Set(alive(meta.firstTime)), due: E.normDue(meta.due), fromCast: meta.fromCast || null };
+}
+function tabOf(b) {
+  const t = { bid: b.id, text: b.text, targets: new Set(b.targets), first: new Set(Object.keys(b.firstTime)), due: E.normDue(b.due), fromCast: (b.channel === 'letter' && b.fromCast) || null };
+  t.orig = tabSig(t);   // 直したかどうかを見るための、開いたときの形
+  return t;
+}
+const tabSig = (t) => JSON.stringify([t.text.replace(/\s+$/, ''), [...t.targets].sort(), [...t.first].sort(), E.normDue(t.due), t.fromCast || '']);
+const tabText = (ch) => (ch === writeChannel && writePreview != null ? $('write-text').value : writeTabs[ch] ? writeTabs[ch].text : '');
+const tabDue = (ch) => (ch === writeChannel ? writeDue : writeTabs[ch] ? writeTabs[ch].due : { kind: 'none' });
+/* 書きかけがあるか（新しく出す頼みの、どれかの伝え方に文がある） */
+const hasDraft = () => !!writeDraftTabs && CHS.some((ch) => writeDraftTabs[ch] && writeDraftTabs[ch].text.trim());
+/* いまのタブの入力を、そのタブにしまう */
+function stashTab() {
+  const t = writeTabs[writeChannel] || (writeTabs[writeChannel] = newTab());
+  t.text = $('write-text').value; t.targets = new Set(writeTargets); t.first = new Set(writeFirst); t.due = writeDue; t.fromCast = writeFromCast;
+}
+/* タブを開く：その伝え方の頼み（なければ新しく書く） */
+function loadTab(ch) {
   writeChannel = E.normChannel(ch);
+  const t = writeTabs[writeChannel] || (writeTabs[writeChannel] = newTab());
   $('write-ch-' + writeChannel).checked = true;
   $('write-slate').dataset.ch = writeChannel;
   $('write-text-lbl').textContent = WRITE_LABEL[writeChannel];
+  $('write-text').value = t.text;
+  writeTargets = new Set(t.targets); writeFirst = new Set(t.first); writeDue = E.normDue(t.due); writeFromCast = t.fromCast;
+  writePreview = t.text;
+  $('write-err').hidden = true;
+  $('write-del').hidden = !t.bid;
+  $('write-submit').textContent = t.bid ? '直す' : '出す';
+  renderWriteTargets();
+  updateWriteCount();
   updateCastSrc();
+  renderTabMarks();
+  if (typeof renderDue === 'function') renderDue();
 }
-/* 要点のお便り：書く欄の下に元の放送の文を出す（伝え方をお便り以外にしたら隠す） */
+/* 書いてある伝え方には印（書いてある＝出した頼み・書きかけ＝まだ出していない文） */
+function renderTabMarks() {
+  CHS.forEach((ch) => {
+    const t = writeTabs[ch], saved = !!(t && t.bid), text = tabText(ch), m = $('write-has-' + ch);
+    m.hidden = !(saved || text.trim());
+    m.textContent = saved ? '書いてある' : '書きかけ';
+    m.classList.toggle('is-draft', !saved);
+  });
+}
+/* 締め切りの欄（段C）：この時間中・今日中・日付・決めない（伝え方のタブごと）。日付は、その頼みの日より後の日だけ */
+$('write-dues').innerHTML = E.DUE_KINDS.map((k) => '<label class="res"><input type="radio" name="write-due" id="write-due-' + k.key + '" value="' + k.key + '"><span>' + esc(k.label) + '</span></label>').join('');
+const nextDay = (day) => E.ymd(keyToTs(day) + E.DAY);
+function renderDue() {
+  const d = E.normDue(writeDue), min = nextDay(writeDay || todayKey());
+  $('write-due-' + d.kind).checked = true;
+  $('write-due-date-wrap').hidden = d.kind !== 'date';
+  $('write-due-on').min = min;
+  if (d.kind === 'date') $('write-due-on').value = d.date;
+}
+$('write-dues').addEventListener('change', (e) => {
+  if (e.target.name !== 'write-due') return;
+  const k = e.target.value, min = nextDay(writeDay || todayKey()), cur = $('write-due-on').value;
+  writeDue = k === 'date' ? { kind: 'date', date: E.validDay(cur) && cur >= min ? cur : min } : { kind: k };
+  renderDue();
+  renderRoomBoard();
+});
+$('write-due-on').addEventListener('change', () => {
+  const v = $('write-due-on').value, min = nextDay(writeDay || todayKey());
+  if (E.validDay(v) && v >= min) writeDue = { kind: 'date', date: v };
+  else $('write-due-on').value = writeDue.kind === 'date' ? writeDue.date : min;   // 頼みの日より前・同じ日は選べない
+  renderRoomBoard();
+});
+/* 要点のお便り：書く欄の下に元の放送の文を出す（お便りのタブのときだけ） */
 function updateCastSrc() {
   const src = writeFromCast ? board(writeFromCast) : null, on = !!src && writeChannel === 'letter';
   $('write-cast').hidden = !on;
@@ -3083,12 +3740,13 @@ function setWriteSubject(subj) {
 function revealPreview() { window.scrollTo(0, 0); }
 $('write-chs').addEventListener('change', (e) => {
   if (e.target.name !== 'write-ch') return;
-  setWriteChannel(e.target.value);
+  stashTab();
+  loadTab(e.target.value);
   renderRoomBoard();
   revealPreview();
 });
 $('write-subjects').addEventListener('change', () => { $('write-subject').value = ''; renderRoomBoard(); });
-/* 枠のチップ（1〜4限・昼休み・5〜6限）。その日に埋まっている枠は選べない（直すときは今の枠も選べる） */
+/* 枠のチップ（1〜4限・昼休み・5〜6限）。その日に埋まっている枠は選べない（直すときは今の枠も選べる。枠ごと動く） */
 function renderWritePeriods(free, sel) {
   $('write-periods').innerHTML = E.SLOTS.map((p) => {
     const off = free.indexOf(p) < 0, id = p === E.LUNCH_SLOT ? 'lunch' : p;
@@ -3124,38 +3782,44 @@ function renderWriteTargets() {
   }).join('');
 }
 function updateWriteCount() { $('write-count').textContent = $('write-text').value.length + '/' + MAX_TEXT; }
-/* 頼みごとを出す・直す。opts.period：押した空き時限。opts.bid：直す頼み（なければ、いまの黒板の頼み） */
+/* 頼みごとを出す・直す。
+   opts.period：押した空き時限。opts.bid：直す頼み（なければ、いまの黒板の頼み）。opts.channel：はじめに開くタブ。
+   opts.add：直す枠に、新しい伝え方の頼みを足して開く（要点のお便り）{ channel, text, targets, firstTime, fromCast } */
 function openWrite(mode, opener, opts) {
   opts = opts || {};
   closeLetter();
   const b = mode === 'edit' ? (opts.bid ? board(opts.bid) : currentBoard()) : null, editing = !!b;
-  const day = editing ? E.dayKey(b.createdAt) : todayKey();
+  const day = editing ? E.dayKey(b.createdAt) : todayKey(), mates = editing ? E.slotMates(state.boards, b) : [];
   // 枠：新しい頼みは今日の空き（押した時限 → 今の時間 → 書きかけの枠 → いちばん早い空き時限 → 昼休み）。全部うまっていたら開かない
-  const free = E.freeSlots(state.boards, day, editing ? b.id : null);
+  const free = E.freeSlots(state.boards, day, mates.map((x) => x.id));
   if (!editing && !free.length) { toast(FULL_MSG); return false; }
   const pick = (p) => (p && free.indexOf(p) >= 0 ? p : 0), t = liveTime();
-  const cur = t && t.day === day && isReqSlot(t.slot) ? slotNum(t.slot) : 0;
-  const period = editing ? (E.periods(state.boards)[b.id] || 0)
-    : (pick(opts.period ? slotNum(opts.period) : 0) || pick(cur) || pick(writeDraftMeta && writeDraftMeta.period) || free.filter((p) => p !== E.LUNCH_SLOT)[0] || free[0]);
+  const cur = t && t.day === day && isReqSlot(t.slot) ? slotNum(t.slot) : 0, meta = writeDraftMeta || {};
+  const period = editing ? E.slotOf(state.boards, b)
+    : (pick(opts.period ? slotNum(opts.period) : 0) || pick(cur) || pick(meta.period) || free.filter((p) => p !== E.LUNCH_SLOT)[0] || free[0]);
   renderWritePeriods(free, period);
   writeMode = editing ? 'edit' : 'new';
   writeBid = editing ? b.id : '';
+  writeDay = day;
+  writeSlot0 = editing ? period : 0;
   writeOpenerTT = !!(opener && opener.classList && opener.classList.contains('tt-edit'));
   $('write-title').textContent = editing ? '頼みごとを直す' : '頼みごとを出す';
-  $('write-submit').textContent = editing ? '直す' : '出す';
-  $('write-text').value = editing ? b.text : writeDraft;
-  const meta = editing ? b : (writeDraftMeta || { channel: 'board', subject: '授業' });
-  writeFromCast = editing ? (b.channel === 'letter' && b.fromCast) || null : meta.fromCast || null;
-  setWriteChannel(meta.channel);
-  setWriteSubject(meta.subject);
-  // 相手と「初めての作業」：直すときはその頼みのまま。要点のお便りの書きかけは元の放送と同じ。ふだんの新しい頼みは全員
-  const alive = (ids) => (ids || []).filter((id) => student(id));
-  writeTargets = new Set(editing ? b.targets : meta.targets ? alive(meta.targets) : state.students.map((s) => s.id));
-  writeFirst = new Set(editing ? Object.keys(b.firstTime) : alive(meta.firstTime));
-  renderWriteTargets();
-  updateWriteCount();
-  $('write-err').hidden = true;
-  writePreview = $('write-text').value;
+  // タブ：直すときは、その枠の伝え方ごとの頼み。新しく出すときは書きかけ（伝え方ごと）
+  writeTabs = { board: null, letter: null, broadcast: null };
+  let first = 'board';
+  if (editing) {
+    mates.forEach((x) => { writeTabs[E.normChannel(x.channel)] = tabOf(x); });
+    first = E.normChannel(opts.channel || b.channel);
+    if (opts.add) { writeTabs[opts.add.channel] = newTab(opts.add); first = opts.add.channel; }
+  } else if (hasDraft()) {
+    CHS.forEach((ch) => { const d = writeDraftTabs[ch]; if (d) writeTabs[ch] = Object.assign({}, d, { targets: new Set(alive([...d.targets])), first: new Set(alive([...d.first])) }); });
+    first = meta.channel || CHS.find((ch) => writeTabs[ch]) || 'board';
+  }
+  // 時間割の外の頼み（時限なし）は、1つずつ直す（ほかの伝え方のタブは使わない）
+  CHS.forEach((ch) => { $('write-ch-' + ch).disabled = editing && !period && ch !== E.normChannel(b.channel); });
+  $('write-chs-note').textContent = editing && !period ? '時間割の外の頼みは、伝え方ごとに1つずつ直す' : '伝え方ごとに、別の頼みを書ける（科目名と時限は同じ）';
+  setWriteSubject(editing ? E.normSubject(b.subject) : meta.subject || '授業');
+  loadTab(first);
   if (state.ui.tab !== 'room') showTab('room');
   window.scrollTo(0, 0);
   renderRoom();   // 書いている枠の教室を見せる（黒板・スピーカー・机の紙）
@@ -3165,23 +3829,24 @@ function openWrite(mode, opener, opts) {
 }
 function onWriteClosed() {
   if (writeMode === 'new' && writePreview != null) {
-    writeDraft = $('write-text').value;
-    // 要点の下書きに手をつけずに閉じたら、書きかけは残さない（次の「要点をお便りでも送る」を止めないため）
-    if (writeFromCast && writeDraft === POINT_DRAFT) writeDraft = '';
-    // 書きかけ：伝え方・科目名・枠と、要点のお便りなら元の放送・相手・初めての作業も残す。文を消して閉じたら書きかけはなし
-    writeDraftMeta = !writeDraft.trim() ? null : Object.assign({ channel: writeChannel, subject: writeSubjectValue(), period: writePeriodValue() },
-      writeFromCast ? { fromCast: writeFromCast, targets: [...writeTargets], firstTime: [...writeFirst] } : {});
-    if (!writeDraft.trim()) writeDraft = '';
+    stashTab();
+    // 書きかけ：伝え方ごとの文・相手・初めての作業・締め切り（と科目名・枠）。要点の下書きに手をつけずに閉じたものは残さない
+    const keep = CHS.some((ch) => { const d = writeTabs[ch]; return d && d.text.trim() && !(d.fromCast && d.text === POINT_DRAFT); });
+    writeDraftTabs = keep ? writeTabs : null;
+    writeDraftMeta = keep ? { channel: writeChannel, subject: writeSubjectValue(), period: writePeriodValue() } : null;
   }
+  writeTabs = { board: null, letter: null, broadcast: null };
   writeFromCast = null;
   writePreview = null;
   writeBid = '';
+  CHS.forEach((ch) => { $('write-ch-' + ch).disabled = false; });
   renderRoom();
 }
 $('write-text').addEventListener('input', () => {
   $('write-err').hidden = true;
   writePreview = $('write-text').value;
   updateWriteCount();
+  renderTabMarks();
   renderRoomBoard();
 });
 $('write-targets').addEventListener('change', (e) => {
@@ -3202,37 +3867,55 @@ $('write-copy').addEventListener('click', () => {
 });
 /* 生徒の動きのお知らせ（出した・直した頼みの時間に移ったとき、お知らせの最後に足す短い一言） */
 const MOVE_NOTE = { lunch: '昼休み：生徒はとなりあう席に集まっている', after: '放課後：生徒は帰った', back: '生徒は自分の席にもどった' };
+/* 伝え方の頼み1つを、タブの中身で書く（新しい頼みは nb、書いてある頼みは b をそのまま書きかえる） */
+function applyTab(b, t, subject, period, now) {
+  const lunch = period === E.LUNCH_SLOT, targets = state.students.map((s) => s.id).filter((id) => t.targets.has(id)), firstTime = {};
+  targets.forEach((id) => { if (t.first.has(id)) firstTime[id] = true; });
+  b.text = t.text.replace(/\s+$/, '').slice(0, MAX_TEXT); b.subject = subject; b.period = lunch ? 0 : period; b.targets = targets; b.firstTime = firstTime; b.updatedAt = now;
+  if (lunch) b.lunch = true; else delete b.lunch;
+  const due = E.normDue(t.due);
+  if (due.kind !== 'none') b.due = due; else delete b.due;
+  // 要点のお便り：元の放送の id を持たせる（お便りのときだけ）
+  if (b.channel === 'letter' && t.fromCast && board(t.fromCast)) b.fromCast = t.fromCast; else delete b.fromCast;
+  return b;
+}
 $('write-form').addEventListener('submit', (e) => {
   e.preventDefault();
-  const text = $('write-text').value.replace(/\s+$/, '').slice(0, MAX_TEXT);
-  if (!text.trim()) { $('write-err').hidden = false; focusEl($('write-text')); return; }
-  const targets = state.students.map((s) => s.id).filter((id) => writeTargets.has(id));
-  const firstTime = {};
-  targets.forEach((id) => { if (writeFirst.has(id)) firstTime[id] = true; });
-  const now = Date.now(), b = writeMode === 'edit' ? board(writeBid) : null, editing = !!b, channel = writeChannel, subject = writeSubjectValue();
-  // 枠：選んだ枠がその日に空いているときだけ（新しい頼みは今日。うまっていたら出さない）。昼休みの枠は lunch: true（時限は 0）
-  const free = E.freeSlots(state.boards, editing ? E.dayKey(b.createdAt) : todayKey(), editing ? b.id : null);
-  let period = writePeriodValue();
-  if (free.indexOf(period) < 0) period = editing ? 0 : (free.filter((p) => p !== E.LUNCH_SLOT)[0] || free[0] || 0);
-  if (!editing && !period) { toast(FULL_MSG); return; }
-  const lunch = period === E.LUNCH_SLOT;
-  // 要点のお便り：元の放送の id を持たせる（お便りのときだけ）
-  const fromCast = channel === 'letter' && writeFromCast && board(writeFromCast) ? writeFromCast : '';
-  let msg = '', target = b;
-  if (editing) {
-    b.text = text; b.channel = channel; b.subject = subject; b.period = lunch ? 0 : period; b.targets = targets; b.firstTime = firstTime; b.updatedAt = now;
-    if (lunch) b.lunch = true; else delete b.lunch;
-    if (fromCast) b.fromCast = fromCast; else delete b.fromCast;
-    msg = '直したよ（' + periodSubject(b, E.periods(state.boards)[b.id]) + '・' + E.channelLabel(b.channel) + '）';
-  } else {
-    const nb = { id: newId('b-'), text: text, channel: channel, subject: subject, period: lunch ? 0 : period, example: false, createdAt: now, updatedAt: now, targets: targets, firstTime: firstTime, results: {} };
-    if (fromCast) nb.fromCast = fromCast;
-    if (lunch) nb.lunch = true;
-    state.boards.push(nb);
-    writeDraft = ''; writeDraftMeta = null;
-    target = nb;
-    msg = E.lessonLabel(nb, E.periods(state.boards)[nb.id]) + 'を出したよ。机を押すと、その生徒の目線で見られる';
+  stashTab();
+  const now = Date.now(), day = writeDay || todayKey(), editing = writeMode === 'edit';
+  const tabs = CHS.map((ch) => ({ ch, t: writeTabs[ch] })).filter((x) => x.t);
+  const saved = tabs.filter((x) => x.t.bid && board(x.t.bid)), fresh = tabs.filter((x) => !x.t.bid && x.t.text.trim());
+  // 書いてある頼みの文を空にしたとき・何も書いていないときは、出さずに知らせる（消すなら「この伝え方の頼みを消す」）
+  const empty = saved.find((x) => !x.t.text.trim());
+  if (empty || (!saved.length && !fresh.length)) {
+    if (empty && empty.ch !== writeChannel) { loadTab(empty.ch); renderRoomBoard(); }
+    $('write-err').hidden = false;
+    focusEl($('write-text'));
+    return;
   }
+  // 枠：選んだ枠がその日に空いているときだけ（直すときは今の枠も。枠ごと動く）。新しい頼みは、うまっていたら出さない
+  const mates = saved.map((x) => board(x.t.bid)), free = E.freeSlots(state.boards, day, mates.map((x) => x.id));
+  let period = writePeriodValue();
+  if (free.indexOf(period) < 0) period = editing ? writeSlot0 : (free.filter((p) => p !== E.LUNCH_SLOT)[0] || free[0] || 0);
+  if (!editing && !period) { toast(FULL_MSG); return; }
+  const subject = writeSubjectValue(), moved0 = period !== writeSlot0 || (mates[0] && E.normSubject(mates[0].subject) !== subject);
+  const changed = saved.filter((x) => moved0 || tabSig(x.t) !== x.t.orig);   // 直した伝え方（科目名・時限を変えたら全部）
+  saved.forEach((x) => applyTab(board(x.t.bid), x.t, subject, period, now));
+  // 新しい伝え方の頼み：その枠の日に入るように createdAt を決める（前の日の枠に足すときも、その日のまま）
+  const created = fresh.map((x) => {
+    const nb = applyTab({ id: newId('b-'), channel: x.ch, example: false, createdAt: period ? E.slotCreatedAt(state.boards, day, period, now) : day === todayKey() ? now : keyToTs(day),
+      results: {} }, x.t, subject, period, now);
+    state.boards.push(nb);
+    return nb;
+  });
+  if (!editing) { writeDraftTabs = null; writeDraftMeta = null; }
+  const per = E.periods(state.boards), all = saved.map((x) => board(x.t.bid)).concat(created);
+  const target = all.find((x) => x.channel === writeChannel) || all[0];
+  const names = (list) => list.map((x) => E.channelLabel(x.ch)).join('・'), head = periodSubject({ subject: subject }, per[target.id]);
+  const msg = created.length === 1 && !changed.length ? E.lessonLabel(created[0], per[created[0].id]) + 'を出したよ。机を押すと、その生徒の目線で見られる'
+    : created.length && !changed.length ? head + '：' + names(fresh) + 'を出したよ'
+    : created.length ? head + '：' + names(fresh) + 'を出して、' + names(changed) + 'を直したよ'
+    : '直したよ（' + head + '・' + names(changed.length ? changed : saved) + '）';
   writePreview = null;
   const backTo = writeOpenerTT;
   closeSheet();
@@ -3240,6 +3923,25 @@ $('write-form').addEventListener('submit', (e) => {
   const moved = showBoard(target, true);
   if (backTo) focusEl($('tt-list').querySelector('.tt-edit'));   // 時間割の「直す」から開いたときは、描き直した「直す」にもどる
   toast(msg + (moved ? '（' + MOVE_NOTE[moved] + '）' : ''), moved === 'lunch' ? 4200 : 0);
+});
+/* 伝え方ごとに消す：このタブの頼み（書いてあるもの）を消す。枠にほかの頼みが残れば、シートはそのまま */
+$('write-del').addEventListener('click', () => {
+  const ch = writeChannel, t = writeTabs[ch], b = t && board(t.bid);
+  if (!b) return;
+  const label = E.lessonLabel(b, E.periods(state.boards)[b.id]);
+  askConfirm('この伝え方の頼みを消しますか？', label + '「' + b.text.slice(0, 30) + (b.text.length > 30 ? '…' : '') + '」と、その提出物の記録が消えます。元に戻せません。', '消す', () => {
+    state.boards = state.boards.filter((x) => x.id !== b.id);
+    writeTabs[ch] = null;
+    if (state.currentId === b.id) { const tt = liveTime(); state.currentId = tt ? (slotBoardsOn(tt.day, tt.slot)[0] || { id: '' }).id : (state.boards.length ? latestBoard(state.boards).id : ''); }
+    save();
+    // ほかのタブに、書いてある頼みか書きかけの文が残っていれば、シートは開いたまま（消したタブは空の新しい頼みにもどる）
+    const left = CHS.some((c) => c !== ch && writeTabs[c] && (writeTabs[c].bid ? !!board(writeTabs[c].bid) : !!writeTabs[c].text.trim()));
+    if (!left) { writePreview = null; writeMode = 'edit'; closeSheet(true); commit(); focusEl($('tt-list').querySelector('.tt-now .tt-row') || $('btn-write')); toast(label + 'を消したよ'); return; }
+    loadTab(ch);
+    renderRoom();
+    focusEl($('write-ch-' + ch));
+    toast(label + 'を消したよ');
+  });
 });
 
 /* ===== 掃除の時間（1日の終わりに、今日の頼みと前の日からの続きを、記録から1つずつ出す。黒板消しで1枚ずつ消していく） ===== */
@@ -3250,7 +3952,8 @@ function sweepEntry(b, sid) { return (b.sweep && b.sweep[sid]) || null; }
 const SWEEP_WHY = {
   none: '今日はまだ頼みごとがないので、掃除するものはないよ',
   noTargets: '今日の頼みには相手がいないので、掃除するものはないよ（「直す」で相手を選べる）',
-  allDone: '今日の頼みは、相手が全員提出済み（締めたものも）なので、掃除するものはないよ'
+  allDone: '今日の頼みは、相手が全員提出済み（締めたものも）なので、掃除するものはないよ',
+  homework: '今日の頼みは、締め切りがまだ先の宿題だけなので、掃除するものはないよ（締め切りの日の掃除に出る）'
 };
 /* 掃除の行を押したとき（時間はもう「掃除」）：掃除するものがあれば掃除の時間を始め、なければわけを知らせる */
 function startSweep(opener) {
@@ -3294,16 +3997,19 @@ function renderSweepBoard() {
     const b = it.board;
     chalk.innerHTML = '<span class="chalk-note">' + esc((it.carry ? E.mdDay(E.dayKey(b.createdAt)) + ' ' : '') + E.lessonLabel(b, it.period)) +
       (it.carry ? '<span class="sw-carry-mark">前の日からの続き</span>' : '') + '</span>' + esc(b.text);
+    $('room-board-due').innerHTML = dueHTML(b.due);
     sizeClass(chalk, b.text);
     setBoardDate(E.dayKey(b.createdAt), '掃除');
     $('room-note').innerHTML = '掃除の時間 <b class="sw-count">' + (sweepUI.idx + 1) + '/' + sweepUI.items.length + '</b>';
   } else {
     chalk.innerHTML = '<span class="chalk-note">今日の掃除、おしまい</span>';
+    $('room-board-due').innerHTML = '';
     setBoardDate(todayKey(), '掃除');
     $('room-note').innerHTML = '掃除の時間 <b class="sw-count">おしまい</b>';
   }
   $('room-memos').hidden = !sweepUI.memos.length;
   $('room-memos').innerHTML = sweepUI.memos.map((m) => '<span class="board-memo">' + esc(m) + '</span>').join('');
+  $('room-tasks').hidden = true;   // 掃除の時間は、端の「続き」のメモだけ
   $('room-speaker').disabled = true;
   stopSay();
 }
@@ -3317,11 +4023,22 @@ function swMoreHTML(b, sid, st, e, key) {
   if (v.field) h += '<div><label class="lbl" for="swn-' + key + '">' + esc(v.field) + '</label><input class="field" type="text" id="swn-' + key + '" data-next="1" maxlength="' + E.SWEEP_NEXT_MAX +
     '" autocomplete="off" placeholder="' + esc(v.placeholder) + '" value="' + esc((e && e.next) || '') + '"></div>';
   if (v.tip) h += '<p class="sw-tip">' + esc(v.tip) + '</p>';
+  if (st !== 'done' && E.dueChoice(b, sid, sweepUI.day)) h += swDueHTML(b, sid, e, key);
   if (st === 'done') h += '<div class="sw-done"><button class="btn btn-small" type="button" data-act="thanks">お礼を伝える</button><span class="sw-thanks-t" id="swt-' + key + '">「' + esc(v.thanks) + '」をコピー</span></div>' +
     '<label class="ack"><input class="switch" type="checkbox" role="switch" id="swg-' + key + '" data-good="1"' + (e && e.good ? ' checked' : '') + '><span>この頼み方はうまくいった</span></label>' +
     '<p class="small"><button class="link-btn" type="button" data-act="to-subs">提出物に記録する</button></p>';
   return h + '<div class="sw-ask"><p class="lbl">本人に聞くなら</p><p class="sw-ask-q" id="swa-' + key + '">' + esc(v.ask) + '</p>' +
     '<div class="ask-row"><button class="btn btn-small" type="button" data-act="ask">この一言をコピー</button></div></div></div>';
+}
+function swDueHTML(b, sid, e, key) {
+  const day = sweepUI.day, l = E.logOn(e, day) || {}, due = E.dueDayFor(b, sid, day, false), ext = l.ext || '', stay = !!l.stay;
+  return '<div class="sw-due"><p class="lbl">' + (due < day ? '締め切り（' + E.mdDay(due) + '）を過ぎている' : '締め切りは今日（' + E.mdDay(due) + '）') + '：どうする？</p>' +
+    '<div class="res-opts" role="radiogroup" aria-label="締め切りを延ばすか、居残りか">' +
+    '<label class="res"><input type="radio" name="swd-' + key + '" id="swd-' + key + '-ext" value="ext" data-due="1"' + (ext ? ' checked' : '') + '><span>締め切りを延ばす（宿題）</span></label>' +
+    '<label class="res"><input type="radio" name="swd-' + key + '" id="swd-' + key + '-stay" value="stay" data-due="1"' + (stay ? ' checked' : '') + '><span>居残り</span></label></div>' +
+    (ext ? '<div class="sw-due-date"><label class="small" for="swx-' + key + '">延ばす日（宿題の締め切り）</label><input class="field" type="date" id="swx-' + key + '" data-ext="1" min="' + nextDay(day) + '" value="' + ext + '"></div>' : '') +
+    (stay ? '<p class="voice" data-key="stay">' + esc(E.STAY_VOICE) + '</p><p class="small">放課後を押しても、席に残る（今日だけ）</p>' : '') +
+    (!ext && !stay ? '<p class="small">途中・まだのままなら、締め切りを延ばして宿題にするか、居残りにするかを選んでね</p>' : '') + '</div>';
 }
 function swRowHTML(it, sid) {
   const b = it.board, s = student(sid);
@@ -3348,6 +4065,12 @@ function renderSweep() {
   $('sweep-next').textContent = '次へ';
   $('sweep-next').disabled = !sweepChosen(it);
 }
+/* まとめの一覧（居残り・宿題にした）：頼みと生徒と一言 */
+function swSumList(title, id, list, tail) {
+  if (!list.length) return '';
+  return '<p class="lbl">' + title + '</p><ul class="sw-sum-list" id="' + id + '">' + list.map((c) => {
+    const st = student(c.sid); return '<li>' + lessonHTML(c.board, c.period) + '<b>' + esc(st ? st.name : '') + 'さん</b><span>' + esc(tail(c)) + '</span></li>'; }).join('') + '</ul>';
+}
 /* 最後のまとめ：数（生徒ごと）・明日の続き・出しすぎ（先生向けに小さく）・全部決まった */
 function renderSweepSummary() {
   const s = E.sweepSummary(sweepUI.items, sweepUI.day);
@@ -3355,6 +4078,10 @@ function renderSweepSummary() {
   $('sweep-body').innerHTML = '<div class="sw-sum"><p class="sw-sum-t">今日の掃除、おしまい</p>' +
     '<ul class="ch-sum" id="sweep-counts"><li>終わった <b>' + s.done + '</b></li><li>途中 <b>' + s.mid + '</b></li><li>まだ <b>' + s.not + '</b></li></ul>' +
     (s.allPlanned ? '<p class="voice is-pos" id="sweep-planned">明日やることが決まっていると、安心して帰れるかも</p>' : '') +
+    swSumList('居残り（放課後も席に残る）', 'sweep-stay', s.stay, () => '居残り') +
+    swSumList('締め切りを延ばした（宿題）', 'sweep-ext', s.ext, (c) => '〆 ' + E.mdDay(c.date) + 'まで') +
+    (s.undecided.length ? '<p class="sw-note" id="sweep-undecided">締め切りの日なのに、延ばすか居残りか決めていない頼みがある（' + s.undecided.map((c) => {
+      const st = student(c.sid); return (st ? st.name + 'さん' : '') + '・' + periodSubject(c.board, c.period); }).join('、') + '）</p>' : '') +
     '<p class="lbl">明日の続き</p>' + (s.carry.length ? '<ul class="sw-carry" id="sweep-carry">' + s.carry.map((c) => {
       const st = student(c.sid);
       return '<li>' + lessonHTML(c.board, c.period) + '<b>' + esc(st ? st.name : '') + 'さん</b><span>' + E.SWEEP_ST[c.st] + (c.next ? '：' + esc(c.next) : '（一言なし）') + '</span></li>';
@@ -3372,6 +4099,20 @@ $('sweep-body').addEventListener('change', (e) => {
   const t = e.target, row = t.closest('.sw-row'), it = sweepItem();
   if (!row || !it) return;
   const sid = row.dataset.sid;
+  if (t.dataset.due) {
+    // 締め切りを延ばす（明日から。日付は下で選び直せる）・居残り（どちらか1つ）
+    const cur = (E.logOn(sweepEntry(it.board, sid), sweepUI.day) || {}).ext;
+    setSweep(it.board, sid, t.value === 'ext' ? { ext: cur || nextDay(sweepUI.day) } : { stay: true });
+    save();
+    row.outerHTML = swRowHTML(it, sid);
+    focusEl($(t.id));
+    return;
+  }
+  if (t.dataset.ext) {
+    if (E.validDay(t.value) && t.value > sweepUI.day) { setSweep(it.board, sid, { ext: t.value }); save(); }
+    else t.value = (E.logOn(sweepEntry(it.board, sid), sweepUI.day) || {}).ext || nextDay(sweepUI.day);   // 今日より前・今日は選べない
+    return;
+  }
   if (t.type === 'radio') {
     setSweep(it.board, sid, { st: t.value });
     save();
@@ -3578,83 +4319,124 @@ function viewChalkHTML(f, v) {
     return t;
   }).join('');
 }
-/* お便り：机の上の紙。その日この生徒に配ったお便りが2枚以上なら重ねる（下の紙は端しか見えない） */
-function papersHTML(b, letters, f, v, p) {
-  const under = letters.filter((x) => x.id !== b.id).slice(-3);
-  return under.map((x, i) => '<div class="paper is-under" style="--k:' + (under.length - i) + '" aria-hidden="true"><p class="print-head"><span class="print-title">おたより</span></p></div>').join('') +
-    '<article class="paper is-top" aria-label="机の上のお便り"><p class="print-head"><span class="print-title">おたより</span><span class="print-meta">' + esc(periodSubject(b, p)) + '</span></p>' +
-    '<p class="paper-text">' + viewChalkHTML(f, v) + '</p></article>';
+/* お便り：机の上の紙。いちばん上はその枠のお便り、その下にまだ終わっていない前のお便り（下の紙は端しか見えない） */
+function papersHTML(top, under, f, v, p) {
+  const u = under.slice(0, 2);
+  return u.map((x, i) => '<div class="paper is-under" style="--k:' + (u.length - i) + '" aria-hidden="true"><p class="print-head"><span class="print-title">おたより</span></p></div>').join('') +
+    '<article class="paper is-top" aria-label="机の上のお便り"><p class="print-head"><span class="print-title">おたより</span><span class="print-meta">' + esc(periodSubject(top, p)) + '</span></p>' +
+    '<p class="paper-text">' + viewChalkHTML(f, v) + '</p>' + dueHTML(top.due, 'paper-due') + '</article>';
+}
+/* 締め切りの黄色いチョーク（「〆 今日中」）。決めないなら何も出さない */
+function dueHTML(due, cls) { const t = E.dueLabel(due); return t ? '<span class="due-chalk ' + (cls || '') + '">' + esc(t) + '</span>' : ''; }
+/* 目線で見る中身：時間割の枠の頼みなら、その枠でこの生徒あての頼みを伝え方ごとに（E.slotView）。時間割の外の頼みは、その頼みだけ */
+function viewModel(s, b) {
+  const per = E.periods(state.boards), day = E.dayKey(b.createdAt), p = per[b.id] || 0;
+  if (p) { const sv = E.slotView(state.boards, day, p, s); if (sv.sections.length) return sv; }
+  const off = b.targets.indexOf(s.id) < 0, ch = b.channel;
+  const v = E.studentView(E.withDue(E.readBoard(b.text), b.due), s.answers, { firstTime: !!b.firstTime[s.id], channel: ch,
+    letterCopy: ch === 'broadcast' && E.hasLetterCopy(state.boards, b, off ? '' : s.id), lunch: E.isLunch(b) });
+  const dv = E.dayView(E.dayList(state.boards, day), b, s.id, state.boards);
+  return { day: day, slot: 0, name: '', subject: E.normSubject(b.subject), off: off, voices: dv.voices, stay: E.stayVoice(state.boards, s.id, day),
+    sections: [{ channel: ch, label: E.channelLabel(ch), board: b, off: off, due: E.dueLabel(b.due), view: v, chips: v.chips.concat(dv.chips).slice(0, 6) }] };
+}
+const FACE_RANK = { stiff: 3, busy: 2, soft: 1, normal: 0 };
+const ADDS_H = { board: '黒板に足すとよいもの', letter: 'お便りに足すとよいもの', broadcast: '足すとよいもの' };
+const ADDS_WHERE = { board: '黒板', letter: 'お便り', broadcast: '放送で言ったこと' };
+/* 伝え方ごとの区切り：見出し（伝え方・締め切り）・心の声・本人に聞くなら・足すとよいもの。いちばん上の区切りに、今までの id を付ける */
+function viewSecHTML(x, i) {
+  const v = x.view, id = (name) => (i ? '' : ' id="' + name + '"'), chips = x.chips;
+  const chipsHTML = chips.length ? chips.map((c) => c.act === 'letter'
+    ? '<button class="chip-btn" type="button" data-act="letter">' + CH_ICON.letter + ' ' + esc(c.text) + '</button>'
+    : '<button class="chip-btn" type="button" data-tpl="' + esc(c.text) + '">＋ ' + esc(c.text) + '</button>').join('')
+    : '<p class="small">足りないものは見つからなかった。あとは本人に聞いて確かめよう。</p>';
+  const note = chips.some((c) => c.act === 'letter') ? '「要点をお便りでも送る」は、何を・いつまでの下書きでシートを開く。ほかは、放送で言ったことの最後にひな形が入る。◯ はあとで書きかえてね'
+    : '押すと、' + ADDS_WHERE[x.channel] + 'の最後にひな形が入る。◯ はあとで書きかえてね';
+  return '<section class="vsec" data-ch="' + x.channel + '" data-bid="' + esc(x.board.id) + '" aria-labelledby="vsec-h-' + i + '">' +
+    '<h3 class="vsec-h" id="vsec-h-' + i + '">' + CH_ICON[x.channel] + esc(x.label) + 'の頼み' + (x.due ? '<span class="vsec-due">' + esc(x.due) + '</span>' : '') +
+      (x.off ? '<span class="tag">相手ではない（見え方は参考）</span>' : '') + '</h3>' +
+    '<div class="vsec-grid"><section class="vsec-voices"><h4 class="lbl"' + id('voices-h') + '>心の声（〜かも。仮説です）</h4><ul class="voices"' + id('view-voices') + '>' +
+      v.voices.map((y) => '<li class="voice' + (y.strong ? ' is-strong' : '') + (y.tone === 'pos' ? ' is-pos' : '') + '">' + esc(y.text) + '</li>').join('') + '</ul></section>' +
+    '<div class="view-side"><section class="ask"><h4 class="lbl">本人に聞くなら</h4><p class="ask-q"' + id('view-ask') + '>' + esc(v.ask.text) + '</p>' +
+      '<div class="ask-row"><button class="btn btn-small" type="button" data-copy-ask' + id('view-ask-copy') + '>この一言をコピー</button></div></section>' +
+    '<section><h4 class="lbl"' + id('adds-h') + '>' + ADDS_H[x.channel] + '</h4><div class="chips"' + id('view-chips') + '>' + chipsHTML + '</div>' +
+      (chips.length ? '<p class="small"' + id('view-chips-note') + '>' + note + '</p>' : '') + '</section></div></div></section>';
 }
 function renderView(entering) {
   const s = student(viewSid), b = viewBoard();
   if (!s || !b) return;
-  const f = E.readBoard(b.text), first = !!b.firstTime[s.id], off = b.targets.indexOf(s.id) < 0, ch = b.channel;
-  const per = E.periods(state.boards), day = E.dayKey(b.createdAt), dayAll = E.dayList(state.boards, day);
-  const v = E.studentView(f, s.answers, { firstTime: first, channel: ch, letterCopy: ch === 'broadcast' && E.hasLetterCopy(state.boards, b, off ? '' : s.id), lunch: E.isLunch(b) });
+  const m = viewModel(s, b), secs = m.sections;
+  const lead = secs[0], lv = lead.view, day = m.day, by = {};
+  secs.forEach((x) => { by[x.channel] = by[x.channel] || x; });
   $('view-title').textContent = s.name + 'さんの目線';
-  $('view-pills').innerHTML = '<span class="pill">' + esc(E.lessonLabel(b, per[b.id])) + '</span><span class="pill">' + v.seatLabel + 'から</span>' + (s.example ? '<span class="pill">見本</span>' : '') +
-    (first ? '<span class="pill pill-first">この頼みは初めての作業</span>' : '') + (off ? '<span class="pill pill-off">この頼みの相手ではない（見え方は参考）</span>' : '');
-  /* 今日この生徒に降ってきた頼み（小さな時間割。いま見ている時限を強調。押すとその頼みの目線へ） */
-  const mine = dayAll.filter((x) => x.targets.indexOf(s.id) >= 0 || x.id === b.id);
+  // 札：枠（時限・科目・伝え方）・席・見本・初めての作業・相手ではない
+  const first = secs.filter((x) => x.board.firstTime[s.id]).length;
+  $('view-pills').innerHTML = '<span class="pill">' + esc((m.slot ? E.periodName(m.slot) + ' ' : '') + m.subject + '（' + secs.map((x) => x.label).join('・') + '）') + '</span>' +
+    '<span class="pill">' + lv.seatLabel + 'から</span>' + (s.example ? '<span class="pill">見本</span>' : '') +
+    (first ? '<span class="pill pill-first">' + (secs.length > 1 ? 'この時間に初めての作業がある' : 'この頼みは初めての作業') + '</span>' : '') +
+    (m.off ? '<span class="pill pill-off">この頼みの相手ではない（見え方は参考）</span>' : '');
+  /* 今日この生徒に降ってきた頼み（小さな時間割：枠ごとに1行。いま見ている枠を強調。押すとその枠の目線へ） */
+  const per = E.periods(state.boards), rows = [], seen = {};
+  E.dayList(state.boards, day).forEach((x) => {
+    const p = per[x.id] || 0, key = p ? 's' + p : 'b' + x.id;
+    if (seen[key]) return;
+    seen[key] = true;
+    const list = p ? E.slotBoards(state.boards, day, p) : [x], to = list.filter((y) => y.targets.indexOf(s.id) >= 0), now = p ? p === m.slot : x.id === b.id;
+    if (to.length || now) rows.push(ttRowHTML(to.length ? to : list, p, !to.length, now));
+  });
   $('view-tt-k').textContent = (day === todayKey() ? '今日' : dateLabel(b.createdAt) + 'に') + 'この生徒に降ってきた頼み';
-  $('view-tt-list').innerHTML = mine.map((x) => ttRowHTML(x, per[x.id], x.targets.indexOf(s.id) < 0, x.id === b.id)).join('');
+  $('view-tt-list').innerHTML = rows.join('');
   const scene = $('scene');
-  scene.dataset.seat = v.seat;
-  scene.dataset.ch = ch;
+  scene.dataset.seat = lv.seat;
+  scene.dataset.ch = lead.channel;
+  scene.dataset.chs = secs.map((x) => x.channel).join(' ');
   scene.classList.toggle('is-entering', !!entering && motionOK());
-  const chalk = $('view-chalk');
-  chalk.style.setProperty('--scale', String(v.scale));
-  if (ch === 'board') { chalk.innerHTML = viewChalkHTML(f, v); sizeClass(chalk, b.text); }
-  else setChalkNote(chalk, ch, ch === 'letter' ? 'お便りは机の上にある' : '');
+  /* 黒板：黒板の頼みの字だけ（お便り・放送の注記は出さない）。締め切りは端に黄色いチョーク */
+  const bs = by.board, chalk = $('view-chalk');
+  chalk.style.setProperty('--scale', String(lv.scale));
+  if (bs) { chalk.innerHTML = viewChalkHTML(E.readBoard(bs.board.text), bs.view); sizeClass(chalk, bs.board.text); }
+  else { chalk.textContent = ''; chalk.classList.remove('is-mid', 'is-long'); }
+  $('view-board-due').innerHTML = bs ? dueHTML(bs.board.due) : '';
   $('view-date').innerHTML = tcyHTML(dateLabel(b.createdAt));
   /* 放送：スピーカーの文字が薄れて消えたあと（文字はうすく、にじみは強め） */
-  $('view-pa').hidden = ch !== 'broadcast';
-  $('view-pa-text').innerHTML = ch === 'broadcast' ? viewChalkHTML(f, v) + '<span class="sr-only">（文字はうすく、消えかけている）</span>' : '';
-  $('view-pa').querySelector('.pa-say').classList.toggle('is-fainter', !!v.fadeMore);   // 用事が多い・長い放送は、さらにうすく
-  /* お便り：机の上の紙 */
-  const letters = dayAll.filter((x) => x.channel === 'letter' && (x.targets.indexOf(s.id) >= 0 || x.id === b.id));
-  $('view-desk').hidden = ch !== 'letter';
-  $('view-papers').innerHTML = ch === 'letter' ? papersHTML(b, letters, f, v, per[b.id]) : '';
-  $('view-desk-cap').hidden = !(ch === 'letter' && letters.length >= 2);
-  $('view-desk-cap').textContent = 'この日のお便り ' + letters.length + ' 枚（下の紙は端しか見えない）';
-  const clock = $('view-clock');
+  const cs = by.broadcast;
+  $('view-pa').hidden = !cs;
+  $('view-pa-text').innerHTML = cs ? viewChalkHTML(E.readBoard(cs.board.text), cs.view) + '<span class="sr-only">（文字はうすく、消えかけている）</span>' : '';
+  $('view-pa-due').innerHTML = cs ? dueHTML(cs.board.due) : '';
+  $('view-pa').querySelector('.pa-say').classList.toggle('is-fainter', !!(cs && cs.view.fadeMore));   // 用事が多い・長い放送は、さらにうすく
+  /* お便り：机の上の紙。いちばん上はその枠のお便り、その下にまだ終わっていない前のお便り（段C：終わるまで机に残る） */
+  const ls = by.letter, desk = E.deskLetters(state.boards, day, m.slot || 'x', s.id);
+  const under = ls ? desk.letters.filter((x) => x.id !== ls.board.id) : [], total = ls ? 1 + under.length + desk.more : 0;
+  $('view-desk').hidden = !ls;
+  $('view-papers').innerHTML = ls ? papersHTML(ls.board, under, E.readBoard(ls.board.text), ls.view, per[ls.board.id]) : '';
+  $('view-desk-cap').hidden = !(ls && total >= 2);
+  $('view-desk-cap').textContent = '机の上のお便り ' + total + ' 枚（下の紙は端しか見えない）';
+  const clock = $('view-clock'), ck = Math.max.apply(null, secs.map((x) => x.view.clock || 0));
   if (!clock.firstChild) clock.innerHTML = clockSVG();
-  clock.hidden = v.clock === 0;
-  clock.dataset.size = String(v.clock || 1);
-  $('view-teacher').innerHTML = teacherSVG(v.face, v.faceStrong) + '<div class="podium"></div>';
-  const rot = [-4, 3, -2, 5, -5, 2, -3];
-  let a = '', c = '';
-  v.bubbles.forEach((q, i) => {
-    const html = '<span class="q-bubble s' + q.size + '" style="--r:' + rot[i % rot.length] + 'deg;--i:' + i + '">' + esc(q.text) + '</span>';
-    if (i % 2 === 0) a += html; else c += html;
-  });
-  /* 「？」の吹き出しは、お便りなら机の紙のまわりに、ほかは黒板のまわりに */
-  const onDesk = ch === 'letter';
-  $('bub-a').innerHTML = onDesk ? '' : a;
-  $('bub-b').innerHTML = onDesk ? '' : c;
-  $('bub-c').innerHTML = onDesk ? a : '';
-  $('bub-d').innerHTML = onDesk ? c : '';
-  $('view-floor').innerHTML = headsHTML(v.seat) + (onDesk ? '' : '<div class="my-desk"></div>');
-  $('view-face').innerHTML = '先生の顔：<b>' + FACE_LABEL[v.face] + '</b>（' + esc(v.faceWhy) + '）';
-  $('view-voices').innerHTML = v.voices.map((x) => '<li class="voice' + (x.strong ? ' is-strong' : '') + (x.tone === 'pos' ? ' is-pos' : '') + '">' + esc(x.text) + '</li>').join('');
-  /* その日この生徒に降ってきた頼み（ほかの時限も含む）から足す心の声（放送だけ → 3本以上 → 割り込み → 黒板とお便り。3つまで） */
-  const dv = E.dayView(dayAll, b, s.id, state.boards);
-  // その日に「話を聞いた」の記録があれば、「昼休みから」の声を弱く1つだけ
-  const talk = E.talkOn(s, day);
-  $('view-day-voices').hidden = !(dv.voices.length || talk);
-  $('view-day-voices').innerHTML = dv.voices.map((x) => '<li class="voice is-day" data-key="' + x.key + '"><span class="voice-k">今日の頼みから</span>' + esc(x.text) + '</li>').join('') +
-    (talk ? '<li class="voice is-day is-talk" data-key="talk"><span class="voice-k">昼休みから</span>' + esc(E.TALK_VOICE) + '</li>' : '');
-  $('view-ask').textContent = v.ask.text;
-  /* 足すとよいもの：頼みごとのもの（5つまで）の後ろに、その日の心の声のものを足す（全部で6つまで） */
-  const chips = v.chips.concat(dv.chips).slice(0, 6);
-  $('view-chips').innerHTML = chips.length ? chips.map((x) => x.act === 'letter'
-    ? '<button class="chip-btn" type="button" data-act="letter">' + CH_ICON.letter + ' ' + esc(x.text) + '</button>'
-    : '<button class="chip-btn" type="button" data-tpl="' + esc(x.text) + '">＋ ' + esc(x.text) + '</button>').join('')
-    : '<p class="small">足りないものは見つからなかった。あとは本人に聞いて確かめよう。</p>';
-  $('adds-h').textContent = ch === 'letter' ? 'お便りに足すとよいもの' : ch === 'broadcast' ? '足すとよいもの' : '黒板に足すとよいもの';
-  $('view-chips-note').textContent = chips.some((x) => x.act === 'letter') ? '「要点をお便りでも送る」は、何を・いつまでの下書きでシートを開く。ほかは、放送で言ったことの最後にひな形が入る。◯ はあとで書きかえてね'
-    : '押すと、' + (ch === 'letter' ? 'お便り' : ch === 'broadcast' ? '放送で言ったこと' : '黒板') + 'の最後にひな形が入る。◯ はあとで書きかえてね';
-  $('view-chips-note').hidden = !chips.length;
+  clock.hidden = ck === 0;
+  clock.dataset.size = String(ck || 1);
+  // 先生の顔：区切りの中でいちばん強いもの（かたい → 忙しそう → やわらか → いつもどおり）
+  const fs = secs.slice().sort((x, y) => FACE_RANK[y.view.face] - FACE_RANK[x.view.face])[0].view;
+  $('view-teacher').innerHTML = teacherSVG(fs.face, secs.some((x) => x.view.faceStrong)) + '<div class="podium"></div>';
+  /* 「？」の吹き出し：黒板と放送のものは黒板のまわりに、お便りのものは机の紙のまわりに */
+  const rot = [-4, 3, -2, 5, -5, 2, -3], bub = { a: '', b: '', c: '', d: '' }, onBoard = [], onDesk = [];
+  // 同じ文の吹き出しは1つに（大きいほう）。黒板のまわりは黒板と放送のもの、机の紙のまわりはお便りのもの
+  const put = (list, q) => { const o = list.find((y) => y.text === q.text); if (o) o.size = Math.max(o.size, q.size); else list.push({ text: q.text, size: q.size }); };
+  secs.forEach((x) => x.view.bubbles.forEach((q) => put(x.channel === 'letter' ? onDesk : onBoard, q)));
+  const bubHTML = (q, i) => '<span class="q-bubble s' + q.size + '" style="--r:' + rot[i % rot.length] + 'deg;--i:' + i + '">' + esc(q.text) + '</span>';
+  onBoard.forEach((q, i) => { bub[i % 2 ? 'b' : 'a'] += bubHTML(q, i); });
+  onDesk.forEach((q, i) => { bub[i % 2 ? 'd' : 'c'] += bubHTML(q, i); });
+  $('bub-a').innerHTML = bub.a; $('bub-b').innerHTML = bub.b; $('bub-c').innerHTML = bub.c; $('bub-d').innerHTML = bub.d;
+  $('view-floor').innerHTML = headsHTML(lv.seat) + (ls ? '' : '<div class="my-desk"></div>');
+  $('view-face').innerHTML = '先生の顔：<b>' + FACE_LABEL[fs.face] + '</b>（' + esc(fs.faceWhy) + '）';
+  /* 伝え方ごとの見出しで分ける：心の声・本人に聞くなら・足すとよいもの */
+  $('view-secs').innerHTML = secs.map(viewSecHTML).join('');
+  /* その日の頼みから（枠で1つ）・昼休みから（話を聞いた）・放課後から（居残り） */
+  const talk = E.talkOn(s, day), stay = m.stay;
+  const dayVoices = m.voices.map((x) => '<li class="voice is-day" data-key="' + x.key + '"><span class="voice-k">今日の頼みから</span>' + esc(x.text) + '</li>').join('') +
+    (talk ? '<li class="voice is-day is-talk" data-key="talk"><span class="voice-k">昼休みから</span>' + esc(E.TALK_VOICE) + '</li>' : '') +
+    (stay ? '<li class="voice is-day is-stay" data-key="stay"><span class="voice-k">放課後から</span>' + esc(stay.text) + '</li>' : '');
+  $('view-day').hidden = !dayVoices;
+  $('view-day-voices').innerHTML = dayVoices;
 }
 function openView(sid) {
   const vb = pickViewBoard(sid);
@@ -3698,7 +4480,7 @@ $('room-rows').addEventListener('click', (e) => {
   if (pp) {
     if (letterPin && letterFrom === pp) { closeLetter(); return; }
     openLetter(pp, true);
-    announce('お便り（' + $('letter-pop-meta').textContent + '）：' + $('letter-pop-text').textContent);
+    announce('お便り：' + $('letter-pop').textContent.replace(/\s+/g, ' ').slice(0, 200));
     return;
   }
   const d = e.target.closest('button.desk');
@@ -3710,23 +4492,27 @@ $('view-back').addEventListener('click', () => closeView());
 $('view-back-2').addEventListener('click', () => closeView());
 $('view-edit-board').addEventListener('click', () => { const bid = viewBid; closeView(() => openWrite('edit', $('btn-write'), { bid: bid })); });
 $('view-edit-card').addEventListener('click', () => { const sid = viewSid; closeView(() => openCard(sid, $('btn-add-student'))); });
-$('view-ask-copy').addEventListener('click', () => copyText($('view-ask').textContent, $('view-ask')));
-/* 要点をお便りでも送る：生徒の目線を閉じて、何を・いつまでの下書きで「頼みごとを出す」シートを開く。
-   伝え方はお便り、科目名・相手・初めての作業は元の放送と同じ。書きかけの頼みがあるときは上書きしない */
+/* 要点をお便りでも送る：生徒の目線を閉じて、何を・いつまでの下書きでシートを開く（伝え方はお便り、相手と初めての作業は元の放送と同じ）。
+   段B：放送と同じ枠にお便りがまだなければ、その枠のお便りのタブに足す。あれば今までどおり、空いている時限の新しい頼み（書きかけがあれば上書きしない） */
 const POINT_DRAFT = '（さっきの放送の要点）\n何を：◯◯\nいつまで：◯◯';
 function openPointLetter(b) {
+  const p = E.periods(state.boards)[b.id] || 0, day = E.dayKey(b.createdAt);
+  const add = { channel: 'letter', text: POINT_DRAFT, targets: b.targets.slice(), firstTime: Object.keys(b.firstTime), fromCast: b.id };
+  if (p && !E.slotBoards(state.boards, day, p).some((x) => x.channel === 'letter')) { closeView(() => openWrite('edit', $('btn-write'), { bid: b.id, add: add })); return; }
   if (!E.freeSlots(state.boards, todayKey()).length) { toast(FULL_MSG); return; }   // 今日の6限と昼休みまでうまっていたら、目線のまま知らせる
-  if (writeDraft.trim()) {
+  if (hasDraft()) {
     closeView(() => { openWrite('new', $('btn-write')); toast('書きかけの頼みごとがあるよ。出すか消してから、もう一度押してね'); });
     return;
   }
-  writeDraft = POINT_DRAFT;
-  writeDraftMeta = { channel: 'letter', subject: b.subject, fromCast: b.id, targets: b.targets.slice(), firstTime: Object.keys(b.firstTime) };
+  writeDraftTabs = { board: null, letter: newTab(add), broadcast: null };
+  writeDraftMeta = { channel: 'letter', subject: b.subject };
   closeView(() => openWrite('new', $('btn-write')));
 }
-$('view-chips').addEventListener('click', (e) => {
-  const b = viewBoard();
+/* 区切りの中のボタン：本人に聞く一言のコピー・要点をお便りでも送る・足すとよいもの（その伝え方の頼みの最後にひな形） */
+$('view-secs').addEventListener('click', (e) => {
+  const sec = e.target.closest('.vsec'), b = sec && board(sec.dataset.bid);
   if (!b) return;
+  if (e.target.closest('[data-copy-ask]')) { const q = sec.querySelector('.ask-q'); copyText(q.textContent, q); return; }
   if (e.target.closest('[data-act="letter"]')) { openPointLetter(b); return; }
   const btn = e.target.closest('[data-tpl]');
   if (!btn) return;
@@ -3737,18 +4523,20 @@ $('view-chips').addEventListener('click', (e) => {
   save();
   renderRoom();
   renderView(false);
-  focusEl($('view-chips').querySelector('button') || $('view-title'));
+  focusEl(document.querySelector('#view-secs .vsec[data-bid="' + cssEsc(b.id) + '"] .chips button') || $('view-title'));
   toast(where + 'の最後に「' + tpl + '」を足したよ。◯ はあとで書きかえてね');
 });
-/* 目線の上の小さな時間割：押すと、その頼みの目線に切り替える（教室のいまの黒板も同じ頼みにする） */
+/* 目線の上の小さな時間割：押すと、その枠の目線に切り替える（教室も同じ時間にする） */
 $('view-tt-list').addEventListener('click', (e) => {
   const r = e.target.closest('.tt-row'), b = r && board(r.dataset.bid);
-  if (!b || b.id === viewBid) return;
+  if (!b) return;
+  const per = E.periods(state.boards), cur = viewBoard();
+  if (cur && (b.id === cur.id || (per[b.id] && per[b.id] === per[cur.id] && E.dayKey(b.createdAt) === E.dayKey(cur.createdAt)))) return;
   viewBid = b.id;
   showBoard(b, true);   // 教室も、その頼みの時間にする
   renderView(false);
   focusEl(document.querySelector('#view-tt-list .tt-row[data-bid="' + cssEsc(b.id) + '"]'));
-  announce(E.lessonLabel(b, E.periods(state.boards)[b.id]) + 'の目線に切り替えた');
+  announce((per[b.id] ? E.periodName(per[b.id]) + ' ' : '') + b.subject + 'の目線に切り替えた');
 });
 
 /* ===== 提出物（返ってきたものの記録） ===== */
@@ -3827,11 +4615,12 @@ function miniHTML(b) {
 }
 function subCardHTML(b, ids, per) {
   per = per || E.periods(state.boards);
-  const f = E.readBoard(b.text), tg = b.targets.filter((id) => ids[id]), lesson = E.lessonLabel(b, per[b.id]);
+  const f = E.withDue(E.readBoard(b.text), b.due), tg = b.targets.filter((id) => ids[id]), lesson = E.lessonLabel(b, per[b.id]);   // 締め切りの欄も「期限あり」に数える
   const done = tg.filter((id) => b.results[id] && b.results[id].submitted).length;
   const rows = tg.map((id) => subRowHTML(b, ids[id], f)).join('');
   return '<article class="sub-card" data-bid="' + esc(b.id) + '" aria-label="' + esc(dateLabel(b.createdAt) + ' ' + lesson) + 'の頼みごと">' +
     '<p class="sub-date">' + esc(dateLabel(b.createdAt)) + lessonHTML(b, per[b.id]) + (b.example ? '<span class="tag">見本</span>' : '') + (b.id === state.currentId ? '<span class="tag tag-now">いまの黒板</span>' : '') +
+    (E.dueLabel(b.due) ? '<span class="tag tag-due">' + esc(E.dueLabel(b.due)) + '</span>' : '') +
     (tg.length ? '<span class="tag">提出 ' + done + '/' + tg.length + '</span>' : '') + '</p>' +
     miniHTML(b) +
     '<div class="sub-links">' + (b.id !== state.currentId ? '<button class="link-btn" type="button" data-act="show">黒板に出す</button>' : '') +
@@ -3843,7 +4632,7 @@ function subCardHTML(b, ids, per) {
 /* 締めた黒板（これまでの提出物）：完結した形で残して、あとで見直せるようにする */
 function arcCardHTML(b, ids, per) {
   per = per || E.periods(state.boards);
-  const f = E.readBoard(b.text), tg = b.targets.filter((id) => ids[id]), lesson = E.lessonLabel(b, per[b.id]);
+  const f = E.withDue(E.readBoard(b.text), b.due), tg = b.targets.filter((id) => ids[id]), lesson = E.lessonLabel(b, per[b.id]);   // 締め切りの欄も「期限あり」に数える
   const lines = tg.map((id) => {
     const s = ids[id], r = b.results[id] || {};
     return '<li><span class="dot" style="--c: var(--k' + s.color + ')"></span><b>' + esc(s.name) + 'さん</b>' +
@@ -4059,7 +4848,8 @@ $('export-wipe').addEventListener('click', () => {
   askConfirm('すべて消しますか？', '生徒・黒板・提出物の記録が、この端末から全部消えます。元に戻せません。', 'すべて消す', () => {
     state = { v: 1, students: [], boards: [], currentId: '', time: null, ui: { tab: state.ui.tab } };
     ttDay = '';
-    writeDraft = '';
+    writeDraftTabs = null;
+    writeDraftMeta = null;
     commit();
     toast('すべて消したよ');
   });

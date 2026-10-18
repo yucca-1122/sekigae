@@ -574,8 +574,9 @@ try {
     await page.eval('window.scrollTo(0, 0); true');
     await sleep(550);
     rm = await page.eval(ROOM);
-    ok('放送: 時間割の3限を押すと、スピーカーの下に吹き出しが出る（放送中…）・大きい黒板には一言を書かない・机に紙はない', rm.cur === 'ex-b3' && rm.say === 'あとで部屋の片づけ、お願いね' &&
-      rm.sayK === '放送中…' && rm.sayOp > 0.6 && rm.speaker && rm.chalk === '' && !rm.papers.length, JSON.stringify(rm));
+    // v0.4 段C：お便りは終わるまで相手の机に残るので、3限でも2限のお便り（まだ終わっていない）は机にある（期待を「机に紙はない」から変えた）
+    ok('放送: 時間割の3限を押すと、スピーカーの下に吹き出しが出る（放送中…）・大きい黒板には一言を書かない・机には、まだ終わっていない2限のお便りが残る', rm.cur === 'ex-b3' && rm.say === 'あとで部屋の片づけ、お願いね' &&
+      rm.sayK === '放送中…' && rm.sayOp > 0.6 && rm.speaker && rm.chalk === '' && JSON.stringify(rm.papers) === '["ex-s1","ex-s2"]' && JSON.stringify(rm.paperBid) === '["ex-b2"]', JSON.stringify(rm));
     const sbx = await page.eval(SAYBOX);
     ok('放送: 吹き出しはスピーカーの下で、大きい黒板に重ならない（黒板の高さは変わらない）', sbx.shown && sbx.below && sbx.boardH === boardH0, JSON.stringify([sbx, boardH0]));
     await page.shot('12_放送_' + V.tag + '.png');
@@ -598,8 +599,9 @@ try {
     await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
     await sleep(300);
     let v2 = await page.eval(VIEW2);
-    ok('お便りの目線: 頼みは机の上の紙（1枚）に見え、「？」の吹き出しは紙のまわり・黒板には「（お便りで配った）」', v2.ch === 'letter' && v2.desk && v2.papers === 1 && v2.under === 0 &&
-      v2.paper === '来週の準備で、資料の印刷を手伝ってもらえると助かります' && v2.deskBubbles === 6 && v2.boardBubbles === 0 && /（お便りで配った）/.test(v2.chalk) && !v2.myDesk && !v2.pa, JSON.stringify(v2));
+    // v0.4 段B：生徒の目線の黒板の注記（「（お便りで配った）お便りは机の上にある」）もなくした（期待を変えた）
+    ok('お便りの目線: 頼みは机の上の紙（1枚）に見え、「？」の吹き出しは紙のまわり・黒板には何も書かない', v2.ch === 'letter' && v2.desk && v2.papers === 1 && v2.under === 0 &&
+      v2.paper === '来週の準備で、資料の印刷を手伝ってもらえると助かります' && v2.deskBubbles === 6 && v2.boardBubbles === 0 && v2.chalk === '' && !v2.myDesk && !v2.pa, JSON.stringify(v2));
     ok('目線の上に「今日この生徒に降ってきた頼み」の小さな時間割（3つ・いま見ている2限を強調）', v2.vttK === '今日この生徒に降ってきた頼み' && JSON.stringify(v2.vtt) === '["ex-b1","ex-b2*","ex-b3"]', JSON.stringify(v2.vtt));
     // 2026-10-18 調整: その日の心の声は 放送だけ → 3本以上 → 割り込み → 黒板とお便り の順で3つまで（見本は1限・2限とも提出の前なので割り込みが入り、4つ目の黒板とお便りは出ない）
     ok('その日の頼みから足す心の声: 放送だけ（3限）・3本以上・割り込み の3つ（4つ目は出さない）', JSON.stringify(v2.day) === '["castOnly","many","interrupt"]', JSON.stringify(v2.day));
@@ -621,7 +623,8 @@ try {
     await page.eval(`document.getElementById('view').scrollTop = 0; true`);
     v2 = await page.eval(VIEW2);
     ok('小さな時間割の3限を押すと、放送の目線に切り替わる（強調も3限へ）', v2.ch === 'broadcast' && JSON.stringify(v2.vtt) === '["ex-b1","ex-b2","ex-b3*"]', JSON.stringify(v2));
-    ok('放送の目線: スピーカーの文字が薄れたあと（文字はうすい）・黒板には「（放送で伝えた）」', v2.pa && v2.paText.indexOf('あとで部屋の片づけ、お願いね') === 0 && v2.paOp < 0.6 && /（放送で伝えた）/.test(v2.chalk) && !v2.desk, JSON.stringify(v2));
+    // v0.4 段B：生徒の目線の黒板の注記（「（放送で伝えた）」）もなくした（期待を変えた）
+    ok('放送の目線: スピーカーの文字が薄れたあと（文字はうすい）・黒板には何も書かない', v2.pa && v2.paText.indexOf('あとで部屋の片づけ、お願いね') === 0 && v2.paOp < 0.6 && v2.chalk === '' && !v2.desk, JSON.stringify(v2));
     // 2026-10-18 調整: はじめての生徒（Q1 A）への放送は「慣れていない生徒に放送」の聞く一言（やり方）が先。足すものは「要点をお便りでも送る」
     ok('放送の目線: 心の声「さっき何て言ってた…？」・本人に聞くなら「やり方で…」（慣れていない生徒）・足すとよいもの「要点をお便りでも送る」', v2.voices[0] === 'さっき何て言ってた…？ メモしてないと忘れるかも' &&
       v2.ask === 'やり方で、分からないところある？' && v2.chips[0] === '要点をお便りでも送る', JSON.stringify([v2.voices, v2.ask, v2.chips]));
@@ -648,8 +651,9 @@ try {
     await sleep(200);
     // v0.4 段A：教卓の前のプリントはなくした。書いている途中のお便りは、シートの書く欄（お便りの紙の見た目）だけ
     const wl0 = await page.eval(ROOM);
-    ok('シートでお便りを選ぶと、書く欄がお便りの紙の見た目になる（教室には出さない：プリントも机の紙もない）', (await page.eval(`document.getElementById('write-slate').dataset.ch`)) === 'letter' &&
-      !wl0.print && !wl0.papers.length, JSON.stringify(wl0));
+    // v0.4 段C：机に残っているのは、まだ終わっていない2限のお便りだけ（書いている途中のお便りは机に出さない。期待を「机の紙もない」から変えた）
+    ok('シートでお便りを選ぶと、書く欄がお便りの紙の見た目になる（書いている途中のお便りは教室に出さない：机にあるのは、まだ終わっていない2限のお便りだけ）', (await page.eval(`document.getElementById('write-slate').dataset.ch`)) === 'letter' &&
+      !wl0.print && JSON.stringify(wl0.paperBid) === '["ex-b2"]', JSON.stringify(wl0));
     // 書いている途中の教室は、書いている枠（4限）のようす：今の時間（3限）の放送の吹き出しは出さず、黒板の右上は「4限」
     ok('… 書いている途中の教室は、書いている枠（4限）のようす（3限の放送の吹き出しは出ない・黒板の右上は「4限」）', wl0.say === '' && /4限$/.test(wl0.date), JSON.stringify(wl0));
     await page.shot('15_頼みごとを出すシート_' + V.tag + '.png');
@@ -798,7 +802,7 @@ try {
   const p4 = await page.eval(`({ arc: document.querySelectorAll('.arc-card').length, open: !!document.querySelector('.sub-card:not(.arc-card)[data-bid="ex-b1"]') })`);
   ok('「開き直す」で記録の途中に戻る', p4.arc === 1 && p4.open, JSON.stringify(p4));
 
-  // ---- v0.3 第1段：頼みごとを出す（伝え方・自分で書く科目名）・直す・「お便り（文字）でも送る」・重なるお便り ----
+  // ---- v0.3 第1段 → v0.4 段B：頼みごとを出す（伝え方・自分で書く科目名）・直す（伝え方のタブ）・「要点をお便りでも送る」・机に重なるお便り ----
   await page.viewport(390, 844, true, false, false);
   await page.load(base);
   await page.eval('localStorage.clear(); true');
@@ -819,19 +823,50 @@ try {
   await page.pressEl('#tt-list .tt-now .tt-edit');
   await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
   await sleep(200);
+  const TABS3 = `({ ch: document.querySelector('input[name="write-ch"]:checked').value, text: document.getElementById('write-text').value, submit: document.getElementById('write-submit').textContent,
+    del: !document.getElementById('write-del').hidden, has: ['board', 'letter', 'broadcast'].map((c) => c + ':' + (document.getElementById('write-has-' + c).hidden ? '' : document.getElementById('write-has-' + c).textContent)) })`;
   const ed = await page.eval(`({ title: document.getElementById('write-title').textContent, ch: document.querySelector('input[name="write-ch"]:checked').value,
-    free: document.getElementById('write-subject').value, chip: document.querySelectorAll('input[name="write-subj"]:checked').length, text: document.getElementById('write-text').value })`);
-  ok('「直す」で開くと、伝え方・科目名（自分で書いた名前）・文がそのまま入っている', ed.title === '頼みごとを直す' && ed.ch === 'letter' && ed.free === '読書会' && ed.chip === 0 && ed.text === 'これ、ざっと読んでおいて。金曜までに', JSON.stringify(ed));
-  await page.eval(`(() => { document.getElementById('write-ch-broadcast').click(); document.getElementById('write-subj-0').click(); return true; })()`);
+    free: document.getElementById('write-subject').value, chip: document.querySelectorAll('input[name="write-subj"]:checked').length, text: document.getElementById('write-text').value, tabs: ${TABS3} })`);
+  ok('「直す」で開くと、伝え方・科目名（自分で書いた名前）・文がそのまま入っている・書いてある伝え方（お便り）に印・「この伝え方の頼みを消す」がある', ed.title === '頼みごとを直す' && ed.ch === 'letter' &&
+    ed.free === '読書会' && ed.chip === 0 && ed.text === 'これ、ざっと読んでおいて。金曜までに' && JSON.stringify(ed.tabs.has) === '["board:","letter:書いてある","broadcast:"]' && ed.tabs.del && ed.tabs.submit === '直す', JSON.stringify(ed));
+  // v0.4 段B：伝え方のカードはタブ。放送のタブを押すと、お便りとは別の頼み（まだない＝新しく書く）に切り替わる（期待を「伝え方をお便りから放送に変える」から変えた）
+  await page.eval(`document.getElementById('write-ch-broadcast').click(); true`);
   await sleep(100);
-  ok('直す途中でチップ（ゼミ）を選ぶと、自分で書いた欄は空になる', (await page.eval(`document.getElementById('write-subject').value`)) === '');
-  await page.eval(`(() => { document.getElementById('first-ex-s2').click(); document.getElementById('write-submit').click(); return true; })()`);
+  const tb1 = await page.eval(TABS3);
+  ok('放送のタブを押すと、放送の頼み（まだない）に切り替わる：文は空・「出す」・消すボタンはない', tb1.ch === 'broadcast' && tb1.text === '' && tb1.submit === '出す' && !tb1.del, JSON.stringify(tb1));
+  await page.eval(`(() => { const t = document.getElementById('write-text'); t.value = 'これ、ざっと読んでおいて。金曜までに'; t.dispatchEvent(new Event('input', { bubbles: true }));
+    document.getElementById('write-subj-0').click(); document.getElementById('first-ex-s2').click(); return true; })()`);
+  await sleep(100);
+  ok('直す途中でチップ（ゼミ）を選ぶと、自分で書いた欄は空になる・放送のタブに「書きかけ」の印', (await page.eval(`document.getElementById('write-subject').value`)) === '' &&
+    JSON.stringify((await page.eval(TABS3)).has) === '["board:","letter:書いてある","broadcast:書きかけ"]');
+  await page.eval(`document.getElementById('write-ch-letter').click(); true`);
+  await sleep(100);
+  ok('… お便りのタブにもどると、お便りの文のまま（放送の書きかけは放送のタブに残る）', (await page.eval(TABS3)).text === 'これ、ざっと読んでおいて。金曜までに' &&
+    JSON.stringify((await page.eval(TABS3)).has) === '["board:","letter:書いてある","broadcast:書きかけ"]');
+  await page.eval(`document.getElementById('write-submit').click(); true`);
   await sleep(400);
   st3 = await page.eval(SAVED);
-  const eb = st3.boards.find((b) => b.id === nl.id);
-  ok('「直す」で伝え方（お便り→放送）と科目名（読書会→ゼミ）を書き換えられる（時限は4限のまま）', eb.channel === 'broadcast' && eb.subject === 'ゼミ' && st3.boards.length === 4 &&
-    (await page.eval(TT)).rows[3] === '4限 ゼミ・放送', JSON.stringify(eb));
-  ok('放送に直すと、スピーカーから流れる', (await page.eval(ROOM)).say === 'これ、ざっと読んでおいて。金曜までに');
+  const eb = st3.boards.find((b) => b.channel === 'broadcast' && !b.example), el = st3.boards.find((b) => b.id === nl.id);
+  ok('出すと、4限にお便りと放送の2つ（科目名は枠で1つ：読書会→ゼミで両方そろう・初めての作業は放送だけ）', st3.boards.length === 5 && !!eb && eb.period === 4 && el.period === 4 && el.channel === 'letter' &&
+    eb.subject === 'ゼミ' && el.subject === 'ゼミ' && eb.firstTime['ex-s2'] === true && !el.firstTime['ex-s2'] && (await page.eval(TT)).rows[3] === '4限 ゼミ・お便り・放送', JSON.stringify([eb, el]));
+  const r4 = await page.eval(ROOM);
+  ok('… 4限の教室：放送はスピーカーの吹き出しに、お便りは相手の机の紙に、同時に出る', r4.say === 'これ、ざっと読んでおいて。金曜までに' && JSON.stringify(r4.papers) === '["ex-s1","ex-s2"]', JSON.stringify(r4));
+  // 伝え方ごとに消す：お便りのタブで「この伝え方の頼みを消す」
+  await page.pressEl('#tt-list .tt-now .tt-edit');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await sleep(200);
+  ok('「直す」でまた開くと、お便りと放送の両方に「書いてある」の印', JSON.stringify((await page.eval(TABS3)).has) === '["board:","letter:書いてある","broadcast:書いてある"]');
+  await page.eval(`(() => { document.getElementById('write-ch-letter').click(); document.getElementById('write-del').click(); return true; })()`);
+  await page.waitFor(`!document.getElementById('confirm').hidden`, 2000);
+  await page.eval(`document.getElementById('confirm-yes').click(); true`);
+  await sleep(300);
+  st3 = await page.eval(SAVED);
+  ok('お便りのタブの「この伝え方の頼みを消す」で、お便りだけ消える（シートは開いたまま・放送は残る）', !st3.boards.some((b) => b.id === nl.id) && st3.boards.some((b) => b.id === eb.id) &&
+    !(await page.eval(`document.getElementById('sheet-write').hidden`)) && JSON.stringify((await page.eval(TABS3)).has) === '["board:","letter:","broadcast:書いてある"]');
+  await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
+  await sleep(200);
+  ok('… 時間割の4限は「ゼミ・放送」だけ・スピーカーから流れたまま', (await page.eval(TT)).rows[3] === '4限 ゼミ・放送' && (await page.eval(ROOM)).say === 'これ、ざっと読んでおいて。金曜までに');
   await page.pressEl('button.desk[data-sid="ex-s1"]');
   await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
   await sleep(300);
@@ -839,63 +874,69 @@ try {
   // 2026-10-18 調整: はじめての生徒（Q1 A）への放送は ×1.5 に＋0.3 で ×1.8。足すものは「要点をお便りでも送る」
   ok('放送の目線: あいまいな言葉のにじみは強め（はじめての生徒は慣れていない生徒への放送なので 3.6px × 1.8 → 6.5px）', vb2.ch === 'broadcast' && vb2.blur === '6.5px', JSON.stringify(vb2));
   ok('放送の目線: お便りのない放送（3限）があるので「放送で聞いたことは、忘れるかも」、この放送にもお便りがないので「要点をお便りでも送る」が出る', vb2.day.indexOf('castOnly') >= 0 && vb2.chips[0] === '要点をお便りでも送る', JSON.stringify([vb2.day, vb2.chips]));
-  // 要点をお便りでも送る → 生徒の目線を閉じて、要点の下書きでお便りのシートを開く
+  // 要点をお便りでも送る → v0.4 段B：放送と同じ4限にお便りがないので、4限の「頼みごとを直す」をお便りのタブで開く（期待を「新しい頼みとして出す」から変えた）
   const POINT = '（さっきの放送の要点）\n何を：◯◯\nいつまで：◯◯';
   const sheetUp = `!document.getElementById('sheet-write').hidden && document.getElementById('view').hidden`;
   await page.pressEl('#view-chips [data-act="letter"]');
   await page.waitFor(sheetUp, 3000);
   await sleep(350);
   const sp = await page.eval(SHEET);
-  ok('「要点をお便りでも送る」で、生徒の目線を閉じてシートが開く（伝え方はお便り・科目名と相手と初めての作業は元の放送と同じ）', sp.open && sp.title === '頼みごとを出す' && sp.ch === 'letter' &&
-    sp.subj === 'ゼミ' && sp.free === '' && JSON.stringify(sp.tgt) === '["ex-s1+","ex-s2+"]' && JSON.stringify(sp.first) === '["ex-s2"]', JSON.stringify(sp));
+  ok('「要点をお便りでも送る」で、生徒の目線を閉じて4限のシートがお便りのタブで開く（科目名・相手・初めての作業は元の放送と同じ）', sp.open && sp.title === '頼みごとを直す' && sp.ch === 'letter' &&
+    sp.subj === 'ゼミ' && sp.free === '' && JSON.stringify(sp.tgt) === '["ex-s1+","ex-s2+"]' && JSON.stringify(sp.first) === '["ex-s2"]' && sp.period === 4, JSON.stringify(sp));
   ok('… 文は要点の下書き（何を・いつまで）。書く欄の下に元の放送の文と「要点だけ書くと残りやすい」', sp.text === POINT &&
     sp.cast === 'さっきの放送：「これ、ざっと読んでおいて。金曜までに」要点だけ書くと残りやすい', JSON.stringify([sp.text, sp.cast]));
   await page.shot('18_要点のお便りシート_390_light.png');
   await page.eval(`document.getElementById('write-ch-board').click(); true`);
   const hid = await page.eval(SHEET);
   await page.eval(`document.getElementById('write-ch-letter').click(); true`);
-  ok('伝え方をお便り以外（黒板）に変えると元の放送の文は隠れ、お便りに戻すとまた出る', hid.cast === '' && (await page.eval(SHEET)).cast !== '', JSON.stringify(hid));
+  ok('黒板のタブに切り替えると元の放送の文は隠れ、お便りのタブに戻すとまた出る（要点の下書きもそのまま）', hid.cast === '' && (await page.eval(SHEET)).cast !== '' && (await page.eval(SHEET)).text === POINT, JSON.stringify(hid));
   await page.eval(`(() => { const t = document.getElementById('write-text'); t.value = '何を：資料を読む\\nいつまで：金曜まで'; t.dispatchEvent(new Event('input', { bubbles: true }));
     document.getElementById('write-submit').click(); return true; })()`);
   await sleep(400);
   st3 = await page.eval(SAVED);
   const pl = st3.boards[st3.boards.length - 1];
-  ok('出すと、元の放送の id（fromCast）つきのお便りが時間割の5限に入る（同じ文の書き写しは作らない）', st3.boards.length === 5 && pl.channel === 'letter' && pl.fromCast === eb.id &&
+  ok('出すと、元の放送の id（fromCast）つきのお便りが同じ4限に入る（同じ文の書き写しは作らない）', st3.boards.length === 5 && pl.channel === 'letter' && pl.fromCast === eb.id &&
     pl.subject === 'ゼミ' && pl.text === '何を：資料を読む\nいつまで：金曜まで' && JSON.stringify(pl.targets) === JSON.stringify(eb.targets) && pl.firstTime['ex-s2'] === true &&
-    (await page.eval(TT)).rows[4] === '5限 ゼミ・お便り', JSON.stringify(pl));
+    pl.period === 4 && (await page.eval(TT)).rows[3] === '4限 ゼミ・お便り・放送', JSON.stringify(pl));
   await page.pressEl('button.desk[data-sid="ex-s1"]');
   await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
-  await page.pressEl('#view-tt-list .tt-row[data-bid="' + eb.id + '"]');
   await sleep(250);
-  const v4 = await page.eval(VIEW2);
-  ok('… 4限の放送の目線から「要点をお便りでも送る」は消える（3限の放送はまだお便りがないので「放送で聞いたことは、忘れるかも」は残る）', v4.ch === 'broadcast' &&
-    v4.chips.indexOf('要点をお便りでも送る') < 0 && v4.day.indexOf('castOnly') >= 0, JSON.stringify([v4.day, v4.chips]));
-  // 書きかけの頼みがあるときは上書きしない
+  const v4 = await page.eval(`({ secs: [...document.querySelectorAll('#view-secs .vsec')].map((x) => x.dataset.ch), castChips: [...document.querySelectorAll('#view-secs .vsec[data-ch="broadcast"] .chips button')].map((b) => b.textContent.trim()), v: ${VIEW2} })`);
+  ok('… 4限の目線は伝え方ごとの見出し（お便り・放送）で、放送の「要点をお便りでも送る」は消える（3限の放送はまだお便りがないので「放送で聞いたことは、忘れるかも」は残る）', JSON.stringify(v4.secs) === '["letter","broadcast"]' &&
+    v4.castChips.indexOf('要点をお便りでも送る') < 0 && v4.v.day.indexOf('castOnly') >= 0, JSON.stringify(v4));
   await page.pressEl('#view-back');
   await page.waitFor(`document.getElementById('view').hidden`, 2000);
+  // 同じ枠にお便りがもうある放送の要点は、今までどおり空いている時限の新しい頼み（書きかけの頼みがあるときは上書きしない）
+  await page.pressEl('#tt-list .tt-row[data-bid="ex-b3"]');
+  await sleep(200);
+  await page.pressEl('#tt-list .tt-now .tt-edit');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await page.eval(`(() => { document.getElementById('write-ch-letter').click(); const t = document.getElementById('write-text'); t.value = '帰りに鍵も返してね'; t.dispatchEvent(new Event('input', { bubbles: true }));
+    document.getElementById('write-submit').click(); return true; })()`);
+  await sleep(400);
+  ok('3限（放送）にお便りを足すと「3限 雑務・お便り・放送」', (await page.eval(TT)).rows[2] === '3限 雑務・お便り・放送');
   await page.pressEl('#btn-write');
   await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
   await page.eval(`(() => { const t = document.getElementById('write-text'); t.value = '書きかけのメモ'; t.dispatchEvent(new Event('input', { bubbles: true })); document.querySelector('#sheet-write [data-close]').click(); return true; })()`);
   await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
-  await page.pressEl('#tt-list .tt-row[data-bid="ex-b3"]');
-  await sleep(200);
   await page.pressEl('button.desk[data-sid="ex-s1"]');
   await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
-  await page.pressEl('#view-chips [data-act="letter"]');
+  await page.pressEl('#view-secs .vsec[data-ch="broadcast"] [data-act="letter"]');
   await page.waitFor(sheetUp, 3000);
   await sleep(200);
   const sd = await page.eval(SHEET), tmsg = await page.eval(`document.getElementById('toast-msg').textContent`);
-  ok('書きかけの頼みがあるときは上書きしない（書きかけのまま開いて「書きかけの頼みごとがあるよ…」と知らせる）', sd.text === '書きかけのメモ' && sd.cast === '' &&
+  ok('同じ枠にお便りがある放送の要点で、書きかけの頼みがあるときは上書きしない（書きかけのまま開いて「書きかけの頼みごとがあるよ…」と知らせる）', sd.title === '頼みごとを出す' && sd.text === '書きかけのメモ' && sd.cast === '' &&
     tmsg === '書きかけの頼みごとがあるよ。出すか消してから、もう一度押してね', JSON.stringify([sd, tmsg]));
   await page.eval(`(() => { const t = document.getElementById('write-text'); t.value = ''; t.dispatchEvent(new Event('input', { bubbles: true })); document.querySelector('#sheet-write [data-close]').click(); return true; })()`);
   await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
   await page.pressEl('button.desk[data-sid="ex-s1"]');
   await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
-  await page.pressEl('#view-chips [data-act="letter"]');
+  await page.pressEl('#view-secs .vsec[data-ch="broadcast"] [data-act="letter"]');
   await page.waitFor(sheetUp, 3000);
   await sleep(200);
   const s3 = await page.eval(SHEET);
-  ok('書きかけを消してからもう一度押すと、要点の下書きで開く（3限 雑務・元の放送の文）', s3.text === POINT && s3.subj === '雑務' && s3.cast.indexOf('あとで部屋の片づけ、お願いね') >= 0, JSON.stringify(s3));
+  ok('書きかけを消してからもう一度押すと、要点の下書きで、空いている時限（5限）の新しい頼みとして開く（3限 雑務・元の放送の文）', s3.title === '頼みごとを出す' && s3.text === POINT && s3.subj === '雑務' &&
+    s3.period === 5 && s3.cast.indexOf('あとで部屋の片づけ、お願いね') >= 0, JSON.stringify(s3));
   // 要点の下書きに手をつけずに閉じたら、書きかけは残さない（次の「要点をお便りでも送る」を止めないため）
   await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
   await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
@@ -908,7 +949,7 @@ try {
   await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
   await page.pressEl('button.desk[data-sid="ex-s1"]');
   await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
-  await page.pressEl('#view-chips [data-act="letter"]');
+  await page.pressEl('#view-secs .vsec[data-ch="broadcast"] [data-act="letter"]');
   await page.waitFor(sheetUp, 3000);
   await sleep(200);
   ok('… もう一度押すと、止められずに要点の下書きで開く', (await page.eval(SHEET)).text === POINT);
@@ -916,27 +957,24 @@ try {
   await sleep(400);
   st3 = await page.eval(SAVED);
   const pl3 = st3.boards[st3.boards.length - 1];
-  ok('… 出すと fromCast＝3限のお便りが6限に入る', pl3.fromCast === 'ex-b3' && pl3.channel === 'letter' && pl3.subject === '雑務' && (await page.eval(TT)).rows[5] === '6限 雑務・お便り', JSON.stringify(pl3));
+  ok('… 出すと fromCast＝3限のお便りが5限に入る', pl3.fromCast === 'ex-b3' && pl3.channel === 'letter' && pl3.subject === '雑務' && pl3.period === 5 && (await page.eval(TT)).rows[4] === '5限 雑務・お便り', JSON.stringify(pl3));
   await page.pressEl('button.desk[data-sid="ex-s1"]');
   await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
   await sleep(200);
   const vz = await page.eval(VIEW2);
-  ok('どの放送にも要点のお便りがあるので、その日の「放送で聞いたことは、忘れるかも」が消える（6限を見る: 3本以上・割り込み・黒板とお便り）', vz.ch === 'letter' &&
-    JSON.stringify(vz.day) === '["many","interrupt","boardLetter"]', JSON.stringify(vz.day));
-  await page.pressEl('#view-tt-list .tt-row[data-bid="ex-b2"]');
-  await sleep(250);
-  const vs = await page.eval(VIEW2);
-  ok('その日のお便りが2枚以上なら、机の上で紙が重なる（2限を上に、下の紙は端だけ見える・「3 枚」と出る）', vs.ch === 'letter' && vs.papers === 3 && vs.under === 2 &&
-    vs.paper === '来週の準備で、資料の印刷を手伝ってもらえると助かります' && /お便り 3 枚/.test(vs.cap), JSON.stringify(vs));
+  ok('どの放送にも要点のお便りがあるので、その日の「放送で聞いたことは、忘れるかも」が消える（5限を見る）', vz.ch === 'letter' && vz.day.indexOf('castOnly') < 0 && vz.day.length > 0, JSON.stringify(vz.day));
+  // v0.4 段C：机の上のお便りは、まだ終わっていない前の時間のお便りが下に重なる（期待を「その日のお便りを全部重ねる」から変えた）
+  ok('5限のお便りの目線: 机の上で、まだ終わっていない前の時間のお便りが下に重なる（上は5限・下の2枚は端だけ・「4 枚」）', vz.papers === 3 && vz.under === 2 &&
+    vz.paper === POINT && /お便り 4 枚/.test(vz.cap), JSON.stringify(vz));
   await page.eval(`(() => { const v = document.getElementById('view'); v.scrollTop = document.getElementById('view-desk').offsetTop - 170; return true; })()`);
-  await sleep(200);
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 5000); await sleep(300);
   await page.shot('16_お便りが重なる_390_light.png');
   await page.pressEl('#view-back');
   await page.waitFor(`document.getElementById('view').hidden`, 2000);
   await page.pressEl('#tab-subs');
   await sleep(200);
   const lessons = await page.eval(`[...document.querySelectorAll('.sub-card .sub-date .lesson')].map((x) => x.textContent)`);
-  ok('提出物のカードに時限・科目・伝え方（「2限 手伝い（お便り）」「4限 ゼミ（放送）」など）', ['1限 授業（黒板）', '2限 手伝い（お便り）', '3限 雑務（放送）', '4限 ゼミ（放送）', '5限 ゼミ（お便り）', '6限 雑務（お便り）'].every((x) => lessons.indexOf(x) >= 0), JSON.stringify(lessons));
+  ok('提出物のカードは伝え方ごとの頼みを1件ずつ（「4限 ゼミ（放送）」「4限 ゼミ（お便り）」など）', ['1限 授業（黒板）', '2限 手伝い（お便り）', '3限 雑務（放送）', '3限 雑務（お便り）', '4限 ゼミ（放送）', '4限 ゼミ（お便り）', '5限 雑務（お便り）'].every((x) => lessons.indexOf(x) >= 0), JSON.stringify(lessons));
   ok('提出物（伝え方つき）: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
   await page.pressEl('#tab-report');
   await sleep(200);
@@ -944,16 +982,16 @@ try {
     hint: (document.getElementById('report-cast-hint') || {}).textContent || '', day: ((document.getElementById('report-day') || {}).textContent || '').replace(/\\s+/g, '') })`;
   const today = await page.eval(`SekigaeEngine.dayKey(Date.now())`), todayJa = today.split('-').map(Number).slice(1).join('/').replace(/^(\d+)\/(\d+)$/, '$1月$2日');
   const rch = await page.eval(RCH);
-  // 2026-10-18 調整: 要点のお便りは「頼みごとを出す」から出すので見本ではなく自分の頼み（4限の放送・5限と6限のお便りの3つ）
-  ok('通知表に伝え方の内訳（自分の頼み3つ: 黒板 0・お便り 2・放送 1）と「放送だけで終わった頼み 0」（0なので要点の一言は出ない）', JSON.stringify(rch.ch) === '["黒板0","お便り2","放送1"]' &&
+  // v0.4 段B：自分の頼みは4つ（4限の放送・4限の要点のお便り・3限のお便り・5限の要点のお便り）
+  ok('通知表に伝え方の内訳（自分の頼み4つ: 黒板 0・お便り 3・放送 1）と「放送だけで終わった頼み 0」（0なので要点の一言は出ない）', JSON.stringify(rch.ch) === '["黒板0","お便り3","放送1"]' &&
     rch.cast === '放送だけで終わった頼み0' && rch.hint === '', JSON.stringify(rch));
-  ok('通知表に「1日の頼み（いちばん多い日）3 本（' + todayJa + '）」', rch.day === '1日の頼み（いちばん多い日）3本（' + todayJa + '）', JSON.stringify(rch.day));
+  ok('通知表に「1日の頼み（いちばん多い日）4 本（' + todayJa + '）」', rch.day === '1日の頼み（いちばん多い日）4本（' + todayJa + '）', JSON.stringify(rch.day));
   await page.pressEl('#tab-export');
   await sleep(200);
   const md3 = await page.eval(`document.getElementById('export-text').value`);
-  ok('書き出しに時限・科目・伝え方（「4限 ゼミ（放送）」「5限 ゼミ（お便り）」「1限 授業（黒板）（見本）」と内訳）', md3.indexOf(' 4限 ゼミ（放送）「これ、ざっと読んでおいて。金曜までに」') >= 0 &&
-    md3.indexOf(' 5限 ゼミ（お便り）「') >= 0 && md3.indexOf(' 1限 授業（黒板）（見本）「') >= 0 && md3.indexOf('- 伝え方の内訳: 黒板 0・お便り 2・放送 1（放送だけで終わった頼み 0）') >= 0, md3.slice(0, 600));
-  ok('書き出しに「- 1日の頼み: いちばん多い日 3 本（' + today + '）」', md3.indexOf('- 1日の頼み: いちばん多い日 3 本（' + today + '）') >= 0, md3.slice(0, 600));
+  ok('書き出しに時限・科目・伝え方（同じ枠は 黒板 → お便り → 放送：「4限 ゼミ（お便り）」→「4限 ゼミ（放送）」・「1限 授業（黒板）（見本）」と内訳）', md3.indexOf(' 4限 ゼミ（放送）「これ、ざっと読んでおいて。金曜までに」') > md3.indexOf(' 4限 ゼミ（お便り）「') &&
+    md3.indexOf(' 4限 ゼミ（お便り）「') >= 0 && md3.indexOf(' 1限 授業（黒板）（見本）「') >= 0 && md3.indexOf('- 伝え方の内訳: 黒板 0・お便り 3・放送 1（放送だけで終わった頼み 0）') >= 0, md3.slice(0, 600));
+  ok('書き出しに「- 1日の頼み: いちばん多い日 4 本（' + today + '）」', md3.indexOf('- 1日の頼み: いちばん多い日 4 本（' + today + '）') >= 0, md3.slice(0, 600));
   // 見本だけのとき（放送だけで終わった頼み 1）は、要点の一言が出る
   await page.eval('localStorage.clear(); true');
   await page.load(base);
@@ -1062,6 +1100,7 @@ try {
   // v0.4 段A：その日の昼休みの枠は空いているので、時限なしの頼みも昼休みには入れられる（期待を「時間割に入らない」から変えた）
   ok('… 時限なしの頼みを直すとき、1〜6限がうまっていれば選べるのは空いている昼休みだけ（まだ選ばれていない）', w8.s.period === 0 && JSON.stringify(w8.s.pdis) === '[1,2,3,4,5,6]' &&
     /空いている時限を選んで/.test(w8.note), JSON.stringify(w8));
+  ok('… 時間割の外の頼み（時限なし）を直すときは、ほかの伝え方のタブは使わない（1つずつ直す）', (await page.eval(`['write-ch-board', 'write-ch-letter', 'write-ch-broadcast'].map((id) => document.getElementById(id).disabled)`)).join() === 'false,true,true');
   await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
   await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
   await page.pressEl('#tab-subs');
@@ -1402,41 +1441,40 @@ try {
   ok('昼休みの枠は1日1つ：うまったあとは、下のボタンからは空いている時限（4限）を選んで開く（昼休みのチップは選べない）', l2.s.open && l2.s.period === 4 && JSON.stringify(l2.s.pdis) === '[1,2,3,4.5]', JSON.stringify(l2));
   await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
   await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
-  // 時間割の昼休みの行の「直す」：枠は昼休みのまま、伝え方は変えられる（黒板にすると、昼休みの黒板に字が出る）
+  // 時間割の昼休みの行の「直す」：枠は昼休みのまま。v0.4 段B：黒板のタブで、放送とは別の頼みを足せる（期待を「伝え方を黒板に変える」から変えた）
   await page.pressEl('#tt-list .tt-now .tt-edit');
   await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
   await sleep(250);
   const le = await page.eval(LSHEET);
   ok('時間割の昼休みの頼みの「直す」：枠は「昼休み」のまま・伝え方は3つとも選べる', le.s.title === '頼みごとを直す' && le.s.ch === 'broadcast' && !le.dis.length && le.s.period === 4.5 &&
     le.s.text === '昼休みのうちに、プリントを取りに来てね', JSON.stringify(le));
-  await page.eval(`(() => { document.getElementById('write-ch-board').click(); document.getElementById('write-submit').click(); return true; })()`);
+  await page.eval(`(() => { document.getElementById('write-ch-board').click(); const t = document.getElementById('write-text'); t.value = '資料を机に置いておくね'; t.dispatchEvent(new Event('input', { bubbles: true }));
+    document.getElementById('write-submit').click(); return true; })()`);
   await sleep(500);
   const lbd = await page.eval(`({ room: ${ROOM}, lunch: ${LUNCH}, tt: ${TT} })`);
-  ok('昼休みの枠に黒板の頼み：昼休みのまま（生徒は集まったまま）、大きい黒板にその字が出る', lbd.lunch.on && lbd.lunch.kids === 2 && lbd.room.chalk === '昼休みのうちに、プリントを取りに来てね' && !lbd.room.say &&
-    lbd.tt.rows.indexOf('昼休み 雑務・黒板') >= 0, JSON.stringify(lbd));
+  ok('昼休みの枠に黒板の頼みを足す：昼休みのまま（生徒は集まったまま）、大きい黒板に黒板の字・スピーカーの下に放送の吹き出しが同時に出る', lbd.lunch.on && lbd.lunch.kids === 2 &&
+    lbd.room.chalk === '資料を机に置いておくね' && lbd.room.say === '昼休みのうちに、プリントを取りに来てね' && lbd.tt.rows.indexOf('昼休み 雑務・黒板・放送') >= 0, JSON.stringify(lbd));
   ok('昼休みの枠の頼み（時間割の昼休みの行つき）: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
-  // 放送にもどして、授業の時間（1限）から時間割の昼休みの行を押すと、昼休みになって吹き出しが出る
-  await page.pressEl('#tt-list .tt-now .tt-edit');
-  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
-  await page.eval(`(() => { document.getElementById('write-ch-broadcast').click(); document.getElementById('write-submit').click(); return true; })()`);
-  await sleep(400);
+  // 授業の時間（1限）から時間割の昼休みの行を押すと、昼休みになって黒板の字と吹き出しが出る
   await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
   await sleep(300);
   await page.pressEl('#tt-lunch');
   await sleep(500);
-  const lr2 = await page.eval(`({ room: ${ROOM}, on: ${LUNCH}.on })`);
-  ok('授業のときに時間割の昼休みの行（放送入り）を押すと、昼休みになって吹き出しが出る', lr2.on && lr2.room.cur === lc.id && lr2.room.chalk === '' && lr2.room.say === '昼休みのうちに、プリントを取りに来てね', JSON.stringify(lr2));
-  // 生徒の目線（昼休みの間は机を押すと「話を聞いた」なので、1限にしてから目線の小さな時間割で昼休みの頼みへ）
+  const lr2 = await page.eval(`({ room: ${ROOM}, on: ${LUNCH}.on, lead: ${SAVED}.boards.find((b) => b.lunch && b.channel === 'board').id })`);
+  ok('授業のときに時間割の昼休みの行（黒板・放送入り）を押すと、昼休みになって黒板の字と吹き出しが出る', lr2.on && lr2.room.cur === lr2.lead && lr2.room.chalk === '資料を机に置いておくね' &&
+    lr2.room.say === '昼休みのうちに、プリントを取りに来てね', JSON.stringify(lr2));
+  // 生徒の目線（昼休みの間は机を押すと「話を聞いた」なので、1限にしてから目線の小さな時間割で昼休みの枠へ）
   await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
   await sleep(300);
   await page.pressEl('button.desk[data-sid="ex-s2"]');
   await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
-  await page.pressEl('#view-tt-list .tt-row[data-bid="' + lc.id + '"]');
+  await page.pressEl('#view-tt-list .tt-row[data-slot="lunch"]');
   await sleep(300);
-  const lv = await page.eval(VIEW2);
-  ok('昼休みの放送の生徒の目線：放送の声に足して「せっかくの昼休み、頼まれたことが気になって休めなかったかも」・足すとよいもの「急ぎでなければ、昼休みのあとで大丈夫だよ」',
-    lv.ch === 'broadcast' && lv.voices.indexOf('せっかくの昼休み、頼まれたことが気になって休めなかったかも') >= 0 && lv.chips.indexOf('＋ 急ぎでなければ、昼休みのあとで大丈夫だよ') >= 0 &&
-    lv.vtt.slice(-1)[0] === lc.id + '*', JSON.stringify([lv.voices, lv.chips, lv.vtt]));
+  const lv = await page.eval(`({ v: ${VIEW2}, secs: [...document.querySelectorAll('#view-secs .vsec')].map((x) => x.dataset.ch + ':' + [...x.querySelectorAll('.voice')].map((y) => y.textContent).join('|')),
+    castChips: [...document.querySelectorAll('#view-secs .vsec[data-ch="broadcast"] .chips button')].map((b) => b.textContent.trim()) })`);
+  ok('昼休みの枠の生徒の目線：黒板と放送の見出しで分かれ、どちらにも「せっかくの昼休み、頼まれたことが気になって休めなかったかも」・放送の足すとよいもの「急ぎでなければ、昼休みのあとで大丈夫だよ」',
+    lv.secs.length === 2 && lv.secs.every((x) => x.indexOf('せっかくの昼休み、頼まれたことが気になって休めなかったかも') >= 0) && lv.secs[0].indexOf('board' + ':') === 0 && lv.secs[1].indexOf('broadcast' + ':') === 0 &&
+    lv.castChips.indexOf('＋ 急ぎでなければ、昼休みのあとで大丈夫だよ') >= 0 && lv.v.vtt.slice(-1)[0] === lr2.lead + '*', JSON.stringify(lv));
   await page.pressEl('#view-back');
   await page.waitFor(`document.getElementById('view').hidden`, 2000);
 
@@ -1536,14 +1574,15 @@ try {
     t.dispatchEvent(new Event('input', { bubbles: true })); document.getElementById('write-period-lunch').click(); document.getElementById('write-submit').click(); return true; })()`);
   await sleep(900);
   const home = await page.eval(`(() => { const st = ${SAVED}; return st.boards[st.boards.length - 1]; })()`);
+  // （v0.4 段C：2限のお便りは、まだ終わっていないので2人の机に残る。ここでは、出したお便りの紙だけを見る）
   const lpp = await page.eval(`(() => { const seat = (el) => { const sts = [...document.querySelectorAll('#room-rows .row-desks > .seat')]; return sts.indexOf(el.closest('.seat')); };
-    return { papers: [...document.querySelectorAll('#room-rows .desk-paper')].map((p) => p.dataset.sid + '@' + seat(p)), kid: (() => { const d = document.querySelector('#room-rows .desk.is-lunch[data-sid="ex-s1"]'); return d ? seat(d) : -1; })(),
+    return { papers: [...document.querySelectorAll('#room-rows .desk-paper')].filter((p) => p.dataset.bid === ${JSON.stringify(home.id)}).map((p) => p.dataset.sid + '@' + seat(p)), kid: (() => { const d = document.querySelector('#room-rows .desk.is-lunch[data-sid="ex-s1"]'); return d ? seat(d) : -1; })(),
       on: ${LUNCH}.on }; })()`);
   ok('お便りは相手（はじめての生徒だけ）の机にだけ紙を置く・昼休みの枠に出すと昼休みのまま', home.channel === 'letter' && home.lunch === true && JSON.stringify(home.targets) === '["ex-s1"]' && lpp.on &&
     lpp.papers.length === 1 && /^ex-s1@/.test(lpp.papers[0]), JSON.stringify([home, lpp]));
   // 生徒が自分の机から移った並びになるまで、昼休みを選び直す（並びは選んだ時刻で決まる）
   const PAPERPOS = `(() => { const sts = [...document.querySelectorAll('#room-rows .row-desks > .seat')], seat = (el) => sts.indexOf(el.closest('.seat')), d = document.querySelector('#room-rows .desk.is-lunch[data-sid="ex-s1"]');
-    return { papers: [...document.querySelectorAll('#room-rows .desk-paper')].map((p) => p.dataset.sid + '@' + seat(p)), kid: d ? seat(d) : -1 }; })()`;
+    return { papers: [...document.querySelectorAll('#room-rows .desk-paper')].filter((p) => p.dataset.bid === ${JSON.stringify(home.id)}).map((p) => p.dataset.sid + '@' + seat(p)), kid: d ? seat(d) : -1 }; })()`;
   await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
   await sleep(300);
   const seatHome = await page.eval(`(() => { const d = document.querySelector('#room-rows .desk[data-sid="ex-s1"]'); return [...document.querySelectorAll('#room-rows .row-desks > .seat')].indexOf(d.closest('.seat')); })()`);
@@ -1590,6 +1629,412 @@ try {
   await sleep(300);
   ok('掃除するものがないわけ：相手が全員提出済みなら「今日の頼みは、相手が全員提出済み（締めたものも）なので、掃除するものはないよ」', (await page.eval(`document.getElementById('sheet-sweep').hidden`)) &&
     (await page.eval(`document.getElementById('toast-msg').textContent`)) === '今日の頼みは、相手が全員提出済み（締めたものも）なので、掃除するものはないよ');
+
+  {
+  // ---- v0.4 段B：1つの時限に、伝え方ごとの頼み（文と相手は伝え方ごと・科目名と時限は枠で1つ）。シートの伝え方はタブ ----
+  await page.viewport(390, 844, true, false, false);
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  // 見本の生徒2人だけにする（見本の頼み3つがあると、その日の声が「放送だけ・3本以上・割り込み」でうまって「同じ時間に別々の頼み」が出ない）
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})); st.boards = []; st.currentId = ''; localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
+  await page.load(base);
+  const TABS = `({ ch: (document.querySelector('input[name="write-ch"]:checked') || {}).value, text: document.getElementById('write-text').value, submit: document.getElementById('write-submit').textContent,
+    has: ['board', 'letter', 'broadcast'].map((c) => c + ':' + (document.getElementById('write-has-' + c).hidden ? '' : document.getElementById('write-has-' + c).textContent)) })`;
+  const typeIn = (t) => `(() => { const t = document.getElementById('write-text'); t.value = ${JSON.stringify(t)}; t.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`;
+  await page.pressEl('#tt-list .tt-row[data-period="4"]');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await sleep(200);
+  await page.eval(typeIn('表を3枚にまとめて。金曜までに'));
+  await page.eval(`document.getElementById('write-subj-3').click(); document.getElementById('write-ch-letter').click(); true`);
+  await page.eval(typeIn('印刷は職員室のプリンターで'));
+  await page.eval(`document.getElementById('tgt-ex-s2').click(); true`);
+  const nt = await page.eval(TABS);
+  ok('新しく出すときも伝え方はタブ：黒板とお便りに別々の文を書くと、両方に「書きかけ」の印', nt.ch === 'letter' && JSON.stringify(nt.has) === '["board:書きかけ","letter:書きかけ","broadcast:"]' && nt.submit === '出す', JSON.stringify(nt));
+  await page.eval(`document.getElementById('write-submit').click(); true`);
+  await sleep(400);
+  let sb = await page.eval(SAVED), s4 = sb.boards.filter((b) => !b.example);
+  ok('出すと、4限に黒板とお便りが1つずつ入る（科目名は同じ「手伝い」・お便りの相手は、はじめての生徒だけ）', s4.length === 2 && s4.every((b) => b.period === 4 && b.subject === '手伝い') &&
+    JSON.stringify(s4.map((b) => b.channel).sort()) === '["board","letter"]' && JSON.stringify(s4.find((b) => b.channel === 'letter').targets) === '["ex-s1"]' &&
+    (await page.eval(`document.getElementById('toast-msg').textContent`)) === '4限 手伝い：黒板・お便りを出したよ', JSON.stringify(s4));
+  await page.pressEl('#tt-list .tt-now .tt-edit');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await sleep(200);
+  await page.eval(`document.getElementById('write-ch-broadcast').click(); true`);
+  await page.eval(typeIn('終わったら、ひと声かけてね'));
+  const nt2 = await page.eval(TABS);
+  ok('「直す」で開くと、書いてある伝え方（黒板・お便り）に「書いてある」・放送のタブに書くと「書きかけ」', JSON.stringify(nt2.has) === '["board:書いてある","letter:書いてある","broadcast:書きかけ"]' && nt2.submit === '出す', JSON.stringify(nt2));
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 5000); await sleep(300);
+  await page.shot('34_伝え方のタブ_390_light.png');
+  await page.eval(`document.getElementById('write-submit').click(); true`);
+  await sleep(500);
+  const r3 = await page.eval(`({ room: ${ROOM}, tt: ${TT} })`);
+  ok('1つの時限（4限）に黒板・お便り・放送：時間割の行は科目名と伝え方の印3つ（「4限 手伝い・黒板・お便り・放送」）', r3.tt.rows[0] === '4限 手伝い・黒板・お便り・放送' &&
+    (await page.eval(`document.querySelectorAll('#tt-list .tt-row[data-slot="4"] .tt-ics .ch-ico').length`)) === 3, JSON.stringify(r3.tt));
+  ok('… 教室には同時に出る：黒板の頼みは黒板・お便りは相手（はじめての生徒）の机の紙・放送はスピーカーの吹き出し', r3.room.chalk === '表を3枚にまとめて。金曜までに' && JSON.stringify(r3.room.papers) === '["ex-s1"]' &&
+    r3.room.say === '終わったら、ひと声かけてね', JSON.stringify(r3.room));
+  const tc3 = await page.eval(TTEDIT);
+  ok('… 時間割の行（スマホの2列）は文字があふれない・科目名が切れない・「直す」は押しやすい・横にはみ出さない', !tc3.liOver && !tc3.rowOver && !tc3.cut.length && tc3.ew >= 40 && (await page.eval(OVERFLOW)) <= 0, JSON.stringify(tc3));
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 5000); await sleep(300);
+  await page.eval('window.scrollTo(0, 0); true');
+  await page.shot('33_同じ時間に伝え方ごとの頼み_390_light.png', true);
+  // 生徒の目線：その時限でその生徒あての頼みを全部（黒板の字・机の紙・放送の吹き出し）。心の声などは伝え方ごとの見出しで分ける
+  await page.pressEl('button.desk[data-sid="ex-s1"]');
+  await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
+  await sleep(300);
+  const VSECS = `({ secs: [...document.querySelectorAll('#view-secs .vsec')].map((x) => x.dataset.ch), heads: [...document.querySelectorAll('#view-secs .vsec-h')].map((h) => h.textContent),
+    voices: [...document.querySelectorAll('#view-secs .vsec')].map((x) => x.querySelectorAll('.voice').length), asks: document.querySelectorAll('#view-secs .ask-q').length,
+    chalk: document.getElementById('view-chalk').textContent, desk: !document.getElementById('view-desk').hidden, paper: (document.querySelector('#view-papers .paper.is-top .paper-text') || {}).textContent || '',
+    pa: !document.getElementById('view-pa').hidden, paText: document.getElementById('view-pa-text').textContent, day: [...document.querySelectorAll('#view-day-voices li')].map((x) => x.dataset.key + ':' + x.textContent),
+    pills: document.getElementById('view-pills').textContent, ow: document.getElementById('view').scrollWidth - document.getElementById('view').clientWidth })`;
+  const vs1 = await page.eval(VSECS);
+  ok('はじめての生徒の目線（4限）：黒板・お便り・放送の見出しで分かれ（心の声・本人に聞くなら・足すとよいもの）、黒板の字・机の紙・放送の吹き出しが同時に見える', JSON.stringify(vs1.secs) === '["board","letter","broadcast"]' &&
+    vs1.heads[0].indexOf('黒板の頼み') >= 0 && vs1.voices.every((n) => n > 0) && vs1.asks === 3 && /表を3枚に/.test(vs1.chalk) && vs1.desk && /印刷は職員室/.test(vs1.paper) && vs1.pa && /終わったら/.test(vs1.paText) &&
+    vs1.pills.indexOf('4限 手伝い（黒板・お便り・放送）') === 0 && vs1.ow <= 0, JSON.stringify(vs1));
+  ok('… 同じ時間に2つ以上の伝え方で別々の頼み →「同じ時間に別々の頼み…どれからやればいいか迷うかも」', vs1.day.some((x) => x === 'sameSlot:今日の頼みから同じ時間に別々の頼み…どれからやればいいか迷うかも'), JSON.stringify(vs1.day));
+  // 目線の全体（上の黒板・机の紙・放送から、下の伝え方ごとの区切りまで）を1枚に。目線は画面いっぱいの窓の中で動くので、窓の高さを目線の高さにして撮る（大きくなるので等倍で）
+  await page.eval(`document.getElementById('view').scrollTop = 0; true`);
+  const vh35 = await page.eval(`document.getElementById('view').scrollHeight`);
+  await page.send('Emulation.setDeviceMetricsOverride', { width: 390, height: vh35, deviceScaleFactor: 1, mobile: true });
+  await sleep(400);
+  { const shot = await page.send('Page.captureScreenshot', { format: 'png' }); fs.mkdirSync(SHOTS, { recursive: true }); fs.writeFileSync(path.join(SHOTS, '35_生徒の目線_伝え方ごと_390_light.png'), Buffer.from(shot.data, 'base64')); console.log('  撮影     shots/35_生徒の目線_伝え方ごと_390_light.png'); }
+  await page.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+  await sleep(200);
+  await page.pressEl('#view-back');
+  await page.waitFor(`document.getElementById('view').hidden`, 2000);
+  await page.pressEl('button.desk[data-sid="ex-s2"]');
+  await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
+  await sleep(200);
+  const vs2 = await page.eval(VSECS);
+  ok('慣れた生徒の目線（4限）：お便りは配っていないので、黒板と放送だけ（机に紙はない）', JSON.stringify(vs2.secs) === '["board","broadcast"]' && !vs2.desk && vs2.pa, JSON.stringify(vs2));
+  await page.pressEl('#view-back');
+  await page.waitFor(`document.getElementById('view').hidden`, 2000);
+  // 科目名は枠で1つ（どれかのタブで直すと全部そろう）・時限を変えると枠ごと動く
+  await page.pressEl('#tt-list .tt-now .tt-edit');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await page.eval(`(() => { document.getElementById('write-ch-letter').click(); document.getElementById('write-subj-0').click(); document.getElementById('write-period-5').click(); document.getElementById('write-submit').click(); return true; })()`);
+  await sleep(500);
+  sb = await page.eval(SAVED); s4 = sb.boards.filter((b) => !b.example);
+  const t5 = await page.eval(TT);
+  ok('お便りのタブで科目名を「ゼミ」に、時限を5限に直すと、黒板・お便り・放送の3つとも「5限 ゼミ」になる（4限は空く）', s4.length === 3 && s4.every((b) => b.period === 5 && b.subject === 'ゼミ') &&
+    t5.rows[0] === '5限 ゼミ・黒板・お便り・放送' && t5.empty.indexOf('4限+') >= 0, JSON.stringify([s4.map((b) => b.channel + b.period + b.subject), t5]));
+  // パソコンの5限（黒板・お便り・放送）
+  await page.viewport(1280, 800, false, false, false);
+  await page.load(base);
+  await page.pressEl('#tt-list .tt-row[data-slot="5"]');
+  await sleep(500);
+  const r1280 = await page.eval(`({ room: ${ROOM}, cut: ${TTEDIT}.cut, ow: ${OVERFLOW} })`);
+  ok('パソコンの5限（黒板・お便り・放送）：黒板・机の紙・吹き出しが同時に出る・科目名が切れない・横にはみ出さない', r1280.room.chalk === '表を3枚にまとめて。金曜までに' && JSON.stringify(r1280.room.papers) === '["ex-s1"]' &&
+    r1280.room.say === '終わったら、ひと声かけてね' && !r1280.cut.length && r1280.ow <= 0, JSON.stringify(r1280));
+  await page.eval('window.scrollTo(0, 0); true');
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 5000); await sleep(300);
+  await page.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 5, y: 5 });   // カーソルを行から外して撮る
+  await sleep(150);
+  await page.shot('33_同じ時間に伝え方ごとの頼み_1280_light.png');
+  // スマホで放送のある時間を選ぶと吹き出しのぶん時間割がずれるので、押した行が指の下から動かないように画面を動かす（見本の頼みで）
+  await page.viewport(390, 844, true, false, false);
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
+  await sleep(300);
+  const keep = async (sel) => {
+    const y0 = await page.eval(`(() => { const r = document.querySelector(${JSON.stringify(sel)}); r.scrollIntoView({ block: 'center' }); return Math.round(r.getBoundingClientRect().top); })()`);
+    await sleep(120);
+    const box = await page.eval(`(() => { const r = document.querySelector(${JSON.stringify(sel)}).getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+    await page.press(box.x, box.y);
+    await sleep(350);
+    return { y0, y1: Math.round(await page.eval(`document.querySelector(${JSON.stringify(sel)}).getBoundingClientRect().top`)), say: !(await page.eval(`document.getElementById('room-say').hidden`)) };
+  };
+  const k390 = await keep('#tt-list .tt-row[data-bid="ex-b3"]');
+  ok('スマホ：放送のある時間（3限）を押しても、押した行は指の下から動かない（吹き出しは出る）', Math.abs(k390.y1 - k390.y0) <= 2 && k390.say, JSON.stringify(k390));
+  // ページの一番上で、放送のある3限から1限を押す（吹き出しが消えて時間割が上がる）：上へは動かせないので、吹き出しの場所をあけておいて行を動かさない
+  await page.eval('window.scrollTo(0, 0); true');
+  await sleep(150);
+  const t0 = await page.eval(`(() => { const r = document.querySelector('#tt-list .tt-row[data-bid="ex-b1"]').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, top: Math.round(r.top), sy: scrollY }; })()`);
+  await page.press(t0.x, t0.y);
+  await sleep(350);
+  const t1 = await page.eval(`({ top: Math.round(document.querySelector('#tt-list .tt-row[data-bid="ex-b1"]').getBoundingClientRect().top), say: !document.getElementById('room-say').hidden, ow: ${OVERFLOW} })`);
+  ok('スマホ：ページの一番上で放送のある3限から1限を押しても（吹き出しが消える）、押した行は指の下から動かない', t0.sy === 0 && Math.abs(t1.top - t0.top) <= 2 && !t1.say && t1.ow <= 0, JSON.stringify([t0, t1]));
+  await page.viewport(1280, 800, false, false, false);
+  await page.load(base);
+  await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
+  await sleep(300);
+  const k1280 = await keep('#tt-list .tt-row[data-bid="ex-b3"]');
+  ok('パソコン：放送のある時間（3限）を押しても、押した行はカーソルの下から動かない', Math.abs(k1280.y1 - k1280.y0) <= 2 && k1280.say, JSON.stringify(k1280));
+  await page.viewport(390, 844, true, false, false);
+  }
+
+  // ---- v0.4 段C：締め切り（伝え方ごと）・「この時間中」の報告・今日中 → 延ばす（宿題）／居残り・放課後の居残り・正の字・机に残るお便り ----
+  {
+  await page.viewport(390, 844, true, false, false);
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  const typeIn = (t) => `(() => { const t = document.getElementById('write-text'); t.value = ${JSON.stringify(t)}; t.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`;
+  const dayAfter = (n) => `(() => { const E = SekigaeEngine, p = E.dayKey(Date.now()).split('-').map(Number); return E.ymd(new Date(p[0], p[1] - 1, p[2] + ${n}, 12).getTime()); })()`;
+  const d1 = await page.eval(dayAfter(1)), d2 = await page.eval(dayAfter(2)), md2 = await page.eval(`SekigaeEngine.mdDay(${JSON.stringify(d2)})`);
+  const DUES = `({ kind: (document.querySelector('input[name="write-due"]:checked') || {}).value, date: document.getElementById('write-due-date-wrap').hidden ? '' : document.getElementById('write-due-on').value,
+    min: document.getElementById('write-due-on').min, chips: [...document.querySelectorAll('input[name="write-due"]')].map((x) => x.closest('label').textContent) })`;
+  // 締め切りの欄：伝え方のタブごと（黒板＝今日中・お便り＝日付・放送＝この時間中）
+  await page.pressEl('#tt-list .tt-row[data-period="4"]');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await sleep(200);
+  const dz = await page.eval(DUES);
+  ok('締め切りの欄：選べるのは「この時間中・今日中・日付・決めない」（新しい頼みは「決めない」から）', JSON.stringify(dz.chips) === '["この時間中","今日中","日付","決めない"]' && dz.kind === 'none' && dz.date === '', JSON.stringify(dz));
+  await page.eval(typeIn('資料を3枚にまとめて'));
+  await page.eval(`document.getElementById('write-due-day').click(); true`);
+  await sleep(100);
+  ok('黒板のタブで「今日中」を選ぶと、書いている途中の黒板の字の下に「〆 今日中」', (await page.eval(`document.getElementById('room-board-due').textContent`)) === '〆 今日中');
+  await page.eval(`document.getElementById('write-ch-letter').click(); true`);
+  await page.eval(typeIn('印刷は職員室のプリンターで'));
+  ok('お便りのタブに切り替えると、締め切りはお便りのもの（まだ「決めない」）', (await page.eval(DUES)).kind === 'none');
+  await page.eval(`document.querySelector('input[name="write-due"][value="date"]').click(); true`);
+  await sleep(100);
+  const dd = await page.eval(DUES);
+  ok('「日付」を選ぶと日付の欄が出る：頼みの日より後だけ（いちばん早いのは明日・はじめは明日）', dd.kind === 'date' && dd.date === d1 && dd.min === d1, JSON.stringify([dd, d1]));
+  await page.eval(`(() => { const x = document.getElementById('write-due-on'); x.value = ${JSON.stringify(d2)}; x.dispatchEvent(new Event('change', { bubbles: true })); return true; })()`);
+  ok('… 日付をあさってにできる・今日より前を入れると、もとの日にもどる', (await page.eval(DUES)).date === d2 &&
+    (await page.eval(`(() => { const x = document.getElementById('write-due-on'); x.value = SekigaeEngine.dayKey(Date.now()); x.dispatchEvent(new Event('change', { bubbles: true })); return x.value; })()`)) === d2);
+  await page.eval(`document.getElementById('write-ch-broadcast').click(); true`);
+  await page.eval(typeIn('終わったら、ひと声かけてね'));
+  await page.eval(`document.getElementById('write-due-slot').click(); true`);
+  await sleep(100);
+  ok('放送のタブは「この時間中」：書いている途中の吹き出しの端に「〆 この時間中」', (await page.eval(`document.getElementById('room-say-due').textContent`)) === '〆 この時間中');
+  await page.eval(`document.getElementById('write-ch-letter').click(); true`);
+  await sleep(150);
+  await page.eval(`(() => { const el = document.getElementById('write-dues-f'); el.scrollIntoView({ block: 'center' }); return true; })()`);
+  await sleep(150);
+  await page.shot('36_締め切りの欄_390_light.png');
+  await page.eval(`document.getElementById('write-submit').click(); true`);
+  await sleep(500);
+  const sv = await page.eval(SAVED), my = sv.boards.filter((b) => !b.example);
+  const dueOf = (ch) => JSON.stringify((my.find((b) => b.channel === ch) || {}).due);
+  ok('出すと、伝え方ごとに締め切りが保存される（黒板＝今日中・お便り＝あさってまで・放送＝この時間中）', my.length === 3 && dueOf('board') === '{"kind":"day"}' && dueOf('letter') === JSON.stringify({ kind: 'date', date: d2 }) &&
+    dueOf('broadcast') === '{"kind":"slot"}', JSON.stringify(my));
+  const rr = await page.eval(`({ bd: document.getElementById('room-board-due').textContent, say: document.getElementById('room-say-due').textContent })`);
+  ok('4限の教室：黒板の字の下に「〆 今日中」・吹き出しの端に「〆 この時間中」', rr.bd === '〆 今日中' && rr.say === '〆 この時間中', JSON.stringify(rr));
+  await page.pressEl('#room-rows .desk-paper[data-sid="ex-s1"]');
+  await sleep(300);
+  ok('… 机の紙を押すと、お便りの端に「〆 ' + md2 + 'まで」', (await page.eval(`document.getElementById('letter-pop-due').textContent`)) === '〆 ' + md2 + 'まで');
+  await page.pressEl('#room-rows .desk-paper[data-sid="ex-s1"]');
+  await sleep(150);
+  await page.pressEl('button.desk[data-sid="ex-s1"]');
+  await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
+  await sleep(300);
+  const vd = await page.eval(`({ bubbles: [...document.querySelectorAll('#scene .q-bubble')].map((x) => x.textContent), dues: [...document.querySelectorAll('#view-secs .vsec-due')].map((x) => x.textContent),
+    voices: [...document.querySelectorAll('#view-secs .voice')].map((x) => x.textContent), board: document.getElementById('view-board-due').textContent, pa: document.getElementById('view-pa-due').textContent })`);
+  ok('生徒の目線：締め切りを選んだ頼みは「いつまで？」の吹き出しも声も出ない・見出しと黒板・吹き出しの端に締め切り', vd.bubbles.indexOf('いつまで？') < 0 && !vd.voices.some((x) => /いつまで|締め切りがない|後回しにする/.test(x)) &&
+    JSON.stringify(vd.dues) === JSON.stringify(['〆 今日中', '〆 ' + md2 + 'まで', '〆 この時間中']) && vd.board === '〆 今日中' && vd.pa === '〆 この時間中', JSON.stringify(vd));
+  await page.pressEl('#view-back');
+  await page.waitFor(`document.getElementById('view').hidden`, 2000);
+  ok('締め切りの欄つきの教室：横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
+
+  // 「この時間中」の報告：4限の放送は「この時間中」なので、4限から5限（空き）を押すと、まず「4限の頼み、終わった？」→ 閉じると5限の「頼みごとを出す」
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 5000); await sleep(200);
+  await page.pressEl('#tt-list .tt-row[data-period="5"]');
+  await page.waitFor(`!document.getElementById('sheet-ask').hidden`, 2000);
+  await sleep(250);
+  const cb = my.find((b) => b.channel === 'broadcast').id;
+  const a4 = await page.eval(`({ title: document.getElementById('ask-title').textContent, secs: [...document.querySelectorAll('#ask-body .ask-b')].map((x) => x.dataset.bid + ':' + [...x.querySelectorAll('.ask-st')].map((r) => r.dataset.sid).join(',')),
+    write: !document.getElementById('sheet-write').hidden, time: ${SAVED}.time.slot })`);
+  ok('4限（「この時間中」の放送）から空いている5限を押すと、5限になって、まず「4限の頼み、終わった？」（放送・2人）', a4.title === '4限の頼み、終わった？' && JSON.stringify(a4.secs) === JSON.stringify([cb + ':ex-s1,ex-s2']) &&
+    !a4.write && a4.time === 5, JSON.stringify(a4));
+  await page.eval(`(() => { document.getElementById(${JSON.stringify('ask-' + cb + '-ex-s1-later')}).click(); document.getElementById(${JSON.stringify('ask-' + cb + '-ex-s2-later')}).click(); return true; })()`);
+  await page.pressEl('#ask-done');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await sleep(250);
+  const w5 = await page.eval(SHEET);
+  ok('… 「あとで」と答えて閉じると、5限の「頼みごとを出す」が開く（「あとで」は掃除の記録を変えない）', w5.open && w5.title === '頼みごとを出す' && w5.period === 5 &&
+    (await page.eval(`(() => { const b = ${SAVED}.boards.find((x) => x.id === ${JSON.stringify(cb)}); return JSON.stringify([b.slotCheck['ex-s1'].ans, b.slotCheck['ex-s2'].ans, Object.keys(b.sweep || {}).length]); })()`)) === '["later","later",0]', JSON.stringify(w5));
+  // 5限（黒板＝相手2人・お便り＝はじめての生徒だけ。どちらもこの時間中）から放課後へ
+  await page.eval(typeIn('表の数字を見直して'));
+  await page.eval(`document.getElementById('write-due-slot').click(); document.getElementById('write-ch-letter').click(); true`);
+  await page.eval(typeIn('見直した表は、机の上に置いておいてね'));
+  await page.eval(`(() => { document.getElementById('write-due-slot').click(); document.getElementById('tgt-ex-s2').click(); document.getElementById('write-submit').click(); return true; })()`);
+  await sleep(500);
+  const five = (await page.eval(SAVED)).boards.filter((b) => !b.example && b.period === 5);
+  ok('5限に「この時間中」の黒板とお便り（お便りは、はじめての生徒だけ）', five.length === 2 && five.every((b) => b.due && b.due.kind === 'slot'), JSON.stringify(five));
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 5000); await sleep(200);
+  await page.pressEl('#tt-after');
+  await page.waitFor(`!document.getElementById('sheet-ask').hidden`, 2000);
+  await sleep(300);
+  const ASK = `({ title: document.getElementById('ask-title').textContent, secs: [...document.querySelectorAll('#ask-body .ask-b')].map((x) => x.dataset.bid + ':' + [...x.querySelectorAll('.ask-st')].map((r) => r.dataset.sid).join(',')),
+    opts: [...document.querySelectorAll('#ask-body .ask-st')].slice(0, 1).map((r) => [...r.querySelectorAll('.res span')].map((x) => x.textContent).join('・'))[0] || '', time: ${SAVED}.time.slot,
+    ow: document.getElementById('sheet-ask').scrollWidth - document.getElementById('sheet-ask').clientWidth })`;
+  const ak = await page.eval(ASK), kb = five.find((b) => b.channel === 'board').id, lb = five.find((b) => b.channel === 'letter').id;
+  ok('5限から放課後を押すと、放課後になって小さなシート「5限の頼み、終わった？」：黒板（2人）とお便り（はじめての生徒）・生徒ごとに 終わった・まだ・あとで', ak.title === '5限の頼み、終わった？' && ak.time === 'after' &&
+    JSON.stringify(ak.secs) === JSON.stringify([kb + ':ex-s1,ex-s2', lb + ':ex-s1']) && ak.opts === '終わった・まだ・あとで（掃除の時間に）' && ak.ow <= 0, JSON.stringify(ak));
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 5000); await sleep(300);
+  await page.shot('37_この時間中の報告_390_light.png');
+  const pick = (bid, sid, v) => page.eval(`(() => { document.getElementById(${JSON.stringify('ask-' + bid + '-' + sid + '-' + v)}).click(); return true; })()`);
+  await pick(kb, 'ex-s1', 'done'); await pick(kb, 'ex-s2', 'later'); await pick(kb, 'ex-s2', 'not'); await pick(lb, 'ex-s1', 'done');
+  await sleep(200);
+  const st5 = await page.eval(`(() => { const st = ${SAVED}, k = st.boards.find((b) => b.id === ${JSON.stringify(kb)}), l = st.boards.find((b) => b.id === ${JSON.stringify(lb)}), d = SekigaeEngine.dayKey(Date.now());
+    const lo = (b, sid) => { const e = (b.sweep || {})[sid]; return e && e.log.length ? e.log[e.log.length - 1].day + ':' + e.log[e.log.length - 1].st : ''; };
+    return { kc: Object.keys(k.slotCheck).sort().map((x) => x + ':' + k.slotCheck[x].ans), lc: Object.keys(l.slotCheck).map((x) => x + ':' + l.slotCheck[x].ans), ks1: lo(k, 'ex-s1'), ks2: lo(k, 'ex-s2'), ls1: lo(l, 'ex-s1'), d }; })()`);
+  ok('答えは保存され、終わった・まだは、その日の掃除の記録にも入る（「あとで」→「まだ」に選び直してもよい）', JSON.stringify(st5.kc) === '["ex-s1:done","ex-s2:not"]' && JSON.stringify(st5.lc) === '["ex-s1:done"]' &&
+    st5.ks1 === st5.d + ':done' && st5.ks2 === st5.d + ':not' && st5.ls1 === st5.d + ':done', JSON.stringify(st5));
+  const dl = await page.eval(`({ paper: (() => { const p = document.querySelector('#room-rows .desk-paper[data-sid="ex-s1"]'); return p ? p.dataset.bid + ':' + p.dataset.n : ''; })(),
+    eng: SekigaeEngine.deskLetters(${SAVED}.boards, SekigaeEngine.dayKey(Date.now()), 'after', 'ex-s1').letters.map((b) => b.id) })`);
+  const l4 = my.find((b) => b.channel === 'letter').id;
+  ok('「この時間中」で終わったお便り（5限）は、次の時間（放課後）の机にはもうない（はじめての生徒の机：4限のお便りと2限の見本のお便りだけ）', dl.paper === l4 + ':2' &&
+    JSON.stringify(dl.eng) === JSON.stringify([l4, 'ex-b2']), JSON.stringify(dl));
+  await page.pressEl('#ask-done');
+  await page.waitFor(`document.getElementById('sheet-ask').hidden`, 2000);
+  await page.pressEl('#tt-list .tt-row[data-slot="5"]');
+  await sleep(300);
+  await page.pressEl('#tt-list .tt-row[data-slot="4"]');
+  await sleep(400);
+  ok('もう答えた頼みは聞かない（5限から4限へ移っても、シートは出ない）', await page.eval(`document.getElementById('sheet-ask').hidden`));
+  }
+
+  // 今日中 → 掃除の時間で「締め切りを延ばす（宿題）」か「居残り」→ 放課後は居残りの生徒だけ残る → 次の日の続き
+  {
+  await page.viewport(390, 844, true, false, false);
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  const dayAfter = (n) => `(() => { const E = SekigaeEngine, p = E.dayKey(Date.now()).split('-').map(Number); return E.ymd(new Date(p[0], p[1] - 1, p[2] + ${n}, 12).getTime()); })()`;
+  const d1 = await page.eval(dayAfter(1)), d2 = await page.eval(dayAfter(2)), md2 = await page.eval(`SekigaeEngine.mdDay(${JSON.stringify(d2)})`);
+  // 見本の生徒2人と、1限「今日中」の黒板（2人あて）・2限「決めない」のお便り
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})), t = new Date(Date.now() - 3 * 3600000); t.setHours(9, 0, 0, 0);
+    st.boards = [{ id: 'c1', text: '資料を3枚にまとめて', channel: 'board', subject: '授業', period: 1, due: { kind: 'day' }, createdAt: t.getTime(), updatedAt: t.getTime(), targets: ['ex-s1', 'ex-s2'], firstTime: {}, results: {} }];
+    st.currentId = 'c1'; localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
+  await page.load(base);
+  await openSweepSheet();
+  await sweepPick(0, 'not');
+  const DUEC = (i) => `(() => { const r = ${SW_ROW(i)}, d = r.querySelector('.sw-due'); return d ? { lbl: d.querySelector('.lbl').textContent, opts: [...d.querySelectorAll('.res span')].map((x) => x.textContent), date: (d.querySelector('input[data-ext]') || {}).value || '',
+    voice: (d.querySelector('.voice') || {}).textContent || '' } : null; })()`;
+  const c0 = await page.eval(DUEC(0));
+  ok('掃除の時間：今日中の頼みで「まだ」を選ぶと「締め切りは今日：どうする？」（締め切りを延ばす（宿題）・居残り）', !!c0 && /^締め切りは今日/.test(c0.lbl) && JSON.stringify(c0.opts) === '["締め切りを延ばす（宿題）","居残り"]', JSON.stringify(c0));
+  await page.eval(`${SW_ROW(0)}.querySelector('input[data-due][value="stay"]').click(); true`);
+  await sleep(150);
+  const c0s = await page.eval(DUEC(0));
+  ok('… 居残りを選ぶと、生徒の声「居残りになると、今日は気持ちを切り替えにくいかも」', !!c0s && c0s.voice === '居残りになると、今日は気持ちを切り替えにくいかも', JSON.stringify(c0s));
+  await sweepPick(1, 'mid');
+  await page.eval(`${SW_ROW(1)}.querySelector('input[data-due][value="ext"]').click(); true`);
+  await sleep(150);
+  const c1 = await page.eval(DUEC(1));
+  ok('… 締め切りを延ばすを選ぶと、延ばす日（はじめは明日）を選べる', !!c1 && c1.date === d1, JSON.stringify([c1, d1]));
+  await page.eval(`(() => { const x = ${SW_ROW(1)}.querySelector('input[data-ext]'); x.value = ${JSON.stringify(d2)}; x.dispatchEvent(new Event('change', { bubbles: true })); return true; })()`);
+  await sleep(150);
+  const lg = await page.eval(`(() => { const b = ${SAVED}.boards.find((x) => x.id === 'c1'); return ['ex-s1', 'ex-s2'].map((sid) => JSON.stringify(b.sweep[sid].log.slice(-1)[0])); })()`);
+  const today = await page.eval(`SekigaeEngine.dayKey(Date.now())`);
+  ok('記録：はじめての生徒＝まだ・居残り、慣れた生徒＝途中・あさってまで延ばした（宿題）', lg[0] === JSON.stringify({ day: today, st: 'not', stay: true }) && lg[1] === JSON.stringify({ day: today, st: 'mid', ext: d2 }), JSON.stringify(lg));
+  await sweepNext();
+  const sm = await page.eval(`({ stay: [...document.querySelectorAll('#sweep-stay li')].map((x) => x.textContent), ext: [...document.querySelectorAll('#sweep-ext li')].map((x) => x.textContent), und: !!document.getElementById('sweep-undecided') })`);
+  ok('まとめ：居残り（はじめての生徒）・締め切りを延ばした（慣れた生徒・〆 ' + md2 + 'まで）', sm.stay.length === 1 && /はじめての生徒さん/.test(sm.stay[0]) && sm.ext.length === 1 && /慣れた生徒さん.*〆 /.test(sm.ext[0]) && sm.ext[0].indexOf(md2) >= 0 && !sm.und, JSON.stringify(sm));
+  await page.eval(`document.getElementById('sweep-next').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-sweep').hidden`, 2000);
+  await sleep(200);
+  // 大きい黒板の右下：残っているタスク（居残り・宿題）
+  const tk = await page.eval(`({ shown: !document.getElementById('room-tasks').hidden, rows: [...document.querySelectorAll('#room-tasks .task-row')].map((x) => x.textContent) })`);
+  ok('大きい黒板の右下に、残っているタスク（はじめての生徒さん 居残り 授業 一・慣れた生徒さん 授業 一）', tk.shown && tk.rows.length === 2 && /^はじめての生徒さん居残り授業一/.test(tk.rows[0]) && /^慣れた生徒さん授業一/.test(tk.rows[1]), JSON.stringify(tk));
+  // 放課後：居残りの生徒だけ席に残る
+  await page.pressEl('#tt-after');
+  await sleep(900);
+  const af = await page.eval(`(() => { const op = (sid) => Number(getComputedStyle(document.querySelector('#room-rows .desk[data-sid="' + sid + '"] > .kid')).opacity);
+    return { s1: op('ex-s1'), s2: op('ex-s2'), badge: !!document.querySelector('#room-rows .desk[data-sid="ex-s1"] .badge-stay'), toast: document.getElementById('toast-msg').textContent }; })()`);
+  ok('放課後を押すと、居残りの生徒（はじめての生徒）だけ席に残る（「居残り」の札）・ほかの生徒は帰る', af.s1 === 1 && af.s2 === 0 && af.badge && af.toast === '放課後。居残りの はじめての生徒さん だけ席に残っている（ほかの生徒は帰った）', JSON.stringify(af));
+  ok('居残りの放課後: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 7000); await sleep(300);
+  await page.eval('window.scrollTo(0, 0); true');
+  await page.shot('38_居残りの放課後_390_light.png', true);
+  await page.pressEl('button.desk[data-sid="ex-s1"]');
+  await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
+  await sleep(200);
+  const sv1 = await page.eval(`[...document.querySelectorAll('#view-day-voices li')].map((x) => x.dataset.key + ':' + x.textContent)`);
+  ok('居残りの生徒の目線に「放課後から」の印で「居残りになると、今日は気持ちを切り替えにくいかも」', sv1.indexOf('stay:放課後から居残りになると、今日は気持ちを切り替えにくいかも') >= 0, JSON.stringify(sv1));
+  await page.pressEl('#view-back');
+  await page.waitFor(`document.getElementById('view').hidden`, 2000);
+  // 次の日：宿題は「前の日からの続き」に（締め切りの日まで掃除には出ない）。居残りはその日だけ（締め切りを過ぎたものとして続きに出る）
+  await page.eval(SHIFT_DAY);
+  await page.load(base);
+  const cr = await page.eval(CARRY);
+  const pr = await page.eval(`SekigaeEngine.carryOver(${SAVED}.boards, SekigaeEngine.dayKey(Date.now())).map((c) => c.pairs.map((x) => x.sid + ':' + x.st + ':' + (x.hw ? 'hw' : '') + (x.late ? 'late' : '') + ':' + x.due).join('|'))`);
+  ok('次の日の「前の日からの続き」：1限の頼み（はじめての生徒さん まだ・締め切りを過ぎた ほか1人）。慣れた生徒は宿題（〆 ' + md2 + 'まで）として続きに残る', cr.shown && cr.rows.length === 1 &&
+    /はじめての生徒さん まだ 締め切りを過ぎた ほか1人/.test(cr.rows[0]) && pr.length === 1 && pr[0].indexOf('ex-s2:mid:hw:' + d2) >= 0 && pr[0].indexOf('ex-s1:not:late:') === 0, JSON.stringify([cr, pr]));
+  const nsw = await page.eval(`SekigaeEngine.sweepList(${SAVED}.boards, SekigaeEngine.dayKey(Date.now())).map((it) => it.board.id + ':' + it.sids.join(','))`);
+  ok('… 次の日の掃除には、締め切りを過ぎた はじめての生徒だけ（宿題の慣れた生徒は締め切りの日まで出ない）', JSON.stringify(nsw) === '["c1:ex-s1"]', JSON.stringify(nsw));
+  ok('… 次の日の放課後には、もう誰も残らない（居残りはその日だけ）', (await page.eval(`SekigaeEngine.stayList(${SAVED}.boards, SekigaeEngine.dayKey(Date.now())).length`)) === 0);
+  }
+  // 大きい黒板の右下の正の字（パソコン）：多い生徒から3人まで＋ほか N 人
+  {
+  await page.viewport(1280, 800, false, false, false);
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})), now = Date.now(), t = new Date(now - 3 * 3600000); t.setHours(9, 0, 0, 0); const T = t.getTime(), Y = T - 86400000;
+    [['n3', 'B', 0], ['n4', 'B', 2], ['n5', 'A', 1]].forEach((x, i) => st.students.push({ id: x[0], name: '生徒' + (i + 3), color: i + 3, col: x[2], answers: { q1: x[1] }, notes: {}, history: [], createdAt: now, updatedAt: now }));
+    const B = (id, ch, subj, p, due, tg, at, extra) => Object.assign({ id: id, text: '頼み ' + id, channel: ch, subject: subj, period: p, due: due, createdAt: at, updatedAt: at, targets: tg, firstTime: {}, results: {} }, extra || {});
+    st.boards = [B('t1', 'board', '授業', 1, { kind: 'day' }, ['ex-s1', 'ex-s2', 'n3', 'n4', 'n5'], T + 1), B('t2', 'letter', '手伝い', 2, { kind: 'day' }, ['ex-s1', 'n3'], T + 2),
+      B('t3', 'broadcast', '雑務', 3, { kind: 'slot' }, ['ex-s1', 'ex-s2'], T + 3), B('t5', 'letter', '授業', 5, { kind: 'day' }, ['ex-s1', 'n5'], T + 5), B('t6', 'board', '授業', 6, { kind: 'day' }, ['ex-s1'], T + 6),
+      B('tl', 'board', '授業', 0, { kind: 'day' }, ['ex-s1'], T + 7, { lunch: true }), B('y1', 'board', '授業', 1, { kind: 'day' }, ['ex-s1'], Y + 1), B('y2', 'letter', '授業', 2, { kind: 'day' }, ['ex-s1'], Y + 2),
+      B('y3', 'board', '授業', 3, { kind: 'day' }, ['ex-s1'], Y + 3), B('y4', 'letter', '授業', 4, { kind: 'none' }, ['ex-s1'], Y + 4)];
+    st.currentId = 't1'; localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
+  await page.load(base);
+  const tb = await page.eval(`({ rows: [...document.querySelectorAll('#room-tasks .task-row')].map((x) => x.textContent), more: (document.querySelector('#room-tasks .task-more') || {}).textContent || '',
+    tally: (document.querySelector('#room-tasks .task-row .tally') || {}).textContent || '', ow: ${OVERFLOW}, box: (() => { const b = document.getElementById('room-tasks').getBoundingClientRect(), f = document.querySelector('#room-board .board-face').getBoundingClientRect(); return b.right <= f.right && b.bottom <= f.bottom; })() })`);
+  ok('大きい黒板の右下：残っているタスクを生徒ごと・科目ごとの正の字で（はじめての生徒さん 授業 正丅…）・3人まで＋「ほか 2 人」・決めない頼みは数えない', tb.rows.length === 3 && /^はじめての生徒さん授業正丅/.test(tb.rows[0]) &&
+    tb.tally === '正丅' && tb.more === 'ほか 2 人' && tb.box && tb.ow <= 0, JSON.stringify(tb));
+  await page.eval('window.scrollTo(0, 0); true');
+  await page.shot('39_黒板の正の字_1280_light.png');
+  }
+  // 机に残るお便り（スマホ）：終わるまで残り、3枚まで重なって「＋N」。紙を押すと、上から読める
+  {
+  await page.viewport(390, 844, true, false, false);
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  const d2 = await page.eval(`(() => { const E = SekigaeEngine, p = E.dayKey(Date.now()).split('-').map(Number); return E.ymd(new Date(p[0], p[1] - 1, p[2] + 2, 12).getTime()); })()`);
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})), t = new Date(Date.now() - 3 * 3600000); t.setHours(9, 0, 0, 0); const T = t.getTime(), Y = T - 86400000;
+    const L = (id, p, text, due, at, extra) => Object.assign({ id: id, text: text, channel: 'letter', subject: '手伝い', period: p, due: due, createdAt: at, updatedAt: at, targets: ['ex-s1'], firstTime: {}, results: {} }, extra || {});
+    st.boards = [L('m1', 1, '資料をそろえておいて', undefined, T + 1), L('m2', 2, '印刷は職員室で', { kind: 'day' }, T + 2), L('m3', 3, 'この時間のうちに、表を見て', { kind: 'slot' }, T + 3),
+      L('my', 2, '来週までに読んでおいて', { kind: 'date', date: ${JSON.stringify(d2)} }, Y + 2),
+      { id: 'k4', text: '黒板の頼み', channel: 'board', subject: '授業', period: 4, createdAt: T + 4, updatedAt: T + 4, targets: ['ex-s1', 'ex-s2'], firstTime: {}, results: {} }];
+    st.currentId = 'k4'; localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
+  await page.load(base);
+  await page.pressEl('#tt-list .tt-row[data-slot="4"]');
+  await sleep(400);
+  const dk = await page.eval(`(() => { const p = document.querySelector('#room-rows .desk-paper[data-sid="ex-s1"]'); return p ? { bid: p.dataset.bid, n: p.dataset.n, cls: p.className, more: (p.querySelector('.dp-more') || {}).textContent || '', s2: !!document.querySelector('#room-rows .desk-paper[data-sid="ex-s2"]') } : null; })()`);
+  ok('4限の机：まだ終わっていない前のお便り（3限・2限・1限・前の日の宿題）が残り、重なって見える（いちばん上は3限・3枚まで＋「＋1」）', !!dk && dk.bid === 'm3' && dk.n === '4' && /is-stack3/.test(dk.cls) && dk.more === '＋1' && !dk.s2, JSON.stringify(dk));
+  await page.pressEl('#room-rows .desk-paper[data-sid="ex-s1"]');
+  await sleep(350);
+  const lp = await page.eval(`({ top: document.getElementById('letter-pop-text').textContent, due: document.getElementById('letter-pop-due').textContent, under: [...document.querySelectorAll('#letter-pop-under .lp-item')].map((x) => x.textContent),
+    more: (document.querySelector('#letter-pop-under .lp-more') || {}).textContent || '', inView: (() => { const r = document.getElementById('letter-pop').getBoundingClientRect(); return r.left >= 0 && r.right <= document.documentElement.clientWidth + 1; })() })`);
+  ok('紙を押すと、重なっているお便りを上から読める（いちばん上は大きく・下の2枚は小さく・「ほか 1 枚」）', lp.top === 'この時間のうちに、表を見て' && lp.due === '〆 この時間中' && lp.under.length === 2 &&
+    /2限 手伝い/.test(lp.under[0]) && /1限 手伝い/.test(lp.under[1]) && lp.more === 'ほか 1 枚' && lp.inView && (await page.eval(OVERFLOW)) <= 0, JSON.stringify(lp));
+  await page.shot('40_机に残るお便り_390_light.png');
+  await page.pressEl('#room-rows .desk-paper[data-sid="ex-s1"]');
+  await sleep(150);
+  // 終わったら消える：2限のお便りを提出したことにする
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})); st.boards.find((b) => b.id === 'm2').results['ex-s1'] = { kind: 'asExpected', memo: '', ack: false, at: Date.now(), submitted: true };
+    localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
+  await page.load(base);
+  ok('提出したお便り（2限）は、机から消える（残りは3枚・「＋N」なし）', (await page.eval(`(() => { const p = document.querySelector('#room-rows .desk-paper[data-sid="ex-s1"]'); return p.dataset.n + ':' + !p.querySelector('.dp-more'); })()`)) === '3:true');
+  }
+
+  // 伝え方ごとに消す：書いてある頼みを消しても、ほかのタブに書きかけの文があれば、シートは開いたまま（その文は出せる）
+  {
+  await page.viewport(390, 844, true, false, false);
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})), t = new Date(Date.now() - 3 * 3600000); t.setHours(9, 0, 0, 0);
+    st.boards = [{ id: 'd1', text: '黒板の頼み', channel: 'board', subject: '雑務', period: 1, createdAt: t.getTime(), updatedAt: t.getTime(), targets: ['ex-s1', 'ex-s2'], firstTime: {}, results: {} }];
+    st.currentId = 'd1'; localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
+  await page.load(base);
+  await page.pressEl('#tt-list .tt-row[data-slot="1"]');
+  await sleep(200);
+  await page.pressEl('#tt-list .tt-now .tt-edit');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await page.eval(`(() => { document.getElementById('write-ch-letter').click(); const t = document.getElementById('write-text'); t.value = 'お便りの書きかけ'; t.dispatchEvent(new Event('input', { bubbles: true }));
+    document.getElementById('write-ch-board').click(); document.getElementById('write-del').click(); return true; })()`);
+  await page.waitFor(`!document.getElementById('confirm').hidden`, 2000);
+  await page.eval(`document.getElementById('confirm-yes').click(); true`);
+  await sleep(300);
+  const dl1 = await page.eval(`({ open: !document.getElementById('sheet-write').hidden, boards: ${SAVED}.boards.length, has: ['board', 'letter'].map((c) => document.getElementById('write-has-' + c).hidden ? '' : document.getElementById('write-has-' + c).textContent),
+    text: document.getElementById('write-text').value })`);
+  ok('黒板の頼みを消しても、お便りのタブに書きかけがあればシートは開いたまま（黒板のタブは空にもどる）', dl1.open && dl1.boards === 0 && JSON.stringify(dl1.has) === '["","書きかけ"]' && dl1.text === '', JSON.stringify(dl1));
+  await page.eval(`(() => { document.getElementById('write-ch-letter').click(); document.getElementById('write-submit').click(); return true; })()`);
+  await sleep(400);
+  const dl2 = await page.eval(`${SAVED}.boards.map((b) => b.channel + ':' + b.period + ':' + b.subject + ':' + b.text)`);
+  ok('… そのまま出すと、お便りが同じ1限に入る（科目名もそのまま）', JSON.stringify(dl2) === '["letter:1:雑務:お便りの書きかけ"]', JSON.stringify(dl2));
+  }
 
   // ---- 日の区切りは午前3時（2026-10-18）：端末の時計を決まった時刻にして確かめる ----
   const fakeClock = async (y, mo, d, h, mi) => (await page.send('Page.addScriptToEvaluateOnNewDocument', { source: `(() => { const RD = Date, off = new RD(${y}, ${mo - 1}, ${d}, ${h}, ${mi}).getTime() - RD.now();
