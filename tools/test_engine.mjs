@@ -652,13 +652,7 @@ section('M. 昼休み（「話を聞いた」の記録・通知表の小さな�
   eq('「支える」に足す（0.47＋0.05＝0.52 で「ほったらかし」→「やさしいだけ」）・1 を超えない', [rb.support, rb.base, rb.quad.label, E.withTalkBonus({ demand: 1, support: 0.98, n: 1 }, { bonus: 0.1 }).support], [0.52, 0.47, 'やさしいだけ', 1]);
   eq('数える生徒：見本でない生徒がいればその人たち、いなければ見本', [E.talkStudents([S('x', [], true), S('y', [])]).map((s) => s.id), E.talkStudents([S('x', [], true)]).map((s) => s.id)], [['y'], ['x']]);
 }
-{
-  const P = (id, row, col) => ({ id: id, row: row, col: col });
-  eq('昼休みの輪：0人・1人・2人・4人（2＋2）・5人（3＋2）・7人（3＋2＋2）・8人（3＋3＋2）', [0, 1, 2, 4, 5, 7, 8].map((n) => E.lunchGroups(Array.from({ length: n }, (_, i) => P('s' + i, 'front', i))).map((g) => g.length)),
-    [[], [1], [2], [2, 2], [3, 2], [3, 2, 2], [3, 3, 2]]);
-  eq('… 近くの席どうし（前の席 → 中ほど → 後ろ、同じ段は左から）', E.lunchGroups([P('back1', 'back', 1), P('front2', 'front', 2), P('mid0', 'middle', 0), P('front0', 'front', 0), P('back0', 'back', 0)]),
-    [['front0', 'front2', 'mid0'], ['back0', 'back1']]);
-}
+// v0.3.1 で「丸いテーブルの輪」（lunchGroups）はやめて、今ある机のとなりあう席に移る形（lunchSeats）にした。その試験は N 節
 {
   const t = at(18, 12);
   const data = { students: [
@@ -673,6 +667,72 @@ section('M. 昼休み（「話を聞いた」の記録・通知表の小さな�
   ok('書き出しの通知表の位置にも、話を聞いた分を足す（支える ' + base.support.toFixed(2) + ' → ' + want.support.toFixed(2) + '）', want.support > base.support &&
     md.indexOf('支える ' + want.support.toFixed(2)) >= 0, md.split('\n').find((l) => l.indexOf('通知表の位置') >= 0));
   ok('「雑談すると関係が良くなる」とは書かない（声は「話しかけやすくなったかも」）', E.TALK_VOICE === 'ちょっと話しかけやすくなったかも' && !/関係が良く/.test(md + E.TALK_VOICE));
+}
+
+/* ================= N. v0.3.1：昼休みの席（今ある机のとなりあう席に移る）と昼休みの放送 ================= */
+section('N. v0.3.1（昼休みの席・昼休みの放送）');
+{
+  eq('まとまりの人数：2人・3人・4人・5人・7人・10人（3人を中心に、大きい順）', [2, 3, 4, 5, 7, 10].map((n) => E.lunchSizes(n)), [[2], [3], [4], [3, 2], [4, 3], [4, 3, 3]]);
+  eq('… 0人・1人', [E.lunchSizes(0), E.lunchSizes(1)], [[], [1]]);
+  ok('… 2人から30人まで、どのまとまりも2〜4人で、合わせると全員', Array.from({ length: 29 }, (_, i) => i + 2).every((n) => { const s = E.lunchSizes(n); return s.every((x) => x >= 2 && x <= 4) && s.reduce((a, b) => a + b, 0) === n; }));
+  // 向き：0度＝黒板の方、90度＝右、180度＝後ろ（-90度＝左）。まとまりの真ん中の方を向く
+  eq('向き：左右の2人は横を向いて向かい合わせ（左の人は右・右の人は左）', E.facingOf([[0, 0], [0, 1]]).map((f) => f.rot), [90, -90]);
+  eq('向き：前後の2人は向かい合わせ（前の人は後ろ・後ろの人は前）', E.facingOf([[0, 0], [1, 0]]).map((f) => f.rot), [180, 0]);
+  eq('向き：2×2 の4人は真ん中へ斜め（左前・右前・左後ろ・右後ろ）', E.facingOf([[0, 0], [0, 1], [1, 0], [1, 1]]).map((f) => f.rot), [135, -135, 45, -45]);
+  eq('向き：L の3人は 2×2 の真ん中の方', E.facingOf([[0, 0], [0, 1], [1, 0]]).map((f) => f.rot), [135, -135, 45]);
+  eq('向き：まとまりの真ん中に寄る向き（左右の2人なら右へ1・左へ1）', E.facingOf([[0, 0], [0, 1]]).map((f) => [f.ux, f.uy]), [[1, 0], [-1, 0]]);
+}
+{
+  const seatsOf = (n, cols) => Array.from({ length: n }, (_, i) => ({ id: 's' + i, line: Math.floor(i / cols), col: i % cols }));
+  const check = (L, C, n, seed) => {
+    const r = E.lunchSeats(L, C, seatsOf(n, C), seed), ps = Object.values(r.seats);
+    const uniq = new Set(ps.map((p) => p.line + ':' + p.col)).size === n, inside = ps.every((p) => p.line >= 0 && p.line < L && p.col >= 0 && p.col < C);
+    const conn = r.groups.every((g) => { const c = g.map((id) => r.seats[id]), seen = new Set([0]); let more = true;
+      while (more) { more = false; c.forEach((a, i) => { if (!seen.has(i) && [...seen].some((j) => Math.abs(c[j].line - a.line) + Math.abs(c[j].col - a.col) === 1)) { seen.add(i); more = true; } }); }
+      return seen.size === c.length; });
+    return { ok: r.placed && uniq && inside && conn && r.groups.every((g) => g.length >= 2 && g.length <= 4), r };
+  };
+  // スマホ（3列）とパソコン（5列）の机の並び。段は3（前・中ほど・後ろ）か、1つの段に人が多いときはもっと
+  const GRIDS = [[3, 3, 9], [3, 5, 15], [4, 3, 12], [4, 5, 20], [6, 5, 30]];
+  let bad = '';
+  GRIDS.forEach(([L, C, max]) => { for (let n = 2; n <= max; n++) for (let seed = 1; seed <= 12; seed++) { const c = check(L, C, n, 1792302053465 + seed * 7919); if (!c.ok && !bad) bad = L + '×' + C + ' ' + n + '人 種' + seed; } });
+  ok('全員がとなりあう席（前後・左右）のまとまりにいて、席が重ならず、机の並びの中にいる（5通りの並び×2〜最大の人数×種12）', !bad, bad);
+  const a = E.lunchSeats(3, 5, seatsOf(10, 5), 12345), b = E.lunchSeats(3, 5, seatsOf(10, 5), 12345), c = E.lunchSeats(3, 5, seatsOf(10, 5), 67890);
+  eq('同じ種なら同じ並び（開き直しても同じ）', J(a.seats) === J(b.seats), true);
+  ok('… 種がちがえば、並びもちがう（次に昼休みを押すと新しい並び）', J(a.seats) !== J(c.seats));
+  eq('10人なら 4・3・3 のまとまり', a.groups.map((g) => g.length), [4, 3, 3]);
+  const one = E.lunchSeats(3, 3, [{ id: 'x', line: 2, col: 1 }], 99);
+  eq('生徒が1人だけのときは、自分の席のまま（向きも黒板の方）', one.seats.x, { line: 2, col: 1, rot: 0, ux: 0, uy: 0, group: 0 });
+  const two = E.lunchSeats(3, 3, seatsOf(2, 3), 5), t = Object.values(two.seats);
+  const horiz = t[0].line === t[1].line, rots = t.map((p) => p.rot).sort((x, y) => x - y);
+  ok('2人：となりあう2つの机で向かい合わせ（左右なら ±90度、前後なら 0度と180度）', horiz ? J(rots) === J([-90, 90]) : J(rots) === J([0, 180]), J(t));
+  eq('丸いテーブルの輪（lunchGroups）はもうない', typeof E.lunchGroups, 'undefined');
+}
+{
+  // 昼休みの放送：時間割の「昼休み」（4限と5限のあいだ）・1日1つ
+  const B = (id, h, extra) => Object.assign({ id: id, channel: 'board', text: id, subject: '授業', targets: ['s'], createdAt: at(18, h), firstTime: {}, results: {} }, extra || {});
+  const cast = B('L', 12, { channel: 'broadcast', subject: '雑務', lunch: true, period: 0 });
+  const bs = [B('p5', 9, { period: 5 }), B('p4', 10, { period: 4 }), cast, B('p1', 13, { period: 1 })];
+  const per = E.periods(bs);
+  eq('昼休みの放送は時間割の「昼休み」（並びの順は 4.5＝4限と5限のあいだ）', [per.L, E.LUNCH_SLOT, E.periodName(per.L), E.periodName(4), E.periodName(0)], [4.5, 4.5, '昼休み', '4限', '']);
+  eq('その日の並び：1限 → 4限 → 昼休み → 5限', E.dayList(bs, D18).map((b) => b.id), ['p1', 'p4', 'L', 'p5']);
+  eq('書き方「昼休み 雑務（放送）」', E.lessonLabel(cast, per.L), '昼休み 雑務（放送）');
+  eq('その日の昼休みの放送・昼休みの放送は時限を使わない（空いている時限はそのまま）', [E.lunchCastOf(bs, D18).id, E.lunchCastOf(bs, D17), E.freePeriods(bs, D18)], ['L', null, [2, 3, 6]]);
+  const two = bs.concat([B('L2', 14, { channel: 'broadcast', lunch: true, period: 0 })]);
+  eq('1日1つ：同じ日の2つ目は、ふつうの頼みとして空いている時限へ', [E.periods(two).L, E.periods(two).L2], [4.5, 2]);
+  eq('放送でなければ昼休みには入らない（ふつうの頼み）', E.periods([B('x', 9, { lunch: true, period: 3 })]).x, 3);
+  const cur = B('p5b', 15, { period: 5 }), list = E.dayList([cast, cur], D18);
+  ok('割り込み：昼休みの放送（まだ提出も締めもない）は、5限から見ると前の頼み', E.dayView(list, cur, 's').voices.some((x) => x.key === 'interrupt'));
+  const f = E.readBoard('あとで部屋の片づけ、お願いね'), w = (v, k) => (v.issues.find((x) => x.key === k) || {});
+  const vl = E.studentView(f, USED, { channel: 'broadcast', lunch: true });
+  eq('昼休みの放送の目線：放送の声に足して「せっかくの昼休み、頼まれたことが気になって休めなかったかも」（重み5・赤い枠なし）', [w(vl, 'castLunch').w, vl.voices.map((x) => x.key).slice(0, 2), vl.voices[1].strong],
+    [5, ['broadcast', 'castLunch'], false]);
+  eq('… 足すとよいもの「急ぎでなければ、昼休みのあとで大丈夫だよ」', vl.chips.some((c) => c.text === '急ぎでなければ、昼休みのあとで大丈夫だよ' && c.act === 'add'), true);
+  eq('… 文にもう「昼休みのあと」があれば足すものは出さない・昼休みでない放送には出ない',
+    [E.studentView(E.readBoard('昼休みのあとで、片づけお願いね'), USED, { channel: 'broadcast', lunch: true }).chips.some((c) => /昼休みのあと/.test(c.text)), E.studentView(f, USED, { channel: 'broadcast' }).issues.some((x) => x.key === 'castLunch')],
+    [false, false]);
+  const md = E.exportMarkdown({ students: [{ id: 's', name: '生徒S', answers: UNKNOWN, notes: {}, history: [] }], boards: bs }, at(18, 20));
+  ok('書き出し：昼休みの放送は「昼休み 雑務（放送）」で、4限と5限のあいだ', md.indexOf('  - 2026-10-18 昼休み 雑務（放送）「L」') > md.indexOf('4限 授業（黒板）') && md.indexOf('5限 授業（黒板）') > md.indexOf('昼休み 雑務（放送）'), md);
 }
 
 console.log('\n' + (fails.length ? '通らなかった: ' + fails.length + ' 件 ／ 通った: ' + pass + ' 件' : 'すべて通った: ' + pass + ' 件'));
