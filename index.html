@@ -212,7 +212,7 @@ h1, h2, h3 { text-wrap: balance; }
 .board-row { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "pa" "board" "meta" "tt" "ttb" "lectern"; max-width: 820px; margin: 0 auto; }
 .board-row > .tt-below { grid-area: ttb; min-width: 0; }   /* 時間割の枠の外（下）：ほかに N 件・前の日からの続き */
 .board-row > .pa { grid-area: pa; }
-.board-row > .lectern { grid-area: lectern; }   /* 先生と教卓は、大きい黒板の真ん中の下 */
+.board-row > .lectern { grid-area: lectern; }   /* 先生と教卓は、教室（席の列）の真ん中。パソコンでは黒板と時間割の両方の幅の真ん中＝席の列の真ん中 */
 /* 床の前（教卓の前のプリント）も同じ列に合わせる */
 .front-row { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 820px; margin: 0 auto; }
 .board-row > .board { grid-area: board; width: 100%; max-width: none; display: flex; flex-direction: column; }
@@ -220,9 +220,8 @@ h1, h2, h3 { text-wrap: balance; }
 .board-row > .board-meta { grid-area: meta; max-width: none; margin: 10px 0 0; }
 .board-row > .tt { grid-area: tt; margin-top: 16px; }
 @media (min-width: 760px) {
-  .board-row { max-width: 1048px; grid-template-columns: minmax(0, 820px) 214px; grid-template-areas: "pa ." "board tt" "meta ttb" "lectern ."; column-gap: 18px; justify-content: center; }
+  .board-row { max-width: 1048px; grid-template-columns: minmax(0, 820px) 214px; grid-template-areas: "pa ." "board tt" "meta ttb" "lectern lectern"; column-gap: 18px; justify-content: center; }
   .board-row > .tt { margin-top: 0; }
-  .front-row { max-width: 1048px; grid-template-columns: minmax(0, 820px) 214px; column-gap: 18px; justify-content: center; }
 }
 /* スピーカー（壁に掛けた箱。放送の頼みのときだけ押せる。押すと沈む） */
 .pa { position: relative; z-index: 6; display: flex; justify-content: center; align-items: flex-start; height: 48px; }
@@ -291,6 +290,32 @@ h1, h2, h3 { text-wrap: balance; }
 .tt-row.tt-sweep:disabled { cursor: default; }
 @media (hover: hover) { .tt-row.tt-sweep:not(:disabled):hover { background: var(--board-hi); } }
 .tt-row.is-sweep { border-style: dashed; border-color: var(--chalk-yellow); }
+/* 昼休みの行（昼休みの入口）。今日だけ押せる。昼休み中は「昼休み中（12:10から）」 */
+.tt-row.tt-lunch { cursor: pointer; color: var(--chalk-yellow); letter-spacing: .12em; }
+@media (hover: hover) { .tt-row.tt-lunch:hover { background: var(--board-hi); } }
+.tt-row.tt-lunch.is-on { border-style: dashed; border-color: var(--chalk-yellow); background: var(--board-hi); letter-spacing: .04em; }
+/* 昼休みの教室：黒板には「昼休み」とだけ。生徒は席を離れて、近くの席どうしで輪になる。先生は教卓で休む */
+.board.is-lunch .board-face > .chalk-text { padding-top: 22px; text-align: center; font-size: 34px; letter-spacing: .5em; color: var(--chalk); }
+.lunch-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px 16px; max-width: 820px; margin: 0 auto 30px; }
+.lunch-group { position: relative; flex: none; width: 168px; height: 168px; }
+.lunch-rug { position: absolute; inset: 6px 4px 22px; border-radius: 50%; background: var(--desk-empty); box-shadow: inset 0 0 0 2px var(--desk-empty-edge); }
+.lunch-table { position: absolute; left: 50%; top: 70px; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: var(--desk); box-shadow: 0 3px 0 var(--desk-edge); }
+.lunch-kid { --c: var(--k1); position: absolute; left: var(--x); top: var(--y); width: 68px; height: 55px; margin: -27px 0 0 -34px; padding: 0; border: 0; border-radius: 14px; background: none; color: inherit; }
+.lunch-kid:focus-visible { outline-offset: 3px; }
+.lunch-kid .kid { position: absolute; inset: 0; margin: 0; width: 68px; height: 55px; transform: translate(0, 0) rotate(var(--rot)); filter: drop-shadow(0 2px 2px var(--btn-drop)); }
+.lk-name { position: absolute; z-index: 2; left: 50%; top: calc(100% - 4px); max-width: 84px; transform: translateX(-50%); padding: 0 6px; border-radius: 4px; background: var(--tag-bg); color: var(--tag-fg);
+  box-shadow: 0 1px 0 var(--desk-edge); font: 700 11px/1.6 var(--font-round); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lunch-kid.is-top .lk-name { top: auto; bottom: calc(100% - 2px); }
+.lunch-group[data-n="1"] .lk-name, .lunch-group[data-n="2"] .lk-name { max-width: 96px; }   /* 2人までの輪は名札を広く（3人の輪は下の2人の名札が重ならない幅） */
+.lk-talk { position: absolute; z-index: 2; right: -10px; top: -12px; padding: 0 6px; border-radius: 10px 10px 10px 2px; background: var(--surface); color: var(--fg); border: 1.5px solid var(--fg); font: 700 10.5px/1.5 var(--font-round); }
+.desk.is-away .desk-top { background: var(--desk-empty); box-shadow: 0 3px 0 var(--desk-empty-edge); transform: translateY(-3px); }
+.lunch-note { max-width: 820px; margin: -18px auto 20px; font-size: 13px; line-height: 1.7; color: var(--floor-ink); text-align: center; }
+/* 先生の休けい：教卓の上の湯のみ */
+.tea { position: absolute; z-index: 2; bottom: 40px; left: calc(50% + 40px); width: 22px; height: 18px; border-radius: 3px 3px 8px 8px; background: var(--paper); box-shadow: inset 0 -4px 0 var(--paper-line), 0 2px 3px var(--btn-drop); }
+.tea::before, .tea::after { content: ""; position: absolute; bottom: 21px; width: 2px; height: 10px; border-radius: 2px; background: var(--muted); opacity: .6; }
+.tea::before { left: 6px; transform: rotate(-12deg); } .tea::after { left: 13px; transform: rotate(10deg); }
+/* 昼休みの間の「頼みごとを出す」（押せない形。押すと「昼休みのあとにしよう」） */
+.btn.is-off { opacity: .5; }
 /* 前の日からの続き：時間割の枠の外（下）に、1件1行の付箋で */
 .tt-carry { margin-top: 10px; padding: 8px 10px 10px; border-radius: 4px; background: var(--warn-bg); color: var(--warn-fg); box-shadow: 0 2px 6px var(--btn-drop); transform: rotate(-.6deg); }
 .tt-carry-k { margin: 0 0 4px; font: 700 12px/1.5 var(--font-round); letter-spacing: .06em; }
@@ -496,6 +521,15 @@ textarea.field { resize: vertical; }
 /* 科目名（5つのチップか、自分で書く） */
 .subj { margin: 18px 0 0; padding: 0; border: 0; min-width: 0; }
 .subj .res-opts { margin-bottom: 10px; }
+/* 「話を聞いた」の記録のシート */
+.talk-who { margin: 0 0 10px; font-size: 14px; color: var(--muted); }
+.talk-who b { color: var(--fg); font-family: var(--font-round); font-size: 16px; }
+.talk-state { margin: 0 0 12px; padding: 8px 12px; border-radius: 12px; background: var(--good-bg); color: var(--good-fg); font-size: 13.5px; font-weight: 700; }
+.talk-tip { margin: 14px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--chip); font-size: 13.5px; line-height: 1.7; }
+#talk-form .ack { margin-top: 14px; }
+/* 生徒の目線：「昼休みから」の声（弱く1つだけ） */
+.voice.is-talk { opacity: .88; }
+.voice.is-talk .voice-k { background: var(--chalk-yellow); color: var(--tag-fg); }
 /* 掃除の時間のシート（スマホでは低めにして、上に大きい黒板が見えるように） */
 @media (max-width: 759.98px) { .sheet.is-sweep { max-height: 60%; } }
 .sw-pos { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font: 700 14px/1.5 var(--font-round); color: var(--muted); }
@@ -719,7 +753,7 @@ textarea.field { resize: vertical; }
 /* その日の頼みの数と伝え方の重なりから足す心の声 */
 .voices-day { margin-top: 12px; }
 .voice.is-day, .voice.is-day::before, .voice.is-day::after { border-style: dashed; background: var(--surface-2); }
-.voice-k { display: inline-block; margin-right: 6px; padding: 0 8px; border-radius: 999px; background: var(--board); color: var(--chalk); font: 600 11px/1.75 var(--font-chalk); vertical-align: 1px; }
+.voice-k { display: block; width: fit-content; margin: 0 0 3px; padding: 0 8px; border-radius: 999px; background: var(--board); color: var(--chalk); font: 600 11px/1.75 var(--font-chalk); vertical-align: 1px; }
 .ask { padding: 14px 16px; border-radius: 16px; background: var(--ask-bg); color: var(--ask-fg); }
 .ask .lbl { color: var(--ask-fg); }
 .ask-q { margin: 0; font: 700 18px/1.6 var(--font-round); }
@@ -886,6 +920,7 @@ textarea.field { resize: vertical; }
               <div class="board-links">
                 <button class="link-btn" type="button" id="room-edit">直す</button>
                 <button class="link-btn" type="button" id="room-copy">コピー</button>
+                <button class="btn btn-small" type="button" id="room-lunch-end" hidden>授業にもどる</button>
               </div>
             </div>
             <aside class="tt" id="room-tt" aria-labelledby="tt-title">
@@ -899,6 +934,7 @@ textarea.field { resize: vertical; }
             <div class="lectern" aria-hidden="true">
               <div class="teacher-slot" id="room-teacher"></div>
               <div class="podium"></div>
+              <span class="tea" id="room-tea" hidden></span>
             </div>
           </div>
         </div>
@@ -906,6 +942,8 @@ textarea.field { resize: vertical; }
       <div class="floor">
         <div class="wrap">
           <div class="front-row"><div class="print" id="room-print" hidden><p class="print-head"><span class="print-title">おたより</span><span class="print-meta" id="room-print-meta"></span></p><p class="print-text" id="room-print-text"></p></div></div>
+          <div class="lunch-area" id="room-lunch" role="group" aria-label="昼休みの輪（押すと「話を聞いた」を記録）" hidden></div>
+          <p class="lunch-note" id="room-lunch-note" hidden>生徒を押すと「話を聞いた（雑談）」を記録できる。先生は教卓で休けい中（輪には入らない）</p>
           <div class="rows" id="room-rows" role="group" aria-label="生徒の席"></div>
           <div class="seat-tools"><button class="btn btn-small" type="button" id="room-shuffle">席替え</button><span>前後は「慣れ」のまま、左右の席だけくじで入れ替えます</span></div>
           <p class="seat-note">席の前後は、その人に言葉が届くのに必要なはっきりさ（カードの Q1「慣れ」）。出来の良し悪しではありません。机を押すと、その生徒の目線に切り替わります。</p>
@@ -989,6 +1027,27 @@ textarea.field { resize: vertical; }
   </form>
 </section>
 
+<section class="sheet is-low" id="sheet-talk" role="dialog" aria-modal="true" aria-labelledby="talk-title" hidden>
+  <div class="grabber" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <h2 id="talk-title" tabindex="-1">話を聞いた（雑談）</h2>
+    <button class="icon-btn" type="button" data-close aria-label="閉じる">×</button>
+  </div>
+  <form id="talk-form" novalidate>
+    <p class="talk-who" id="talk-who"></p>
+    <p class="talk-state" id="talk-state" hidden></p>
+    <label class="lbl" for="talk-topic">何の話？（なくてもいい・40字まで）</label>
+    <input class="field" id="talk-topic" name="talk-topic" type="text" maxlength="40" autocomplete="off" placeholder="例：週末に行った場所の話">
+    <label class="ack"><input class="switch" type="checkbox" role="switch" id="talk-listened"><span>相手の話を最後まで聞けた</span></label>
+    <p class="talk-tip">雑談では、仕事の確認や指摘にしないで、相手の話を聞く（質問して、最後まで聞く）。昼休みでなくても、ほかの時間の雑談もここで記録してよい。1日に1人1回（あとから書きかえられる）。</p>
+    <div class="row-btns">
+      <button class="btn" type="button" data-close>やめる</button>
+      <button class="btn btn-primary" type="submit" id="talk-submit">記録する</button>
+    </div>
+    <p class="card-del" id="talk-del-wrap" hidden><button class="link-btn danger" type="button" id="talk-del">この日の記録を消す</button></p>
+  </form>
+</section>
+
 <section class="sheet is-low is-sweep" id="sheet-sweep" role="dialog" aria-modal="true" aria-labelledby="sweep-title" hidden>
   <div class="grabber" aria-hidden="true"></div>
   <div class="sheet-head">
@@ -1036,7 +1095,8 @@ textarea.field { resize: vertical; }
     <p>頼んだ自分には、頼みごとがはっきり見えている。でも、相手の席からは違って見えるかもしれない。マネジメント教室は、その見え方を確かめる鏡です。</p>
     <p><b>生徒は「あなたから見たその人」の仮の像</b>で、本人の評価ではありません。いつでも書き直せます。</p>
     <p><b>席の前後</b>は、その人に言葉が届くのに必要なはっきりさ。出来の良し悪しではありません。</p>
-    <p><b>時間割</b>は、その日の頼みごとを1限から6限の枠に入れたものです（空いている時限を押すと、そこに書けます）。伝え方は3つ。<b>黒板</b>（その場で説明）・<b>お便り</b>（文字で配る）・<b>放送</b>（口や Zoom で伝えた。紙に残らない）。同じ日に頼みが重なると、生徒の目線に「今日の頼みから」の心の声が足されます。放送（口だけ）は、黒板やお便りより残りにくいとされます。要点（何を・いつまで）を文字でも送ると残りやすくなります。1日の頼みが多いときや、前の頼みの途中で次を頼むときは、迷ったり続きを忘れたりしやすくなります。</p>
+    <p><b>時間割</b>は、その日の頼みごとを1限から6限の枠に入れたものです（空いている時限を押すと、そこに書けます）。日付は午前3時に切り替わります（0時から2時台は、前の日として数えます）。伝え方は3つ。<b>黒板</b>（その場で説明）・<b>お便り</b>（文字で配る）・<b>放送</b>（口や Zoom で伝えた。紙に残らない）。同じ日に頼みが重なると、生徒の目線に「今日の頼みから」の心の声が足されます。放送（口だけ）は、黒板やお便りより残りにくいとされます。要点（何を・いつまで）を文字でも送ると残りやすくなります。1日の頼みが多いときや、前の頼みの途中で次を頼むときは、迷ったり続きを忘れたりしやすくなります。</p>
+    <p><b>昼休み</b>は、時間割の「昼休み」を押すと始まります。生徒は席を離れて近くの席どうしで集まり、先生は教卓で休みます。生徒を押すと「話を聞いた（雑談）」を記録できます。昼休みの間は、頼みごとは出せません。</p>
     <p><b>掃除の時間</b>は、1日の終わりに、今日の頼み（と前の日からの続き）を記録から1つずつ出して、生徒ごとに「終わった・途中・まだ」を選ぶ時間です。途中・まだは、続きをいつ・どこからやるか（最初の一歩）を一言で決めておくと、次の日の時間割の下に「前の日からの続き」として出ます。</p>
     <p><b>心の声は「〜かも」の仮説</b>です。相手の立場を想像するより、本人に聞いたほうが当たります。「本人に聞くなら」の一言で確かめよう。</p>
     <p><b>通知表</b>は、黒板の文を言葉の一覧で機械的に数えた目安です。ずれたときは、まず黒板を疑う（何人もずれたら、なおさら）。</p>
@@ -1135,6 +1195,9 @@ var SekigaeEngine = (function () {
   var NUM = '0-9０-９〇◯○一二三四五六七八九十百千半数';   // 数字（半角・全角・漢数字・ひな形の◯）
   var STOP = /[\s、。，．,.!！?？「」『』（）()【】・…:：;；]/;
   var DAY = 86400000;
+  /* 日の区切り：午前3時（0:00〜2:59 は前の日として扱う）。日で分けるところは全部 dayKey を使う */
+  var DAY_START_HOUR = 3;
+  function dayKey(ts) { return ymd(Number(ts) - DAY_START_HOUR * 3600000); }
   function before(t, s, n) { return t.slice(Math.max(0, s - n), s); }
   function after(t, e, n) { return t.slice(e, e + n); }
   function atBoundary(t, s) { return s === 0 || STOP.test(t.charAt(s - 1)); }
@@ -1382,12 +1445,12 @@ var SekigaeEngine = (function () {
     var out = {}, used = {}, rest = [];
     var arr = (boards || []).map(function (b, i) { return { b: b, i: i }; }).sort(byTime);
     arr.forEach(function (x) {
-      var k = ymd(x.b.createdAt), u = used[k] || (used[k] = {});
+      var k = dayKey(x.b.createdAt), u = used[k] || (used[k] = {});
       if (validPeriod(x.b.period) && !u[x.b.period]) { u[x.b.period] = true; out[pkey(x.b, x.i)] = x.b.period; }
       else rest.push(x);
     });
     rest.forEach(function (x) {
-      var k = ymd(x.b.createdAt), u = used[k], p = 0;
+      var k = dayKey(x.b.createdAt), u = used[k], p = 0;
       if (x.b.period !== 0) for (var n = 1; n <= PERIOD_MAX; n++) if (!u[n]) { p = n; break; }
       if (p) u[p] = true;
       out[pkey(x.b, x.i)] = p;
@@ -1397,7 +1460,7 @@ var SekigaeEngine = (function () {
   /* その日の空いている時限（exceptId の頼みの時限は空きとみなす＝直すときは今の時限も選べる） */
   function freePeriods(boards, key, exceptId) {
     var per = periods(boards), used = {}, out = [];
-    (boards || []).forEach(function (b, i) { if (ymd(b.createdAt) === key && String(b.id) !== String(exceptId) && per[pkey(b, i)]) used[per[pkey(b, i)]] = true; });
+    (boards || []).forEach(function (b, i) { if (dayKey(b.createdAt) === key && String(b.id) !== String(exceptId) && per[pkey(b, i)]) used[per[pkey(b, i)]] = true; });
     for (var n = 1; n <= PERIOD_MAX; n++) if (!used[n]) out.push(n);
     return out;
   }
@@ -1405,13 +1468,13 @@ var SekigaeEngine = (function () {
   function dayList(boards, key) {
     var per = periods(boards);
     return (boards || []).map(function (b, i) { return { b: b, i: i, p: per[pkey(b, i)] || 99 }; })
-      .filter(function (x) { return ymd(x.b.createdAt) === key; })
+      .filter(function (x) { return dayKey(x.b.createdAt) === key; })
       .sort(function (x, y) { return (x.p - y.p) || byTime(x, y); }).map(function (x) { return x.b; });
   }
   /* 時間割で行き来できる日：頼みのある日と今日（古い順） */
   function dayKeys(boards, today) {
     var seen = {}, out = [];
-    (boards || []).forEach(function (b) { var k = ymd(b.createdAt); if (!seen[k]) { seen[k] = true; out.push(k); } });
+    (boards || []).forEach(function (b) { var k = dayKey(b.createdAt); if (!seen[k]) { seen[k] = true; out.push(k); } });
     if (today && !seen[today]) out.push(today);
     return out.sort();
   }
@@ -1479,7 +1542,7 @@ var SekigaeEngine = (function () {
   /* 1日の頼み：いちばん多い日（同じ数なら新しい日） */
   function busiestDay(boards) {
     var n = {}, best = null;
-    (boards || []).forEach(function (b) { var k = ymd(b.createdAt); n[k] = (n[k] || 0) + 1; });
+    (boards || []).forEach(function (b) { var k = dayKey(b.createdAt); n[k] = (n[k] || 0) + 1; });
     Object.keys(n).sort().forEach(function (k) { if (!best || n[k] >= best.n) best = { key: k, n: n[k] }; });
     return best;
   }
@@ -1518,7 +1581,7 @@ var SekigaeEngine = (function () {
   function sweepList(boards, day) {
     var per = periods(boards), carry = [], today = [];
     (boards || []).forEach(function (b, i) {
-      var d = ymd(b.createdAt);
+      var d = dayKey(b.createdAt);
       if (b.closedAt || d > day) return;
       var sids = (b.targets || []).filter(function (sid) {
         if (submittedBy(b, sid)) return false;
@@ -1588,6 +1651,53 @@ var SekigaeEngine = (function () {
     return l.map(function (x) { return mdDay(x.day) + ' ' + SWEEP_ST[x.st] + (x.next ? '（' + (x.st === 'mid' ? '続き' : '最初の一歩') + ': ' + oneLine(x.next) + '）' : ''); })
       .reduce(function (t, s) { return t ? t + (/）$/.test(t) ? '→ ' : ' → ') + s : s; }, '') + (e.st === 'done' && e.good ? '（うまくいった頼み方）' : '');
   }
+  /* ===== 昼休み：仕事以外のくだけた関わり（雑談）を「話を聞いた」として記録する =====
+     生徒の talks: [{ day, at, topic, listened }]（1日に1人1回・30件まで）。「雑談すると関係が良くなる」とは言わない */
+  var TALK_MAX = 30, TALK_TOPIC_MAX = 40, TALK_DAYS = 7, TALK_BONUS_MAX = 0.1;
+  var TALK_VOICE = 'ちょっと話しかけやすくなったかも';
+  function keyNoon(key) { var p = String(key).split('-').map(Number); return new Date(p[0], p[1] - 1, p[2], 12).getTime(); }
+  function talkOn(s, day) { var t = (s && s.talks) || []; for (var i = t.length - 1; i >= 0; i--) if (t[i].day === day) return t[i]; return null; }
+  /* 1日に1人1回：同じ日は書きかえる。日の順にならべて30件まで */
+  function setTalk(talks, day, now, topic, listened) {
+    var rest = (talks || []).filter(function (t) { return t.day !== day; });
+    rest.push({ day: day, at: now, topic: Array.from(String(topic == null ? '' : topic).trim()).slice(0, TALK_TOPIC_MAX).join(''), listened: !!listened });
+    rest.sort(function (a, b) { return a.day < b.day ? -1 : a.day > b.day ? 1 : 0; });
+    return rest.slice(-TALK_MAX);
+  }
+  function dropTalk(talks, day) { return (talks || []).filter(function (t) { return t.day !== day; }); }
+  /* 通知表：直近7日（今日を入れて）に「話を聞いた」がある生徒の割合で少し、「最後まで聞けた」があればもう少し。
+     足す分は 0.1 まで。回数では増えない（1人に何回あっても同じ） */
+  function talkSummary(students, today) {
+    var list = students || [], from = ymd(keyNoon(today) - (TALK_DAYS - 1) * DAY);
+    var inWin = function (t) { return t.day >= from && t.day <= today; };
+    var talked = list.filter(function (s) { return (s.talks || []).some(inWin); }).length;
+    var listened = list.filter(function (s) { return (s.talks || []).some(function (t) { return inWin(t) && t.listened; }); }).length;
+    var n = list.length, bonus = n ? r2(TALK_BONUS_MAX / 2 * talked / n + TALK_BONUS_MAX / 2 * listened / n) : 0;
+    return { n: n, talked: talked, listened: listened, from: from, bonus: Math.min(TALK_BONUS_MAX, bonus) };
+  }
+  function withTalkBonus(rc, ts) {
+    if (!rc) return rc;
+    var bonus = ts ? ts.bonus : 0, s = r2(Math.min(1, rc.support + bonus));
+    return { demand: rc.demand, support: s, base: rc.support, bonus: bonus, n: rc.n, quad: quadrant(rc.demand, s) };
+  }
+  /* 昼休みの輪：近くの席の生徒どうしで2〜3人ずつ（席の前後 → 左右の順にならべて、なるべく同じ大きさに分ける） */
+  var ROW_ORDER = { front: 0, middle: 1, back: 2 };
+  function lunchGroups(list) {
+    var a = (list || []).slice().sort(function (x, y) { return ((ROW_ORDER[x.row] || 0) - (ROW_ORDER[y.row] || 0)) || ((x.col || 0) - (y.col || 0)); });
+    var n = a.length, g = Math.ceil(n / 3), out = [], k = 0;
+    for (var i = 0; i < g; i++) {
+      var size = Math.floor(n / g) + (i < n % g ? 1 : 0);
+      out.push(a.slice(k, k + size).map(function (x) { return x.id; }));
+      k += size;
+    }
+    return out;
+  }
+  /* 書き出しの「- 話を聞いた: 10/18（最後まで聞けた）「何の話」」 */
+  function talkText(talks) {
+    return (talks || []).map(function (t) { return mdDay(t.day) + (t.listened ? '（最後まで聞けた）' : '') + (t.topic ? '「' + oneLine(t.topic) + '」' : ''); }).join('、');
+  }
+  /* 通知表の「話を聞いた」で数える生徒：見本でない生徒がいればその人たち、いなければ見本（頼みごとと同じ考え方） */
+  function talkStudents(students) { var own = (students || []).filter(function (s) { return !s.example; }); return own.length ? own : (students || []); }
   function goodBoards(boards) {
     return (boards || []).filter(function (b) { return Object.keys(b.sweep || {}).some(function (sid) { var e = b.sweep[sid]; return !!(e && e.st === 'done' && e.good); }); });
   }
@@ -1824,20 +1934,21 @@ var SekigaeEngine = (function () {
     students.forEach(function (s) { byId[s.id] = s; });
     var own = boards.filter(function (b) { return !b.example; }), use = own.length ? own : boards, per = periods(boards);
     var L = [];
-    L.push('# マネジメント教室の書き出し（' + ymd(now) + '）', '');
+    L.push('# マネジメント教室の書き出し（' + dayKey(now) + '）', '');
     L.push('- 生徒は「あなたから見たその人」の仮の像。本人の評価ではない');
     L.push('- 数字は、頼みごとの文を言葉の一覧で機械的に数えた目安', '');
     L.push('## 自分の癖' + (!own.length && boards.length ? '（見本の黒板から）' : ''));
     if (!use.length) L.push('- まだ黒板がない');
     else {
       var fs = use.map(function (b) { return readBoard(b.text); });
-      var rc = reportCard(use.map(function (b) { return scoreSaved(b, byId); }));
+      // 通知表の位置（「支える」には、直近7日の「話を聞いた」を小さく足す）
+      var rc = withTalkBonus(reportCard(use.map(function (b) { return scoreSaved(b, byId); })), talkSummary(talkStudents(students), dayKey(now)));
       var mc = missingCounts(fs), tv = topVague(use.map(function (b) { return b.text; }), 5), n = use.length, cc = channelCounts(use, boards);
       L.push('- 頼みごと: ' + n + ' 件');
       L.push('- 伝え方の内訳: 黒板 ' + cc.board + '・お便り ' + cc.letter + '・放送 ' + cc.broadcast + '（放送だけで終わった頼み ' + cc.castOnly + '）');
       var bd = busiestDay(use);
       L.push('- 1日の頼み: いちばん多い日 ' + bd.n + ' 本（' + bd.key + '）');
-      L.push('- 通知表の位置: ' + rc.quad.label + '（求める ' + fmt(rc.demand) + '・支える ' + fmt(rc.support) + '）');
+      L.push('- 通知表の位置: ' + rc.quad.label + '（求める ' + fmt(rc.demand) + '・支える ' + fmt(rc.support) + (rc.bonus ? '。支えるには「話を聞いた」の ' + fmt(rc.bonus) + ' を含む' : '') + '）');
       L.push('- よく使うあいまいな言葉: ' + (tv.length ? tv.map(function (x) { return x.word + '（' + x.n + '回）'; }).join('、') : 'なし'));
       L.push('- 足りなかったもの（' + n + ' 件のうち）: 目的 ' + mc.purpose + '・完成の目安 ' + mc.goal + '・期限かかける時間 ' + mc.when +
         '・見せる日・来る日・声をかける日 ' + mc.checkpoint + '・聞いていい目安 ' + mc.askOk + '・決めていい範囲 ' + mc.decide);
@@ -1853,7 +1964,7 @@ var SekigaeEngine = (function () {
       L.push('- うまくいった頼み方（掃除の時間で選んだもの）:' + (good.length ? '' : ' まだない'));
       good.forEach(function (b) {
         var who = Object.keys(b.sweep).filter(function (sid) { var e = b.sweep[sid]; return e && e.st === 'done' && e.good && byId[sid]; }).map(function (sid) { return studentName(byId[sid]) + 'さん'; });
-        L.push('  - ' + ymd(b.createdAt) + ' ' + lessonLabel(b, per[b.id]) + '「' + oneLine(b.text) + '」' + (who.length ? '（' + who.join('、') + '）' : ''));
+        L.push('  - ' + dayKey(b.createdAt) + ' ' + lessonLabel(b, per[b.id]) + '「' + oneLine(b.text) + '」' + (who.length ? '（' + who.join('、') + '）' : ''));
       });
     }
     L.push('', '## 生徒ごと');
@@ -1864,6 +1975,7 @@ var SekigaeEngine = (function () {
       QUESTIONS.forEach(function (q) { L.push('- ' + q.short + ': ' + q.opts[a[q.key]]); });
       L.push('- 本人から聞いたこと: ' + (notes.heard ? oneLine(notes.heard) : '（まだない）'));
       L.push('- 気づいたこと: ' + (notes.noticed ? oneLine(notes.noticed) : '（まだない）'));
+      L.push('- 話を聞いた: ' + ((s.talks || []).length ? talkText(s.talks) : '（まだない）'));
       var hist = s.history || [];
       if (hist.length) {
         L.push('- カードの書き直し:');
@@ -1871,17 +1983,17 @@ var SekigaeEngine = (function () {
           var prev = normAnswers(h.answers), next = normAnswers(i + 1 < hist.length ? hist[i + 1].answers : a);
           var ch = QUESTIONS.filter(function (q) { return prev[q.key] !== next[q.key]; })
             .map(function (q) { return q.short + '「' + q.opts[prev[q.key]] + '」→「' + q.opts[next[q.key]] + '」'; });
-          L.push('  - ' + ymd(h.at) + ': ' + (ch.length ? ch.join('、') : '答えは同じ'));
+          L.push('  - ' + dayKey(h.at) + ': ' + (ch.length ? ch.join('、') : '答えは同じ'));
         });
       }
       // 日の順、同じ日は時限の順（時間割に入らない頼みはその日の最後）
       var mine = boards.map(function (b, i) { return { b: b, i: i }; }).filter(function (x) { return (x.b.targets || []).indexOf(s.id) >= 0; })
-        .sort(function (x, y) { var dx = ymd(x.b.createdAt), dy = ymd(y.b.createdAt); return (dx < dy ? -1 : dx > dy ? 1 : 0) || ((per[pkey(x.b, x.i)] || 99) - (per[pkey(y.b, y.i)] || 99)) || byTime(x, y); })
+        .sort(function (x, y) { var dx = dayKey(x.b.createdAt), dy = dayKey(y.b.createdAt); return (dx < dy ? -1 : dx > dy ? 1 : 0) || ((per[pkey(x.b, x.i)] || 99) - (per[pkey(y.b, y.i)] || 99)) || byTime(x, y); })
         .map(function (x) { return x.b; });
       L.push('- 頼みごとと提出物:' + (mine.length ? '' : '（まだない）'));
       mine.forEach(function (b) {
         var r = (b.results || {})[s.id] || {};
-        L.push('  - ' + ymd(b.createdAt) + ' ' + lessonLabel(b, per[b.id]) + (b.example ? '（見本）' : '') + '「' + oneLine(b.text) + '」' + (b.firstTime && b.firstTime[s.id] ? '（初めての作業）' : '') +
+        L.push('  - ' + dayKey(b.createdAt) + ' ' + lessonLabel(b, per[b.id]) + (b.example ? '（見本）' : '') + '「' + oneLine(b.text) + '」' + (b.firstTime && b.firstTime[s.id] ? '（初めての作業）' : '') +
           ' → ' + (r.submitted && r.kind && RESULT_BY[r.kind] ? '提出: ' + RESULT_BY[r.kind].label
             : b.closedAt ? '未提出のまま締めた' + (r.kind && RESULT_BY[r.kind] ? '（選んでいた記録: ' + RESULT_BY[r.kind].label + '）' : '')
             : r.kind && RESULT_BY[r.kind] ? RESULT_BY[r.kind].label + '（提出の前）' : 'まだ記録なし') +
@@ -1898,12 +2010,14 @@ var SekigaeEngine = (function () {
     normAnswers: normAnswers, effectiveFam: effectiveFam, seatOf: seatOf, blurPx: blurPx, fitFor: fitFor,
     scoreBoard: scoreBoard, scoreSaved: scoreSaved, boardFams: boardFams, quadrant: quadrant, reportCard: reportCard,
     topVague: topVague, missingCounts: missingCounts, suspects: suspects, presentFeatures: presentFeatures,
-    crowd: crowd, needsReview: needsReview, exportMarkdown: exportMarkdown, ymd: ymd, studentName: studentName,
+    crowd: crowd, needsReview: needsReview, exportMarkdown: exportMarkdown, ymd: ymd, dayKey: dayKey, DAY_START_HOUR: DAY_START_HOUR, studentName: studentName,
     normChannel: normChannel, normSubject: normSubject, lessonMeta: lessonMeta, channelLabel: channelLabel, lessonLabel: lessonLabel,
     dayList: dayList, periods: periods, dayKeys: dayKeys, sameText: sameText, hasLetterCopy: hasLetterCopy, channelCounts: channelCounts,
     errandCount: errandCount, interrupted: interrupted, dayView: dayView, busiestDay: busiestDay,
     PERIOD_MAX: PERIOD_MAX, validPeriod: validPeriod, freePeriods: freePeriods,
     SWEEP_ST: SWEEP_ST, SWEEP_NEXT_MAX: SWEEP_NEXT_MAX, markSweep: markSweep, sweepList: sweepList, sweepCtx: sweepCtx, sweepVoice: sweepVoice,
+    TALK_MAX: TALK_MAX, TALK_TOPIC_MAX: TALK_TOPIC_MAX, TALK_VOICE: TALK_VOICE, talkOn: talkOn, setTalk: setTalk, dropTalk: dropTalk, talkSummary: talkSummary,
+    withTalkBonus: withTalkBonus, talkStudents: talkStudents, lunchGroups: lunchGroups, talkText: talkText,
     sweepSummary: sweepSummary, carryOver: carryOver, sweepLogText: sweepLogText, goodBoards: goodBoards, logOn: logOn, logBefore: logBefore, mdDay: mdDay,
     QUESTIONS: QUESTIONS, RESULTS: RESULTS, RESULT_BY: RESULT_BY, SEAT_LABEL: SEAT_LABEL, DAY: DAY,
     CHANNELS: CHANNELS, CHANNEL_BY: CHANNEL_BY, SUBJECTS: SUBJECTS, SUBJECT_MAX: SUBJECT_MAX
@@ -1957,7 +2071,8 @@ function kidSVG(s) {
 }
 /* 空いている席：椅子（上から） */
 const CHAIR_SVG = '<svg viewBox="0 0 64 52" focusable="false"><rect class="s-chair" x="19" y="15" width="26" height="22" rx="5"/><rect class="s-chair" x="17" y="40" width="30" height="7" rx="3.5"/></svg>';
-function dateLabel(ts) { const d = new Date(ts); return (d.getMonth() + 1) + '月' + d.getDate() + '日（' + WD[d.getDay()] + '）'; }
+/* 日付の表示も午前3時で切り替える（0:00〜2:59 は前の日の日付） */
+function dateLabel(ts) { const d = new Date(Number(ts) - E.DAY_START_HOUR * 3600000); return (d.getMonth() + 1) + '月' + d.getDate() + '日（' + WD[d.getDay()] + '）'; }
 function focusEl(el) { if (!el) return; try { el.focus({ preventScroll: true }); } catch (e) { try { el.focus(); } catch (e2) { /* 無ければよい */ } } }
 
 /* ===== 状態（この端末の localStorage。読めなくても見本で動く） ===== */
@@ -1967,8 +2082,8 @@ function defaultState() {
   return {
     v: 1,
     students: [
-      { id: 'ex-s1', name: 'はじめての生徒', example: true, color: 1, col: 2, answers: { q1: 'A', q2: 'C', q3: 'B', q4: 'C', q5: 'C' }, notes: { heard: '', noticed: '' }, history: [], createdAt: t, updatedAt: t },
-      { id: 'ex-s2', name: '慣れた生徒', example: true, color: 2, col: 1, answers: { q1: 'C', q2: 'A', q3: 'A', q4: 'A', q5: 'A' }, notes: { heard: '', noticed: '' }, history: [], createdAt: t, updatedAt: t }
+      { id: 'ex-s1', name: 'はじめての生徒', example: true, color: 1, col: 2, answers: { q1: 'A', q2: 'C', q3: 'B', q4: 'C', q5: 'C' }, notes: { heard: '', noticed: '' }, history: [], talks: [], createdAt: t, updatedAt: t },
+      { id: 'ex-s2', name: '慣れた生徒', example: true, color: 2, col: 1, answers: { q1: 'C', q2: 'A', q3: 'A', q4: 'A', q5: 'A' }, notes: { heard: '', noticed: '' }, history: [], talks: [], createdAt: t, updatedAt: t }
     ],
     /* 見本の時間割：1限 授業（黒板）・2限 手伝い（お便り）・3限 雑務（放送）。出した順が時限になるので、時刻を1ミリ秒ずつずらす */
     boards: [
@@ -1977,6 +2092,7 @@ function defaultState() {
       { id: 'ex-b3', text: 'あとで部屋の片づけ、お願いね', channel: 'broadcast', subject: '雑務', period: 3, example: true, createdAt: t + 2, updatedAt: t + 2, targets: ['ex-s1', 'ex-s2'], firstTime: {}, results: {} }
     ],
     currentId: 'ex-b1',
+    lunch: null,
     ui: { tab: 'room' }
   };
 }
@@ -1995,6 +2111,14 @@ function normSweep(raw, seenS) {
   });
   return out;
 }
+/* 「話を聞いた」の記録を読む：1日に1つ（同じ日はあとのもの）・何の話は40字まで・日の順に30件まで */
+function normTalks(raw) {
+  const by = {};
+  (Array.isArray(raw) ? raw : []).forEach((t) => {
+    if (t && /^\d{4}-\d{2}-\d{2}$/.test(String(t.day))) by[t.day] = { day: String(t.day), at: Number(t.at) || 0, topic: cut(String(t.topic || '').trim(), E.TALK_TOPIC_MAX), listened: !!t.listened };
+  });
+  return Object.keys(by).sort().map((k) => by[k]).slice(-E.TALK_MAX);
+}
 function normalize(raw) {
   if (!raw || typeof raw !== 'object' || raw.v !== 1) return null;
   const out = { v: 1, students: [], boards: [], currentId: '', ui: { tab: 'room' } };
@@ -2010,6 +2134,7 @@ function normalize(raw) {
       answers: E.normAnswers(s.answers),
       notes: { heard: String((s.notes && s.notes.heard) || '').slice(0, 300), noticed: String((s.notes && s.notes.noticed) || '').slice(0, 300) },
       history: (Array.isArray(s.history) ? s.history : []).filter((h) => h && h.answers).map((h) => ({ at: Number(h.at) || 0, answers: E.normAnswers(h.answers) })).slice(-30),
+      talks: normTalks(s.talks),   // 「話を聞いた」の記録（v0.3 第3段）。古いデータには無いので空
       createdAt: Number(s.createdAt) || Date.now(), updatedAt: Number(s.updatedAt) || Number(s.createdAt) || Date.now()
     });
   });
@@ -2039,6 +2164,9 @@ function normalize(raw) {
   });
   const per = E.periods(out.boards);
   out.boards.forEach((b) => { b.period = per[b.id] || 0; });
+  // 昼休み（v0.3 第3段）：保存する。次の日（午前3時の区切り）には授業に戻っている（日が違えば昼休みではない）
+  out.lunch = raw.lunch && /^\d{4}-\d{2}-\d{2}$/.test(String(raw.lunch.day)) ? { day: String(raw.lunch.day), at: Number(raw.lunch.at) || 0 } : null;
+  if (out.lunch && out.lunch.day !== E.dayKey(Date.now())) out.lunch = null;
   out.currentId = out.boards.some((b) => b.id === raw.currentId) ? String(raw.currentId) : (out.boards.length ? latestBoard(out.boards).id : '');
   if (raw.ui && TABS.indexOf(raw.ui.tab) >= 0) out.ui.tab = raw.ui.tab;
   return out;
@@ -2136,7 +2264,7 @@ function syncInert() {
   const top = layers[layers.length - 1] || '', open = layers.length > 0;
   $('app').inert = open;
   $('bar').inert = open;
-  ['view', 'sheet-write', 'sheet-sweep', 'sheet-card', 'sheet-help', 'confirm'].forEach((id) => { $(id).inert = open && layers.indexOf(id) >= 0 && id !== top; });
+  ['view', 'sheet-write', 'sheet-sweep', 'sheet-talk', 'sheet-card', 'sheet-help', 'confirm'].forEach((id) => { $(id).inert = open && layers.indexOf(id) >= 0 && id !== top; });
   document.documentElement.classList.toggle('is-locked', open);
 }
 function pushLayer(id) { const i = layers.indexOf(id); if (i >= 0) layers.splice(i, 1); layers.push(id); syncInert(); }
@@ -2228,7 +2356,7 @@ const CH_ICON = {
   letter: '<svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><path class="i-paper" d="M4.5 .8 H12.5 L15.5 3.8 V13.2 H4.5 Z"/><path class="i-ink" d="M6.8 5.5 H13.2 M6.8 8 H13.2 M6.8 10.5 H11"/></svg>',
   broadcast: '<svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><rect class="i-spk" x="1" y="2.5" width="10" height="9" rx="1.6"/><circle class="i-grille" cx="6" cy="7" r="2.3"/><path class="i-wave" d="M13.5 4.5 Q15.5 7 13.5 9.5 M16 2.5 Q19.5 7 16 11.5"/></svg>'
 };
-const todayKey = () => E.ymd(Date.now());
+const todayKey = () => E.dayKey(Date.now());   // 「今日」も午前3時で切り替わる
 function keyToTs(k) { const p = String(k).split('-').map(Number); return new Date(p[0], p[1] - 1, p[2], 12).getTime(); }
 const cssEsc = (s) => (window.CSS && CSS.escape ? CSS.escape(String(s)) : String(s).replace(/["\\]/g, '\\$&'));
 /* 「2限 手伝い」（時限と科目）と「2限 手伝い（お便り）」 */
@@ -2264,7 +2392,9 @@ function writeSubjectValue() {
 }
 function renderRoomBoard() {
   if (sweepUI) { renderSweepBoard(); return; }   // 掃除の時間は、黒板に1枚ずつ出す
-  $('room-board').classList.remove('is-sweeping');
+  if (lunchOn() && writePreview == null) { renderLunchBoard(); return; }   // 昼休みは、黒板に「昼休み」とだけ
+  $('room-board').classList.remove('is-sweeping', 'is-lunch');
+  $('room-lunch-end').hidden = true;
   $('room-memos').hidden = true;
   const b = currentBoard(), writing = writePreview != null, previewNew = writing && writeMode === 'new';
   const ch = writing ? writeChannel : (b ? b.channel : 'board'), text = writing ? writePreview : (b ? b.text : '');
@@ -2293,6 +2423,23 @@ function renderRoomBoard() {
   else if (!castNow || sayBid !== b.id) stopSay();
 }
 /* スピーカーの吹き出し：draft＝書いている途中／play＝出て3秒ほどで薄れて消える／stay＝動きを減らす設定（出したまま） */
+/* 昼休みの黒板：「昼休み」とだけ。下に「昼休み中（12:10から）」と「授業にもどる」 */
+function renderLunchBoard() {
+  const chalk = $('room-chalk');
+  $('room-board').classList.remove('is-sweeping');
+  $('room-board').classList.add('is-lunch');
+  chalk.classList.remove('is-empty', 'is-mid', 'is-long');
+  chalk.textContent = '昼休み';
+  $('room-date').textContent = dateLabel(Date.now());
+  $('room-note').textContent = '昼休み中（' + hhmm(state.lunch.at) + 'から）';
+  $('room-edit').hidden = true;
+  $('room-copy').hidden = true;
+  $('room-lunch-end').hidden = false;
+  $('room-print').hidden = true;
+  $('room-speaker').disabled = true;
+  $('room-memos').hidden = true;
+  stopSay();
+}
 function stopSay() {
   clearTimeout(sayTimer);
   sayBid = '';
@@ -2348,7 +2495,13 @@ function renderTimetable() {
   $('tt-title').textContent = isToday ? '今日の時間割' : 'この日の時間割';
   $('tt-date').textContent = dateLabel(keyToTs(day));
   $('tt-list').innerHTML = TT_SLOTS.map((slot) => {
-    if (slot === 'lunch') return '<li class="tt-wide"><div class="tt-row tt-break" data-slot="lunch">昼休み</div></li>';
+    if (slot === 'lunch') {
+      // 昼休みの行＝昼休みの入口（今日だけ押せる。1日に何度でも）。昼休み中は「昼休み中（12:10から）」で、押すと授業にもどる
+      if (!isToday) return '<li class="tt-wide"><div class="tt-row tt-break" data-slot="lunch">昼休み</div></li>';
+      const on = lunchOn(), label = on ? '昼休み中（' + hhmm(state.lunch.at) + 'から）' : '昼休み';
+      return '<li class="tt-wide"><button class="tt-row tt-break tt-lunch' + (on ? ' is-on' : '') + '" type="button" id="tt-lunch" data-slot="lunch"' + (on ? ' aria-current="true"' : '') +
+        ' aria-label="' + label + (on ? '。押すと授業にもどる' : '。押すと昼休みにする') + '">' + label + '</button></li>';
+    }
     if (slot === 'sweep') {
       // 掃除の行＝掃除の時間の入口（今日だけ。今日の頼みか前の日からの続きが1つ以上あるとき押せる）
       if (!isToday) return '<li class="tt-wide"><div class="tt-row tt-break" data-slot="sweep">掃除</div></li>';
@@ -2371,7 +2524,7 @@ function renderTimetable() {
 /* 前の日からの続き（時間割の枠の外・下）：1件1行。押すとその頼みを黒板に出す（時間割は今日のまま） */
 function carryLine(c) {
   const b = c.board, p = c.pairs[0], s = student(p.sid);
-  return E.mdDay(E.ymd(b.createdAt)) + ' ' + E.lessonLabel(b, c.period) + '・' + (s ? s.name + 'さん ' : '') + E.SWEEP_ST[p.st] +
+  return E.mdDay(E.dayKey(b.createdAt)) + ' ' + E.lessonLabel(b, c.period) + '・' + (s ? s.name + 'さん ' : '') + E.SWEEP_ST[p.st] +
     (p.next ? '「' + p.next + '」' : '') + (c.pairs.length > 1 ? ' ほか' + (c.pairs.length - 1) + '人' : '');
 }
 function renderCarry(list) {
@@ -2388,6 +2541,7 @@ $('tt-carry').addEventListener('click', (e) => {
   ttDay = '';
   commit();
   focusEl(document.querySelector('#tt-carry .tt-carry-row[data-bid="' + cssEsc(b.id) + '"]'));
+  if (lunchOn()) { toast('いまは昼休み。黒板で見るときは「授業にもどる」を押してね'); return; }
   announce('前の日からの続き：' + E.lessonLabel(b, E.periods(state.boards)[b.id]) + 'を黒板に出した');
   if (b.channel === 'broadcast') playBroadcast();
 });
@@ -2405,9 +2559,10 @@ function selectLesson(bid, focusSel) {
   const b = board(bid);
   if (!b) return;
   state.currentId = b.id;
-  ttDay = E.ymd(b.createdAt) === todayKey() ? '' : E.ymd(b.createdAt);
+  ttDay = E.dayKey(b.createdAt) === todayKey() ? '' : E.dayKey(b.createdAt);
   commit();
   if (focusSel) focusEl(document.querySelector(focusSel + ' .tt-row[data-bid="' + cssEsc(b.id) + '"]'));
+  if (lunchOn()) { toast('いまは昼休み。黒板で見るときは「授業にもどる」を押してね'); return; }   // 昼休みの間、黒板は「昼休み」のまま
   if (b.channel === 'broadcast') playBroadcast();
 }
 $('tt-list').addEventListener('click', (e) => {
@@ -2416,6 +2571,7 @@ $('tt-list').addEventListener('click', (e) => {
   if (r.dataset.bid) selectLesson(r.dataset.bid, '#tt-list');
   else if (r.dataset.period) openWrite('new', r, { period: Number(r.dataset.period) });
   else if (r.id === 'tt-sweep' && !r.disabled) openSweep(r);
+  else if (r.id === 'tt-lunch') { setLunch(!lunchOn()); focusEl($('tt-lunch')); }
 });
 function deskHTML(s, b, seat) {
   const first = !!(b && b.firstTime[s.id]), off = !!(b && b.targets.indexOf(s.id) < 0);
@@ -2447,19 +2603,84 @@ function placeRow(list, nc) {
 function renderRoom() {
   renderRoomBoard();
   renderTimetable();
-  const b = currentBoard(), groups = { front: [], middle: [], back: [] }, nc = deskCols();
+  const b = currentBoard(), groups = { front: [], middle: [], back: [] }, nc = deskCols(), lunch = lunchOn(), spots = [];
   state.students.forEach((s) => groups[E.seatOf(s.answers.q1)].push(s));
   let html = '';
   ['front', 'middle', 'back'].forEach((seat) => {
     html += '<div class="row" data-seat="' + seat + '"><p class="row-label">' + E.SEAT_LABEL[seat] + '</p><div class="row-desks">';
-    placeRow(groups[seat], nc).forEach((s) => {
-      html += s ? deskHTML(s, b, seat) : '<div class="desk is-empty" aria-hidden="true"><span class="desk-top"></span><span class="kid">' + CHAIR_SVG + '</span></div>';
+    placeRow(groups[seat], nc).forEach((s, i) => {
+      if (s) spots.push({ id: s.id, row: seat, col: i });
+      // 昼休み：生徒は席を離れている（机には名札と椅子だけ）
+      html += s ? (lunch ? awayDeskHTML(s) : deskHTML(s, b, seat)) : '<div class="desk is-empty" aria-hidden="true"><span class="desk-top"></span><span class="kid">' + CHAIR_SVG + '</span></div>';
     });
     html += '</div></div>';
   });
   $('room-rows').innerHTML = html;
   $('room-ex').hidden = !hasExamples();
+  /* 昼休みの輪（近くの席どうしで2〜3人ずつ）・先生は教卓で休む・「頼みごとを出す」は押せない形 */
+  $('room-lunch').hidden = !lunch;
+  $('room-lunch-note').hidden = !lunch;
+  $('room-lunch').innerHTML = lunch ? E.lunchGroups(spots).map(lunchGroupHTML).join('') : '';
+  $('room-teacher').innerHTML = teacherSVG(lunch ? 'soft' : 'normal', false);
+  $('room-tea').hidden = !lunch;
+  $('btn-write').classList.toggle('is-off', lunch);
+  if (lunch) $('btn-write').setAttribute('aria-disabled', 'true'); else $('btn-write').removeAttribute('aria-disabled');
 }
+/* ===== 昼休み（保存する。次の日＝午前3時の区切りには授業に戻っている） ===== */
+const LUNCH_MSG = '昼休みのあとにしよう（昼休みに頼みごとをすると、休めなかったかも）';
+const lunchOn = () => !!(state.lunch && state.lunch.day === todayKey());
+function hhmm(ts) { const d = new Date(ts); return d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); }
+function awayDeskHTML(s) {
+  return '<div class="desk is-away" style="--c: var(--k' + s.color + ')" aria-hidden="true"><span class="desk-top"><span class="desk-tag"><span class="tag-k">あなたから見た</span><span class="tag-n">' +
+    esc(s.name) + 'さん</span></span></span><span class="kid">' + CHAIR_SVG + '</span></div>';
+}
+/* 輪の中の立ち位置（168×168 の中。テーブルを向く） */
+const LUNCH_SPOTS = {
+  1: [{ x: 84, y: 124, r: 0 }],
+  2: [{ x: 34, y: 70, r: 90 }, { x: 134, y: 70, r: -90 }],
+  3: [{ x: 84, y: 24, r: 180, top: true }, { x: 128, y: 96, r: -60 }, { x: 40, y: 96, r: 60 }]
+};
+function lunchGroupHTML(ids) {
+  const sp = LUNCH_SPOTS[ids.length] || LUNCH_SPOTS[3], day = todayKey();
+  return '<div class="lunch-group" data-n="' + ids.length + '"><span class="lunch-rug" aria-hidden="true"></span><span class="lunch-table" aria-hidden="true"></span>' + ids.map((id, i) => {
+    const s = student(id), p = sp[i % sp.length], talked = !!E.talkOn(s, day);
+    return '<button class="lunch-kid' + (p.top ? ' is-top' : '') + '" type="button" data-sid="' + esc(id) + '" style="--x:' + p.x + 'px;--y:' + p.y + 'px;--rot:' + p.r + 'deg;--c: var(--k' + s.color + ')" ' +
+      'aria-label="' + esc(s.name + 'さん（昼休み）' + (talked ? '・今日は「話を聞いた」を記録した' : '') + '。押すと「話を聞いた」を記録する') + '">' +
+      '<span class="kid" data-rot="' + p.r + '" aria-hidden="true">' + kidSVG(s) + '</span><span class="lk-name" aria-hidden="true">' + esc(s.name) + 'さん</span>' +
+      (talked ? '<span class="lk-talk" aria-hidden="true">話した</span>' : '') + '</button>';
+  }).join('') + '</div>';
+}
+/* ふわっと動く：前の位置から今の位置へ（FLIP）。動きを減らす設定では動かずに並びだけ変わる */
+function kidRects() {
+  const m = {};
+  document.querySelectorAll('#room-rows [data-sid] > .kid, #room-lunch [data-sid] > .kid').forEach((k) => { m[k.parentElement.dataset.sid] = { r: k.getBoundingClientRect(), rot: Number(k.dataset.rot || 0) }; });
+  return m;
+}
+function flipKids(before) {
+  if (!motionOK()) return;
+  document.querySelectorAll('#room-rows [data-sid] > .kid, #room-lunch [data-sid] > .kid').forEach((k) => {
+    const o = before[k.parentElement.dataset.sid];
+    if (!o) return;
+    const r = k.getBoundingClientRect(), dx = o.r.left + o.r.width / 2 - (r.left + r.width / 2), dy = o.r.top + o.r.height / 2 - (r.top + r.height / 2);
+    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+    k.style.transition = 'none';
+    k.style.transform = 'translate(' + Math.round(dx) + 'px, ' + Math.round(dy) + 'px) rotate(' + o.rot + 'deg)';
+    void k.offsetWidth;
+    k.style.transition = 'transform .7s cubic-bezier(.3, .7, .4, 1)';
+    k.style.transform = '';
+    setTimeout(() => { k.style.transition = ''; }, 750);
+  });
+}
+function setLunch(on) {
+  const before = kidRects();
+  state.lunch = on ? { day: todayKey(), at: Date.now() } : null;
+  save();
+  renderRoom();
+  flipKids(before);
+  toast(on ? '昼休みにしたよ。生徒は近くの席どうしで集まっている' : '授業にもどったよ。生徒は席にもどった');
+}
+$('room-lunch-end').addEventListener('click', () => { setLunch(false); focusEl($('tt-lunch')); });
+$('room-lunch').addEventListener('click', (e) => { const k = e.target.closest('.lunch-kid'); if (k) openTalk(k.dataset.sid, k); });
 try { if (wideMQ.addEventListener) wideMQ.addEventListener('change', () => { if (state) renderRoom(); }); else if (wideMQ.addListener) wideMQ.addListener(() => { if (state) renderRoom(); }); } catch (e) { /* 無くても動く */ }
 /* 新しく来た生徒の席：同じ段で空いている左右の席から、くじで選ぶ */
 function freeCol(seat) {
@@ -2560,9 +2781,10 @@ function renderWriteTargets() {
 function updateWriteCount() { $('write-count').textContent = $('write-text').value.length + '/' + MAX_TEXT; }
 function openWrite(mode, opener, opts) {
   opts = opts || {};
+  if (mode !== 'edit' && lunchOn()) { toast(LUNCH_MSG); return false; }   // 昼休みの間は、頼みごとを出さない
   const b = currentBoard(), editing = mode === 'edit' && !!b;
   // 時限：新しい頼みは今日の空き時限（押した時限 → 書きかけの時限 → いちばん早い空き）。6つ全部うまっていたら開かない
-  const free = freePeriodsOn(editing ? E.ymd(b.createdAt) : todayKey(), editing ? b.id : null);
+  const free = freePeriodsOn(editing ? E.dayKey(b.createdAt) : todayKey(), editing ? b.id : null);
   if (!editing && !free.length) { toast(FULL_MSG); return false; }
   const pick = (p) => (p && free.indexOf(p) >= 0 ? p : 0);
   const period = editing ? (E.periods(state.boards)[b.id] || 0) : (pick(opts.period) || pick(writeDraftMeta && writeDraftMeta.period) || free[0]);
@@ -2637,7 +2859,7 @@ $('write-form').addEventListener('submit', (e) => {
   targets.forEach((id) => { if (writeFirst.has(id)) firstTime[id] = true; });
   const now = Date.now(), b = currentBoard(), channel = writeChannel, subject = writeSubjectValue();
   // 時限：選んだ時限がその日に空いているときだけ（新しい頼みは今日。うまっていたら出さない）
-  const editing = writeMode === 'edit' && !!b, free = freePeriodsOn(editing ? E.ymd(b.createdAt) : todayKey(), editing ? b.id : null);
+  const editing = writeMode === 'edit' && !!b, free = freePeriodsOn(editing ? E.dayKey(b.createdAt) : todayKey(), editing ? b.id : null);
   let period = writePeriodValue();
   if (free.indexOf(period) < 0) period = editing ? 0 : (free[0] || 0);
   if (!editing && !period) { toast(FULL_MSG); return; }
@@ -2699,10 +2921,12 @@ function onSweepClosed() {
 function renderSweepBoard() {
   const it = sweepItem(), chalk = $('room-chalk');
   $('room-board').classList.add('is-sweeping');
+  $('room-board').classList.remove('is-lunch');
+  $('room-lunch-end').hidden = true;
   chalk.classList.remove('is-empty', 'is-mid', 'is-long');
   if (it) {
     const b = it.board;
-    chalk.innerHTML = '<span class="chalk-note">' + esc((it.carry ? E.mdDay(E.ymd(b.createdAt)) + ' ' : '') + E.lessonLabel(b, it.period)) +
+    chalk.innerHTML = '<span class="chalk-note">' + esc((it.carry ? E.mdDay(E.dayKey(b.createdAt)) + ' ' : '') + E.lessonLabel(b, it.period)) +
       (it.carry ? '<span class="sw-carry-mark">前の日からの続き</span>' : '') + '</span>' + esc(b.text);
     sizeClass(chalk, b.text);
     $('room-date').textContent = dateLabel(b.createdAt);
@@ -2846,6 +3070,47 @@ $('sweep-next').addEventListener('click', () => {
   sweepTimer = setTimeout(go, 950);
 });
 
+/* ===== 「話を聞いた（雑談）」の記録（1日に1人1回。同じ日はあとから書きかえ・消せる） ===== */
+let talkSid = null;
+function openTalk(sid, opener) {
+  const s = student(sid);
+  if (!s) return;
+  talkSid = s.id;
+  const t = E.talkOn(s, todayKey());
+  $('talk-who').innerHTML = 'あなたから見た <b>' + esc(s.name) + 'さん</b>' + (s.example ? ' <span class="tag">見本</span>' : '');
+  $('talk-state').hidden = !t;
+  $('talk-state').textContent = t ? '今日はもう記録してある（' + hhmm(t.at) + '）。書きかえるか、消せる' : '';
+  $('talk-topic').value = t ? t.topic : '';
+  $('talk-listened').checked = !!(t && t.listened);
+  $('talk-submit').textContent = t ? '書きかえる' : '記録する';
+  $('talk-del-wrap').hidden = !t;
+  openSheet('sheet-talk', { opener: opener, focus: 'talk-title' });
+}
+const focusKid = (sid) => focusEl(document.querySelector('#room-lunch .lunch-kid[data-sid="' + cssEsc(sid) + '"]') || $('tt-lunch'));
+$('talk-form').addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type === 'text') e.preventDefault(); });
+$('talk-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const s = student(talkSid);
+  if (!s) return;
+  const had = !!E.talkOn(s, todayKey());
+  s.talks = E.setTalk(s.talks, todayKey(), Date.now(), $('talk-topic').value, $('talk-listened').checked);
+  closeSheet();
+  commit();
+  focusKid(s.id);
+  toast(had ? '「話を聞いた」を書きかえたよ' : s.name + 'さんの「話を聞いた」を記録したよ');
+});
+$('talk-del').addEventListener('click', () => {
+  const s = student(talkSid);
+  if (!s) return;
+  askConfirm('今日の「話を聞いた」の記録を消しますか？', s.name + 'さんの、今日の記録が消えます。', '消す', () => {
+    s.talks = E.dropTalk(s.talks, todayKey());
+    closeSheet(true);
+    commit();
+    focusKid(s.id);
+    toast('今日の記録を消したよ');
+  });
+});
+
 /* ===== 生徒カード（迎える・直す。直すと前の答えは履歴に残る） ===== */
 let cardSid = null;
 function renderCardQs(ans) {
@@ -2867,7 +3132,7 @@ function renderHistory(s) {
   $('card-history-list').innerHTML = s.history.map((h, i) => {
     const next = i + 1 < s.history.length ? s.history[i + 1].answers : s.answers;
     const ch = E.QUESTIONS.filter((q) => h.answers[q.key] !== next[q.key]).map((q) => q.short + '：' + q.opts[h.answers[q.key]] + ' → ' + q.opts[next[q.key]]);
-    return '<li>' + esc(E.ymd(h.at)) + ' に書き直し：' + esc(ch.join('／') || '答えは同じ') + '</li>';
+    return '<li>' + esc(E.dayKey(h.at)) + ' に書き直し：' + esc(ch.join('／') || '答えは同じ') + '</li>';
   }).reverse().join('');
 }
 function openCard(sid, opener) {
@@ -2952,7 +3217,7 @@ function renderView(entering) {
   const s = student(viewSid), b = currentBoard();
   if (!s || !b) return;
   const f = E.readBoard(b.text), first = !!b.firstTime[s.id], off = b.targets.indexOf(s.id) < 0, ch = b.channel;
-  const per = E.periods(state.boards), day = E.ymd(b.createdAt), dayAll = E.dayList(state.boards, day);
+  const per = E.periods(state.boards), day = E.dayKey(b.createdAt), dayAll = E.dayList(state.boards, day);
   const v = E.studentView(f, s.answers, { firstTime: first, channel: ch, letterCopy: ch === 'broadcast' && E.hasLetterCopy(state.boards, b, off ? '' : s.id) });
   $('view-title').textContent = s.name + 'さんの目線';
   $('view-pills').innerHTML = '<span class="pill">' + esc(E.lessonLabel(b, per[b.id])) + '</span><span class="pill">' + v.seatLabel + 'から</span>' + (s.example ? '<span class="pill">見本</span>' : '') +
@@ -3002,8 +3267,11 @@ function renderView(entering) {
   $('view-voices').innerHTML = v.voices.map((x) => '<li class="voice' + (x.strong ? ' is-strong' : '') + (x.tone === 'pos' ? ' is-pos' : '') + '">' + esc(x.text) + '</li>').join('');
   /* その日この生徒に降ってきた頼み（ほかの時限も含む）から足す心の声（放送だけ → 3本以上 → 割り込み → 黒板とお便り。3つまで） */
   const dv = E.dayView(dayAll, b, s.id, state.boards);
-  $('view-day-voices').hidden = !dv.voices.length;
-  $('view-day-voices').innerHTML = dv.voices.map((x) => '<li class="voice is-day" data-key="' + x.key + '"><span class="voice-k">今日の頼みから</span>' + esc(x.text) + '</li>').join('');
+  // その日に「話を聞いた」の記録があれば、「昼休みから」の声を弱く1つだけ
+  const talk = E.talkOn(s, day);
+  $('view-day-voices').hidden = !(dv.voices.length || talk);
+  $('view-day-voices').innerHTML = dv.voices.map((x) => '<li class="voice is-day" data-key="' + x.key + '"><span class="voice-k">今日の頼みから</span>' + esc(x.text) + '</li>').join('') +
+    (talk ? '<li class="voice is-day is-talk" data-key="talk"><span class="voice-k">昼休みから</span>' + esc(E.TALK_VOICE) + '</li>' : '');
   $('view-ask').textContent = v.ask.text;
   /* 足すとよいもの：頼みごとのもの（5つまで）の後ろに、その日の心の声のものを足す（全部で6つまで） */
   const chips = v.chips.concat(dv.chips).slice(0, 6);
@@ -3062,6 +3330,7 @@ $('view-ask-copy').addEventListener('click', () => copyText($('view-ask').textCo
    伝え方はお便り、科目名・相手・初めての作業は元の放送と同じ。書きかけの頼みがあるときは上書きしない */
 const POINT_DRAFT = '（さっきの放送の要点）\n何を：◯◯\nいつまで：◯◯';
 function openPointLetter(b) {
+  if (lunchOn()) { toast(LUNCH_MSG); return; }
   if (!freePeriodsOn(todayKey()).length) { toast(FULL_MSG); return; }   // 今日の6限までうまっていたら、目線のまま知らせる
   if (writeDraft.trim()) {
     closeView(() => { openWrite('new', $('btn-write')); toast('書きかけの頼みごとがあるよ。出すか消してから、もう一度押してね'); });
@@ -3092,7 +3361,7 @@ $('view-tt-list').addEventListener('click', (e) => {
   const r = e.target.closest('.tt-row'), b = r && board(r.dataset.bid);
   if (!b || b.id === state.currentId) return;
   state.currentId = b.id;
-  ttDay = E.ymd(b.createdAt) === todayKey() ? '' : E.ymd(b.createdAt);
+  ttDay = E.dayKey(b.createdAt) === todayKey() ? '' : E.dayKey(b.createdAt);
   save();
   renderRoom();
   renderView(false);
@@ -3216,7 +3485,7 @@ function arcCardHTML(b, ids, per) {
 }
 function renderSubs() {
   // 新しい日が上。同じ日は時限の順（時間割に入らない頼みはその日の最後）
-  const ids = byId(), per = E.periods(state.boards), dk = (b) => E.ymd(b.createdAt);
+  const ids = byId(), per = E.periods(state.boards), dk = (b) => E.dayKey(b.createdAt);
   const all = state.boards.slice().sort((a, b) => (dk(a) < dk(b) ? 1 : dk(a) > dk(b) ? -1 : 0) || ((per[a.id] || 99) - (per[b.id] || 99)) || (a.createdAt - b.createdAt));
   const open = all.filter((b) => !b.closedAt), closed = all.filter((b) => b.closedAt).sort((a, b) => b.closedAt - a.closedAt);
   $('subs-list').innerHTML =
@@ -3298,7 +3567,7 @@ $('subs-list').addEventListener('click', (e) => {
     return;
   }
   if (act === 'reopen') { b.closedAt = 0; commit(); toast('開き直したよ。上の記録の途中に戻した'); return; }
-  const dayOf = (x) => (E.ymd(x.createdAt) === todayKey() ? '' : E.ymd(x.createdAt));
+  const dayOf = (x) => (E.dayKey(x.createdAt) === todayKey() ? '' : E.dayKey(x.createdAt));
   if (act === 'show') { state.currentId = b.id; ttDay = dayOf(b); commit(); toast('この頼みごとを黒板に出したよ'); }
   else if (act === 'edit') { state.currentId = b.id; ttDay = dayOf(b); save(); openWrite('edit', btn); }
   else if (act === 'del') {
@@ -3357,12 +3626,16 @@ function renderReport() {
   const own = state.boards.filter((b) => !b.example), use = own.length ? own : state.boards, ids = byId();
   let html = '<h2 class="pane-title">先生の通知表</h2><p class="machine">黒板の文から機械で数えた目安です（言葉の一覧で数えています。AI は使っていません）。点は黒板1枚ごと、顔の印はその平均です。目標の割合は出しません。</p>';
   if (!use.length) { $('report-body').innerHTML = html + '<p class="empty-state">まだ頼みごとがありません。頼みごとを出すと、ここに点が出ます。</p>'; return; }
-  const items = use.map((b) => ({ b: b, sc: E.scoreSaved(b, ids) })), rc = E.reportCard(items.map((it) => it.sc));
+  // 「支える」には、直近7日の「話を聞いた」を小さく足す（足す分は 0.1 まで・回数では増えない）
+  const ts = E.talkSummary(E.talkStudents(state.students), todayKey());
+  const items = use.map((b) => ({ b: b, sc: E.scoreSaved(b, ids) })), rc = E.withTalkBonus(E.reportCard(items.map((it) => it.sc)), ts);
   const top = E.topVague(use.map((b) => b.text), 5), cc = E.channelCounts(use, state.boards), bd = E.busiestDay(use);
   html += '<div class="report-grid"><div>' + mapSVG(items, rc) + '</div><div>' +
-    '<p class="pos">いまの位置' + (!own.length ? '（見本の黒板から）' : '') + '<b>' + esc(rc.quad.label) + '</b>求める ' + rc.demand.toFixed(2) + '・支える ' + rc.support.toFixed(2) + '（黒板 ' + rc.n + ' 枚の平均）</p>' +
+    '<p class="pos">いまの位置' + (!own.length ? '（見本の黒板から）' : '') + '<b>' + esc(rc.quad.label) + '</b>求める ' + rc.demand.toFixed(2) + '・支える ' + rc.support.toFixed(2) + '（黒板 ' + rc.n + ' 枚の平均' + (rc.bonus ? '。支えるには「話を聞いた」の ' + rc.bonus.toFixed(2) + ' を足した' : '') + '）</p>' +
     itemsHTML('求める（厳しさ）：そろっていた黒板の数', [['目的', 'purpose', 'd'], ['完成の目安', 'goal', 'd'], ['期限かかける時間', 'when', 'd'], ['言い切る（やわらげすぎがない）', 'firm', 'd'], ['見せる日・来る日・声をかける日', 'checkpoint', 'd']], items) +
     itemsHTML('支える（優しさ）：そろっていた黒板の数', [['慣れに合った手厚さ', 'fit', 's'], ['聞いていい目安', 'askOk', 's'], ['責める言葉・押しつけがない', 'noBlame', 's'], ['お礼か「認める一言」', 'reward', 's']], items) +
+    '<p class="cast-only" id="report-talk">話を聞いた（この7日）: <b>' + ts.n + '</b> 人中 <b>' + ts.talked + '</b> 人</p>' +
+    '<p class="small">昼休みなどの「話を聞いた」の記録。「支える」に小さく足している（足す分は 0.1 まで。回数では増えない）。</p>' +
     '<h3 class="sub-title">よく使うあいまいな言葉</h3>' +
     (top.length ? '<div class="words">' + top.map((w) => '<span class="word">' + esc(w.word) + '<b>' + w.n + '回</b></span>').join('') + '</div>' : '<p class="small">あいまいな言葉は見つからなかった。</p>') +
     /* 伝え方の内訳（点数の式には入れない） */

@@ -278,11 +278,12 @@ const at = (d, h, m) => new Date(2026, 9, d, h, m || 0).getTime();   // 端末�
   // 時限＝その日の中で出した順（並べ替えはしない）。配列の順ではなく、出した時刻の順
   const bs = [
     { id: 'c', createdAt: at(18, 15) }, { id: 'a', createdAt: at(18, 9) }, { id: 'y', createdAt: at(17, 20) },
-    { id: 'b', createdAt: at(18, 11) }, { id: 'd', createdAt: at(19, 0, 5) }, { id: 'e', createdAt: at(18, 15) }
+    // 2026-10-18 から日の区切りは午前3時（0:05 は前の日）。新しい日のはじめの頼みは 10/19 の 3:05 にした
+    { id: 'b', createdAt: at(18, 11) }, { id: 'd', createdAt: at(19, 3, 5) }, { id: 'e', createdAt: at(18, 15) }
   ];
   const per = E.periods(bs);
   eq('時限はその日の中で出した順（10/18: 9時→1限・11時→2限・15時→3限、同じ時刻なら先に保存したほう）', [per.a, per.b, per.c, per.e], [1, 2, 3, 4]);
-  eq('日が変わると1限から（10/17 の夜・10/19 の0時5分はそれぞれ1限）', [per.y, per.d], [1, 1]);
+  eq('日が変わると1限から（10/17 の夜・10/19 の3時5分はそれぞれ1限）', [per.y, per.d], [1, 1]);
   eq('その日の頼み（出した順）', E.dayList(bs, '2026-10-18').map((b) => b.id), ['a', 'b', 'c', 'e']);
   eq('時間割で行き来できる日は、頼みのある日と今日（古い順）', E.dayKeys(bs, '2026-10-21'), ['2026-10-17', '2026-10-18', '2026-10-19', '2026-10-21']);
   eq('今日に頼みがあっても、日は重ならない', E.dayKeys(bs, '2026-10-18'), ['2026-10-17', '2026-10-18', '2026-10-19']);
@@ -594,6 +595,84 @@ const D17 = '2026-10-17', D18 = '2026-10-18', D19 = '2026-10-19';
   ok('… 掃除の記録のない頼みには掃除の行を出さない・うまくいった頼み方がなければ「まだない」', md.split('\n').filter((l) => l.indexOf('- 掃除:') >= 0).length === 1 &&
     E.exportMarkdown({ students: [], boards: [data.boards[1]] }, t).indexOf('- うまくいった頼み方（掃除の時間で選んだもの）: まだない') >= 0);
   eq('うまくいった頼み方は「終わった」で印のあるものだけ', E.goodBoards(data.boards.concat([{ id: 'x', sweep: { s: { st: 'mid', good: true } } }])).map((b) => b.id), ['g']);
+}
+
+/* ================= L. 日の区切りは午前3時（2026-10-18） ================= */
+section('L. 日の区切り（午前3時。0:00〜2:59 は前の日）');
+{
+  eq('区切りの時刻は3時', E.DAY_START_HOUR, 3);
+  eq('2:59 は前の日・3:00 からその日（10/19 の 2:59 → 10/18、3:00 → 10/19）', [E.dayKey(at(19, 2, 59)), E.dayKey(at(19, 3, 0)), E.dayKey(at(19, 0, 0)), E.dayKey(at(18, 23, 59))],
+    ['2026-10-18', '2026-10-19', '2026-10-18', '2026-10-18']);
+  const bs = [{ id: 'a', createdAt: at(18, 9) }, { id: 'b', createdAt: at(18, 20) }, { id: 'late', createdAt: at(19, 1, 30) }, { id: 'next', createdAt: at(19, 9) }];
+  const per = E.periods(bs);
+  eq('10/19 の 1:30 に出した頼みは 10/18 の頼み（10/18 の3限）・10/19 の 9時は 10/19 の1限', [per.late, per.next, E.dayList(bs, '2026-10-18').map((b) => b.id)], [3, 1, ['a', 'b', 'late']]);
+  eq('行き来できる日・いちばん多い日も午前3時で分ける', [E.dayKeys(bs, '2026-10-18'), E.busiestDay(bs)], [['2026-10-18', '2026-10-19'], { key: '2026-10-18', n: 3 }]);
+  // 区切りが変わって、古いデータの時限が同じ日に重なったとき：あとから出したほうを空きへ・7件目からは時間割の外
+  const old = [{ id: 'm9', period: 1, createdAt: at(18, 9) }, { id: 'n1', period: 1, createdAt: at(19, 0, 30) }, { id: 'n2', period: 2, createdAt: at(19, 1, 0) }];
+  const po = E.periods(old);
+  eq('… 10/19 の 0:30（前は10/19の1限）は 10/18 の1限と重なるので空き（3限）へ。1:00 の2限は重ならないのでそのまま', [po.m9, po.n1, po.n2], [1, 3, 2]);
+  const full = [1, 2, 3, 4, 5, 6].map((p) => ({ id: 'f' + p, period: p, createdAt: at(18, 8 + p) })).concat([{ id: 'x', period: 1, createdAt: at(19, 2) }]);
+  eq('… 10/18 が6つうまっていたら、10/19 の 2:00 の頼みは時間割の外（0）', E.periods(full).x, 0);
+  // 掃除の時間：10/19 の 1:30 に開くと、10/18 の頼みが「今日」の頼み
+  const sw = [{ id: 'a', text: 'a', targets: ['s'], createdAt: at(18, 9), results: {} }, { id: 'late', text: 'b', targets: ['s'], createdAt: at(19, 1, 30), results: {} }];
+  eq('掃除の時間（10/19 の 1:30 に開く＝今日は 10/18）: 10/18 の頼みと 1:30 の頼みが今日の頼みとして出る', E.sweepList(sw, E.dayKey(at(19, 1, 30))).map((it) => it.board.id + (it.carry ? '*' : '')), ['a', 'late']);
+  const md = E.exportMarkdown({ students: [{ id: 's', name: '生徒S', answers: UNKNOWN, notes: {}, history: [{ at: at(19, 2), answers: UNKNOWN }] }],
+    boards: [{ id: 'late', text: '夜の頼み', channel: 'board', subject: '授業', period: 1, createdAt: at(19, 1, 30), targets: ['s'], firstTime: {}, results: {} }] }, at(19, 2, 30));
+  ok('書き出しの日付も午前3時で分ける（見出し・頼みごとの日・カードの書き直しの日が 2026-10-18）', md.indexOf('# マネジメント教室の書き出し（2026-10-18）') >= 0 &&
+    md.indexOf('  - 2026-10-18 1限 授業（黒板）「夜の頼み」') >= 0 && md.indexOf('  - 2026-10-18: 答えは同じ') >= 0, md);
+}
+
+/* ================= M. 昼休み（v0.3 第3段・2026-10-18） ================= */
+section('M. 昼休み（「話を聞いた」の記録・通知表の小さな加点・昼休みの輪・書き出し）');
+{
+  let t = E.setTalk([], D18, 100, '  週末に行った場所の話  ', true);
+  eq('「話を聞いた」を記録（何の話は前後の空白をつめる）', t, [{ day: D18, at: 100, topic: '週末に行った場所の話', listened: true }]);
+  t = E.setTalk(t, D18, 200, '別の話', false);
+  eq('1日に1人1回：同じ日は書きかえる', [t.length, t[0].topic, t[0].listened, t[0].at], [1, '別の話', false, 200]);
+  t = E.setTalk(t, D17, 50, '', false);
+  eq('日の順にならぶ・何の話はなくてもいい', t.map((x) => x.day + ':' + x.topic), [D17 + ':', D18 + ':別の話']);
+  eq('何の話は40字まで', Array.from(E.setTalk([], D18, 1, 'あ'.repeat(60), false)[0].topic).length, 40);
+  let many = [];
+  for (let i = 1; i <= 35; i++) many = E.setTalk(many, '2026-' + String(Math.ceil(i / 28) + 8).padStart(2, '0') + '-' + String((i - 1) % 28 + 1).padStart(2, '0'), i, '', false);
+  eq('記録は30件まで（古いものから消える）', [many.length, many[0].day], [30, '2026-09-06']);
+  eq('その日の記録を消す・その日の記録を見る', [E.dropTalk(t, D18).map((x) => x.day), E.talkOn({ talks: t }, D18).topic, E.talkOn({ talks: t }, D19), E.talkOn({}, D18)], [[D17], '別の話', null, null]);
+}
+{
+  const S = (id, talks, ex) => ({ id: id, example: !!ex, talks: talks });
+  const T = (day, listened) => ({ day: day, at: 1, topic: '', listened: !!listened });
+  const sts = [S('a', [T(D18, true)]), S('b', [T('2026-10-12', false)]), S('c', [T('2026-10-11', true)]), S('d', [])];
+  const ts = E.talkSummary(sts, D18);
+  eq('通知表：直近7日（10/12〜10/18）に「話を聞いた」がある生徒の割合（10/11 は入らない）', [ts.from, ts.n, ts.talked, ts.listened], ['2026-10-12', 4, 2, 1]);
+  eq('… 加点＝0.05×（話を聞いた割合）＋0.05×（最後まで聞けた割合）', ts.bonus, Math.round((0.05 * 2 / 4 + 0.05 * 1 / 4) * 100) / 100);
+  const lots = [S('a', [T(D18, true), T('2026-10-17', true), T('2026-10-16', true), T('2026-10-15', true)])];
+  eq('… 回数では増えない（1人に何回あっても、全員が最後まで聞けたなら上限の 0.1）', [E.talkSummary(lots, D18).bonus, E.talkSummary([S('a', [T(D18, true)])], D18).bonus], [0.1, 0.1]);
+  eq('… 最後まで聞けたがなければ半分（0.05）まで・生徒がいなければ 0', [E.talkSummary([S('a', [T(D18, false)])], D18).bonus, E.talkSummary([], D18).bonus], [0.05, 0]);
+  const rc = { demand: 0.3, support: 0.47, n: 2, quad: E.quadrant(0.3, 0.47) };
+  const rb = E.withTalkBonus(rc, { bonus: 0.05 });
+  eq('「支える」に足す（0.47＋0.05＝0.52 で「ほったらかし」→「やさしいだけ」）・1 を超えない', [rb.support, rb.base, rb.quad.label, E.withTalkBonus({ demand: 1, support: 0.98, n: 1 }, { bonus: 0.1 }).support], [0.52, 0.47, 'やさしいだけ', 1]);
+  eq('数える生徒：見本でない生徒がいればその人たち、いなければ見本', [E.talkStudents([S('x', [], true), S('y', [])]).map((s) => s.id), E.talkStudents([S('x', [], true)]).map((s) => s.id)], [['y'], ['x']]);
+}
+{
+  const P = (id, row, col) => ({ id: id, row: row, col: col });
+  eq('昼休みの輪：0人・1人・2人・4人（2＋2）・5人（3＋2）・7人（3＋2＋2）・8人（3＋3＋2）', [0, 1, 2, 4, 5, 7, 8].map((n) => E.lunchGroups(Array.from({ length: n }, (_, i) => P('s' + i, 'front', i))).map((g) => g.length)),
+    [[], [1], [2], [2, 2], [3, 2], [3, 2, 2], [3, 3, 2]]);
+  eq('… 近くの席どうし（前の席 → 中ほど → 後ろ、同じ段は左から）', E.lunchGroups([P('back1', 'back', 1), P('front2', 'front', 2), P('mid0', 'middle', 0), P('front0', 'front', 0), P('back0', 'back', 0)]),
+    [['front0', 'front2', 'mid0'], ['back0', 'back1']]);
+}
+{
+  const t = at(18, 12);
+  const data = { students: [
+    { id: 's', name: '生徒S', answers: UNKNOWN, notes: {}, history: [], talks: [{ day: D17, at: 1, topic: '', listened: false }, { day: D18, at: 2, topic: '週末の話', listened: true }] },
+    { id: 'u', name: '生徒U', answers: UNKNOWN, notes: {}, history: [] }],
+    boards: [{ id: 'b', text: SAMPLE, channel: 'board', subject: '授業', period: 1, createdAt: t, targets: ['s', 'u'], firstTime: {}, results: {} }] };
+  const md = E.exportMarkdown(data, t);
+  ok('書き出し：生徒ごとに「- 話を聞いた: 10/17、10/18（最後まで聞けた）「週末の話」」・ない生徒は（まだない）', md.indexOf('- 話を聞いた: 10/17、10/18（最後まで聞けた）「週末の話」') >= 0 &&
+    md.indexOf('- 話を聞いた: （まだない）') >= 0, md);
+  const base = E.reportCard([E.scoreSaved(data.boards[0], { s: data.students[0], u: data.students[1] })]);
+  const want = E.withTalkBonus(base, E.talkSummary(data.students, D18));
+  ok('書き出しの通知表の位置にも、話を聞いた分を足す（支える ' + base.support.toFixed(2) + ' → ' + want.support.toFixed(2) + '）', want.support > base.support &&
+    md.indexOf('支える ' + want.support.toFixed(2)) >= 0, md.split('\n').find((l) => l.indexOf('通知表の位置') >= 0));
+  ok('「雑談すると関係が良くなる」とは書かない（声は「話しかけやすくなったかも」）', E.TALK_VOICE === 'ちょっと話しかけやすくなったかも' && !/関係が良く/.test(md + E.TALK_VOICE));
 }
 
 console.log('\n' + (fails.length ? '通らなかった: ' + fails.length + ' 件 ／ 通った: ' + pass + ' 件' : 'すべて通った: ' + pass + ' 件'));

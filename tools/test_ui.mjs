@@ -188,12 +188,21 @@ const SWEEP = `(() => ({ open: !document.getElementById('sheet-sweep').hidden, p
   marked: [...document.querySelectorAll('#tt-list .tt-row.is-sweep')].map((r) => r.dataset.bid), wiping: document.getElementById('room-board').classList.contains('is-wiping'),
   ow: Math.max(document.documentElement.scrollWidth - document.documentElement.clientWidth, document.getElementById('sheet-sweep').scrollWidth - document.getElementById('sheet-sweep').clientWidth) }))()`;
 const SW_ROW = (i) => `document.querySelectorAll('#sweep-body .sw-row')[${i}]`;
+/* 昼休みのようす */
+const LUNCH = `(() => ({ on: !document.getElementById('room-lunch').hidden, chalk: document.getElementById('room-chalk').textContent,
+  groups: [...document.querySelectorAll('#room-lunch .lunch-group')].map((g) => g.dataset.n), kids: document.querySelectorAll('#room-lunch .lunch-kid').length,
+  desks: document.querySelectorAll('#room-rows button.desk').length, row: (document.getElementById('tt-lunch') || {}).textContent || '', tea: !document.getElementById('room-tea').hidden,
+  writeOff: document.getElementById('btn-write').getAttribute('aria-disabled') === 'true', badges: document.querySelectorAll('#room-lunch .lk-talk').length,
+  saved: JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})).lunch, ow: document.documentElement.scrollWidth - document.documentElement.clientWidth }))()`;
+const TALK = `(() => ({ open: !document.getElementById('sheet-talk').hidden, title: document.getElementById('talk-title').textContent, who: document.getElementById('talk-who').textContent,
+  topic: document.getElementById('talk-topic').value, listened: document.getElementById('talk-listened').checked, submit: document.getElementById('talk-submit').textContent,
+  del: !document.getElementById('talk-del-wrap').hidden, state: document.getElementById('talk-state').hidden ? '' : document.getElementById('talk-state').textContent }))()`;
 /* 前の日からの続き（時間割の下の付箋） */
 const CARRY = `(() => ({ shown: !document.getElementById('tt-carry').hidden, rows: [...document.querySelectorAll('#tt-carry .tt-carry-row')].map((r) => r.textContent),
   sweep: !!document.getElementById('tt-sweep') && !document.getElementById('tt-sweep').disabled }))()`;
 /* 保存データの日付を1日前にずらす（「次の日」に開いたことにする） */
 const SHIFT_DAY = `(() => { const DAY = 86400000, st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})), E = SekigaeEngine;
-  const back = (d) => E.ymd(new Date(d + 'T12:00:00').getTime() - DAY);
+  const back = (d) => E.dayKey(new Date(d + 'T12:00:00').getTime() - DAY);
   st.boards.forEach((b) => { b.createdAt -= DAY; b.updatedAt -= DAY; if (b.closedAt) b.closedAt -= DAY;
     Object.keys(b.results || {}).forEach((k) => { if (b.results[k].at) b.results[k].at -= DAY; });
     Object.keys(b.sweep || {}).forEach((k) => { const e = b.sweep[k]; e.at -= DAY; e.log.forEach((l) => { l.day = back(l.day); }); }); });
@@ -203,7 +212,8 @@ const SHIFT_DAY = `(() => { const DAY = 86400000, st = JSON.parse(localStorage.g
 const HEIGHTS = `(() => ({ board: Math.round(document.getElementById('room-board').getBoundingClientRect().height), tt: Math.round(document.getElementById('room-tt').getBoundingClientRect().height),
   slots: document.querySelectorAll('#tt-list > li').length }))()`;
 /* 今日の頼みを n 個（1限から）にした保存データ（いまの黒板はどれも同じ 1限の頼み） */
-const todayBoards = (n) => `(() => { const t = new Date(); t.setHours(9, 0, 0, 0); const s = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)}) || 'null') || {};
+// 日の区切りは午前3時なので、「今日」の9時は今から3時間前の日の9時（0時〜2時台に回しても今日の頼みになる）
+const todayBoards = (n) => `(() => { const t = new Date(Date.now() - 3 * 3600000); t.setHours(9, 0, 0, 0); const s = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)}) || 'null') || {};
   const st = { v: 1, students: s.students || [], boards: [], currentId: 'n1', ui: { tab: 'room' } };
   for (let i = 1; i <= ${n}; i++) st.boards.push({ id: 'n' + i, text: i === 1 ? '資料を3枚にまとめて。明日の朝までに' : '頼み' + i, channel: 'board', subject: '授業', period: i,
     createdAt: t.getTime() + i * 60000, updatedAt: t.getTime(), targets: (s.students || []).map((x) => x.id), firstTime: {}, results: {} });
@@ -227,9 +237,12 @@ const VIEW2 = `(() => { const q = (s) => document.querySelector(s), blur = q('#v
     vtt: [...document.querySelectorAll('#view-tt-list .tt-row')].map((r) => r.dataset.bid + (r.classList.contains('is-now') ? '*' : '')), vttK: document.getElementById('view-tt-k').textContent,
     blur: blur ? blur.style.getPropertyValue('--b') : '', overflowX: document.getElementById('view').scrollWidth - document.getElementById('view').clientWidth }; })()`;
 const SAVED = `JSON.parse(localStorage.getItem(${JSON.stringify(KEY)}))`;
-/* 2026-10-18 調整 K：先生の中心と大きい黒板の中心の差（px）・生徒の目線の時計と黒板の日付の四角 */
-const TEACHER = `(() => { const t = document.getElementById('room-teacher').getBoundingClientRect(), b = document.getElementById('room-board').getBoundingClientRect();
-  return Math.round((t.left + t.width / 2) - (b.left + b.width / 2)); })()`;
+/* 先生の中心と、教室（席の列）の中心の差（px）・教卓の前のプリントの中心との差。生徒の目線の時計と黒板の日付の四角
+   （2026-10-18 使ってみての指摘「教卓と先生が少し左に寄っている。真ん中に」で、大きい黒板の中心から席の列の中心に変えた） */
+const TEACHER = `(() => { const t = document.getElementById('room-teacher').getBoundingClientRect(), r = document.getElementById('room-rows').getBoundingClientRect();
+  return Math.round((t.left + t.width / 2) - (r.left + r.width / 2)); })()`;
+const PRINTX = `(() => { const p = document.getElementById('room-print').getBoundingClientRect(), r = document.getElementById('room-rows').getBoundingClientRect();
+  return Math.round((p.left + p.width / 2) - (r.left + r.width / 2)); })()`;
 const CLOCKDATE = `(() => { const c = document.getElementById('view-clock'), r = c.getBoundingClientRect(), d = document.getElementById('view-date').getBoundingClientRect();
   return { shown: !c.hidden, size: c.dataset.size, clock: [r.left, r.top, r.right, r.bottom].map(Math.round), date: [d.left, d.top, d.right, d.bottom].map(Math.round),
     overlap: !c.hidden && !(r.right <= d.left || d.right <= r.left || r.bottom <= d.top || d.bottom <= r.top) }; })()`;
@@ -327,7 +340,7 @@ try {
     await page.shot('01_教室_' + V.tag + '.png', true);
     // 2026-10-18 調整 K: 先生と教卓は、大きい黒板の真ん中の下（パソコンでは右に時間割があっても）
     const dxT = await page.eval(TEACHER);
-    ok('先生と教卓は大きい黒板の真ん中の下（中心の差 ' + dxT + 'px・±8px 以内）', Math.abs(dxT) <= 8, String(dxT));
+    ok('先生と教卓は教室（席の列）の真ん中（中心の差 ' + dxT + 'px・±8px 以内）', Math.abs(dxT) <= 8, String(dxT));
 
     // 生徒の目線（見本の「はじめての生徒」）
     await page.pressEl('button.desk[data-sid="ex-s1"]');
@@ -454,6 +467,8 @@ try {
     ok('お便り: 大きい黒板には「（お便りで配った）」と小さく、教卓の前に「おたより」のプリント（本文は頼みの文）', /（お便りで配った）/.test(rm.chalk) && /^おたより/.test(rm.printHead) &&
       rm.print === '来週の準備で、資料の印刷を手伝ってもらえると助かります' && !rm.speaker, JSON.stringify(rm));
     ok('お便り: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
+    const dxP = await page.eval(PRINTX);
+    ok('教卓の前のプリントも教室（席の列）の真ん中（中心の差 ' + dxP + 'px・±8px 以内）', Math.abs(dxP) <= 8, String(dxP));
     await page.shot('11_お便り_' + V.tag + '.png', true);
     // 放送：3限を押す → スピーカーから文字が吹き出しで出て、3秒ほどで薄れて消える
     await page.pressEl('#tt-list .tt-row[data-bid="ex-b3"]');
@@ -556,6 +571,20 @@ try {
     await sleep(200);
     ok('「教室にもどる」で掃除の時間を閉じると、大きい黒板はいまの黒板（1限）にもどる', (await page.eval(`document.getElementById('room-chalk').textContent`)) === 'これ、簡単にまとめておいて。なるはやで！' &&
       !(await page.eval(`document.getElementById('room-board').classList.contains('is-sweeping')`)));
+
+    // ---- v0.3 第3段：昼休み（見本の2人） ----
+    await page.eval('window.scrollTo(0, 0); true');
+    await page.eval(`document.getElementById('tt-lunch').click(); true`);
+    await sleep(900);
+    const ln = await page.eval(LUNCH);
+    ok('昼休み: 黒板には「昼休み」とだけ・生徒は席を離れて輪に（2人で1つ）・机は空き・時間割は「昼休み中（…から）」・横にはみ出さない', ln.on && ln.chalk === '昼休み' &&
+      JSON.stringify(ln.groups) === '["2"]' && ln.kids === 2 && ln.desks === 0 && /^昼休み中（\d+:\d\dから）$/.test(ln.row) && ln.tea && ln.ow <= 0, JSON.stringify(ln));
+    // 写真はお知らせが消えてから
+    if (V.tag !== '390_dark') { await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 4000); await sleep(350); await page.shot('24_昼休みの教室_' + V.tag + '.png', true); }
+    await page.eval(`document.getElementById('room-lunch-end').click(); true`);
+    await sleep(900);
+    const lb = await page.eval(LUNCH);
+    ok('「授業にもどる」で生徒が席にもどる（保存も消える）', !lb.on && lb.desks === 2 && lb.saved === null && lb.row === '昼休み', JSON.stringify(lb));
   }
 
   section('そのほか');
@@ -777,7 +806,7 @@ try {
   await sleep(200);
   const RCH = `({ ch: [...document.querySelectorAll('#report-ch li')].map((x) => x.textContent.replace(/\\s+/g, '')), cast: document.getElementById('report-cast').textContent.replace(/\\s+/g, ''),
     hint: (document.getElementById('report-cast-hint') || {}).textContent || '', day: ((document.getElementById('report-day') || {}).textContent || '').replace(/\\s+/g, '') })`;
-  const today = await page.eval(`SekigaeEngine.ymd(Date.now())`), todayJa = today.split('-').map(Number).slice(1).join('/').replace(/^(\d+)\/(\d+)$/, '$1月$2日');
+  const today = await page.eval(`SekigaeEngine.dayKey(Date.now())`), todayJa = today.split('-').map(Number).slice(1).join('/').replace(/^(\d+)\/(\d+)$/, '$1月$2日');
   const rch = await page.eval(RCH);
   // 2026-10-18 調整: 要点のお便りは「頼みごとを出す」から出すので見本ではなく自分の頼み（4限の放送・5限と6限のお便りの3つ）
   ok('通知表に伝え方の内訳（自分の頼み3つ: 黒板 0・お便り 2・放送 1）と「放送だけで終わった頼み 0」（0なので要点の一言は出ない）', JSON.stringify(rch.ch) === '["黒板0","お便り2","放送1"]' &&
@@ -801,7 +830,7 @@ try {
   await page.pressEl('#tab-room');
 
   // 古いデータ（v0.2 までの保存。伝え方と科目名がない）も読み込める。時間割は前の日・次の日で行き来できる
-  await page.eval(`(() => { const d = (back, h) => { const x = new Date(); x.setDate(x.getDate() - back); x.setHours(h, 0, 0, 0); return x.getTime(); };
+  await page.eval(`(() => { const d = (back, h) => { const x = new Date(Date.now() - 3 * 3600000); x.setDate(x.getDate() - back); x.setHours(h, 0, 0, 0); return x.getTime(); };
     localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify({ v: 1, students: [{ id: 's1', name: '生徒A', color: 1, col: 1, answers: { q1: 'B' }, notes: {}, history: [], createdAt: d(8, 9) }],
       boards: [{ id: 'o1', text: '資料を3枚にまとめて', createdAt: d(8, 9), targets: ['s1'], firstTime: {}, results: {} }, { id: 'o2', text: '図を直して', createdAt: d(8, 15), targets: ['s1'], firstTime: {}, results: {} },
         { id: 'o3', text: '明日までに見ておいて', createdAt: d(6, 10), targets: ['s1'], firstTime: {}, results: {} }], currentId: 'o2', ui: { tab: 'room' } })); return true; })()`);
@@ -856,7 +885,7 @@ try {
   ok('今日の6つが全部うまっていると「＋」はなく、「頼みごとを出す」は開かずに知らせる', full.empty.length === 0 && full.rows.length === 6 &&
     (await page.eval(`document.getElementById('sheet-write').hidden`)) && (await page.eval(`document.getElementById('toast-msg').textContent`)) === '今日の時間割は6限までうまっているよ。明日に回すか、どれかを直してね', JSON.stringify(full));
   // 時限のない古いデータで、1日に8件ある日：1〜6限に入り、7・8件目は時間割の下に「この日はほかに 2 件」
-  await page.eval(`(() => { const d = new Date(); d.setDate(d.getDate() - 3); d.setHours(8, 0, 0, 0);
+  await page.eval(`(() => { const d = new Date(Date.now() - 3 * 3600000); d.setDate(d.getDate() - 3); d.setHours(8, 0, 0, 0);
     localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify({ v: 1, students: [{ id: 's1', name: '生徒A', color: 1, col: 1, answers: { q1: 'B' }, notes: {}, history: [], createdAt: d.getTime() }],
       boards: [1, 2, 3, 4, 5, 6, 7, 8].map((i) => ({ id: 'w' + i, text: '頼み' + i, createdAt: d.getTime() + i * 600000, targets: ['s1'], firstTime: {}, results: {} })), currentId: 'w8', ui: { tab: 'room' } })); return true; })()`);
   await page.load(base);
@@ -886,7 +915,7 @@ try {
   await page.eval('localStorage.clear(); true');
   await page.load(base);
   ok('入口: 今日の頼みがあると、時間割の「掃除」の行が「掃除の時間」になって押せる', (await page.eval(CARRY)).sweep === true && (await page.eval(`document.getElementById('tt-sweep').textContent`)) === '掃除の時間');
-  const tday = await page.eval(`SekigaeEngine.ymd(Date.now())`), md = await page.eval(`SekigaeEngine.mdDay(SekigaeEngine.ymd(Date.now()))`);
+  const tday = await page.eval(`SekigaeEngine.dayKey(Date.now())`), md = await page.eval(`SekigaeEngine.mdDay(SekigaeEngine.dayKey(Date.now()))`);
   await openSweepSheet();
   await sweepPick(0, 'mid');
   let sq = await page.eval(SWEEP);
@@ -954,7 +983,7 @@ try {
   ok('続きの行を押すと、その頼みを黒板に出す（時間割は今日のまま）', (await page.eval(ROOM)).cur === 'ex-b2' && (await page.eval(TT)).title === '今日の時間割');
   await openSweepSheet();
   sq = await page.eval(SWEEP);
-  const mdPrev = await page.eval(`SekigaeEngine.mdDay(SekigaeEngine.ymd(Date.now() - 86400000))`);
+  const mdPrev = await page.eval(`SekigaeEngine.mdDay(SekigaeEngine.dayKey(Date.now() - 86400000))`);
   ok('次の日の掃除の時間: 続きの3つ（前の日からの続きの印・前の日の掃除の一言）・出すのは途中・まだの生徒だけ', /^1\/3/.test(sq.pos) && sq.carryTag && /前の日からの続き/.test(sq.chalk) && sq.rows === 1 &&
     JSON.stringify(sq.prev) === JSON.stringify([mdPrev + 'の掃除：途中「明日の1限のあと、表の3行目から」']), JSON.stringify(sq));
   await sweepPick(0, 'done');
@@ -1021,6 +1050,180 @@ try {
   ok('data-theme="dark" をつけるとダークになる（端末がライトでも）', forced === 'rgb(18, 24, 21)', forced);
   const forcedL = await page.eval(`(() => { document.documentElement.dataset.theme = 'light'; return getComputedStyle(document.body).backgroundColor; })()`);
   ok('data-theme="light" をつけるとライトになる', forcedL === 'rgb(238, 242, 239)', forcedL);
+  // ---- v0.3 第3段：昼休み（くわしく・390 ライト） ----
+  await page.viewport(390, 844, true, false, false);
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  // 入口は今日だけ：前の日を見ているときは「昼休み」は区切りの行
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})); st.boards[2].createdAt -= 86400000; st.boards[2].period = 1;
+    localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
+  await page.load(base);
+  await page.pressEl('#tt-prev');
+  const lpast = await page.eval(`({ btn: !!document.getElementById('tt-lunch'), div: !!document.querySelector('#tt-list div[data-slot="lunch"]') })`);
+  await page.pressEl('#tt-next');
+  ok('入口: 「昼休み」の行は今日だけ押せる（前の日は区切りの行）', !lpast.btn && lpast.div && !!(await page.eval(`document.getElementById('tt-lunch')`)), JSON.stringify(lpast));
+  // 5人なら近くの席どうしで3人と2人の輪
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})); const t = Date.now();
+    [['n3', 'B', 0], ['n4', 'B', 2], ['n5', 'A', 1]].forEach((x, i) => st.students.push({ id: x[0], name: '生徒' + (i + 3), color: i + 3, col: x[2], answers: { q1: x[1] }, notes: {}, history: [], createdAt: t, updatedAt: t }));
+    localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
+  await page.load(base);
+  ok('古いデータ（「話を聞いた」の記録なし）も読み込み、記録は空として保存し直す', await page.eval(`${SAVED}.students.every((s) => Array.isArray(s.talks) && !s.talks.length) && ${SAVED}.lunch === null`));
+  await page.eval(`document.getElementById('tt-lunch').click(); true`);
+  await sleep(80);
+  const flip = await page.eval(`[...document.querySelectorAll('#room-lunch .lunch-kid .kid')].map((k) => k.style.transition)`);
+  await sleep(900);
+  let lq = await page.eval(LUNCH);
+  ok('5人なら、近くの席どうしで3人と2人の輪になる（ふわっと動く）', JSON.stringify(lq.groups) === '["3","2"]' && lq.kids === 5 && flip.some((x) => /transform/.test(x)), JSON.stringify([lq.groups, flip]));
+  ok('昼休みの間は「頼みごとを出す」が押せない形', lq.writeOff);
+  await page.eval(`document.getElementById('btn-write').click(); true`);
+  await sleep(200);
+  const wb = await page.eval(`({ sheet: document.getElementById('sheet-write').hidden, toast: document.getElementById('toast-msg').textContent })`);
+  await page.eval(`document.querySelector('#tt-list button[data-period]').click(); true`);
+  await sleep(200);
+  ok('昼休みの間は「頼みごとを出す」も時間割の空きも開かずに「昼休みのあとにしよう」', wb.sheet && wb.toast === '昼休みのあとにしよう（昼休みに頼みごとをすると、休めなかったかも）' &&
+    (await page.eval(`document.getElementById('sheet-write').hidden`)), JSON.stringify(wb));
+  // 「話を聞いた」の記録
+  await page.pressEl('#room-lunch .lunch-kid[data-sid="ex-s1"]');
+  await page.waitFor(`!document.getElementById('sheet-talk').hidden`, 2000);
+  await sleep(250);
+  let tk = await page.eval(TALK);
+  ok('昼休みの教室で生徒を押すと「話を聞いた（雑談）」の記録のシート（何の話・最後まで聞けた）', tk.open && tk.title === '話を聞いた（雑談）' && /はじめての生徒さん/.test(tk.who) && tk.topic === '' &&
+    !tk.listened && tk.submit === '記録する' && !tk.del, JSON.stringify(tk));
+  await page.eval(`(() => { const t = document.getElementById('talk-topic'); t.value = '週末に行った場所の話'; document.getElementById('talk-listened').click(); return true; })()`);
+  await sleep(150);
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 4000); await sleep(350);
+  await page.shot('25_話を聞いたの記録_390_light.png');
+  await page.eval(`document.getElementById('talk-submit').click(); true`);
+  await sleep(300);
+  const tday2 = await page.eval(`SekigaeEngine.dayKey(Date.now())`);
+  let tv = await page.eval(`${SAVED}.students.find((s) => s.id === 'ex-s1').talks`);
+  ok('記録すると保存される（その日・何の話・最後まで聞けた）・輪の中に「話した」の印', tv.length === 1 && tv[0].day === tday2 && tv[0].topic === '週末に行った場所の話' && tv[0].listened === true &&
+    (await page.eval(LUNCH)).badges === 1, JSON.stringify(tv));
+  await page.pressEl('#room-lunch .lunch-kid[data-sid="ex-s1"]');
+  await page.waitFor(`!document.getElementById('sheet-talk').hidden`, 2000);
+  await sleep(200);
+  tk = await page.eval(TALK);
+  ok('同じ日にもう一度押すと、記録が入った形で開く（書きかえる・消せる）', tk.topic === '週末に行った場所の話' && tk.listened && tk.submit === '書きかえる' && tk.del && /もう記録してある/.test(tk.state), JSON.stringify(tk));
+  await page.eval(`(() => { document.getElementById('talk-topic').value = '好きな料理の話'; document.getElementById('talk-submit').click(); return true; })()`);
+  await sleep(300);
+  tv = await page.eval(`${SAVED}.students.find((s) => s.id === 'ex-s1').talks`);
+  ok('書きかえても1日1人1回のまま', tv.length === 1 && tv[0].topic === '好きな料理の話', JSON.stringify(tv));
+  await page.pressEl('#room-lunch .lunch-kid[data-sid="ex-s2"]');
+  await page.waitFor(`!document.getElementById('sheet-talk').hidden`, 2000);
+  await page.eval(`document.getElementById('talk-submit').click(); true`);
+  await sleep(300);
+  await page.pressEl('#room-lunch .lunch-kid[data-sid="ex-s2"]');
+  await page.waitFor(`!document.getElementById('sheet-talk').hidden`, 2000);
+  await page.eval(`document.getElementById('talk-del').click(); true`);
+  await page.waitFor(`!document.getElementById('confirm').hidden`, 2000);
+  await page.eval(`document.getElementById('confirm-yes').click(); true`);
+  await sleep(300);
+  ok('「この日の記録を消す」で消せる', (await page.eval(`${SAVED}.students.find((s) => s.id === 'ex-s2').talks.length`)) === 0 && (await page.eval(`document.getElementById('sheet-talk').hidden`)));
+  // 保存されて、開き直しても昼休み・授業にもどるで消える・次の日には授業
+  await page.load(base);
+  lq = await page.eval(LUNCH);
+  ok('昼休みにしたことは保存され、開き直しても「授業にもどる」まで昼休みのまま', lq.on && lq.chalk === '昼休み' && /^昼休み中/.test(lq.row) && lq.saved && lq.saved.day === tday2, JSON.stringify(lq));
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})); st.lunch.day = SekigaeEngine.dayKey(Date.now() - 86400000);
+    localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
+  await page.load(base);
+  lq = await page.eval(LUNCH);
+  ok('次の日（午前3時の区切りのあと）には授業に戻っている', !lq.on && lq.desks === 5 && lq.row === '昼休み' && !lq.writeOff, JSON.stringify(lq));
+  await page.eval(`document.getElementById('tt-lunch').click(); true`);
+  await sleep(300);
+  await page.eval(`document.getElementById('tt-lunch').click(); true`);
+  await sleep(300);
+  ok('1日に何度でも押せる（時間割の「昼休み中」を押しても授業にもどる）', !(await page.eval(LUNCH)).on && (await page.eval(`${SAVED}.lunch`)) === null);
+  // 生徒の目線：その日に記録があれば「昼休みから」の声
+  await page.pressEl('button.desk[data-sid="ex-s1"]');
+  await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
+  await sleep(300);
+  const tvo = await page.eval(`[...document.querySelectorAll('#view-day-voices li')].map((x) => x.dataset.key + ':' + x.textContent)`);
+  ok('記録がある日のその生徒の目線に「昼休みから」の声「ちょっと話しかけやすくなったかも」（1つだけ）', tvo.filter((x) => /^talk:昼休みからちょっと話しかけやすくなったかも$/.test(x)).length === 1, JSON.stringify(tvo));
+  await page.eval(`(() => { const v = document.getElementById('view'); v.scrollTop = document.getElementById('view-day-voices').getBoundingClientRect().top - v.getBoundingClientRect().top + v.scrollTop - 330; return true; })()`);
+  await sleep(200);
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 4000); await sleep(350);
+  await page.shot('26_昼休みからの声_390_light.png');
+  await page.pressEl('#view-back');
+  await page.waitFor(`document.getElementById('view').hidden`, 2000);
+  await page.pressEl('button.desk[data-sid="ex-s2"]');
+  await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
+  ok('… 記録のない生徒の目線には出ない', !(await page.eval(`!!document.querySelector('#view-day-voices li[data-key="talk"]')`)));
+  await page.pressEl('#view-back');
+  await page.waitFor(`document.getElementById('view').hidden`, 2000);
+  // 通知表・書き出し（見本でない生徒がいるときは、その人たちで数える：見本でない3人のうち1人に「最後まで聞けた」の記録）
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})); st.students.find((s) => s.id === 'n3').talks = [{ day: SekigaeEngine.dayKey(Date.now()), at: Date.now(), topic: '', listened: true }];
+    localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
+  await page.load(base);
+  await page.pressEl('#tab-report');
+  await sleep(200);
+  const rp = await page.eval(`(() => { const st = ${SAVED}, E = SekigaeEngine, ids = {}; st.students.forEach((s) => { ids[s.id] = s; });
+    const base = E.reportCard(st.boards.map((b) => E.scoreSaved(b, ids))), ts = E.talkSummary(E.talkStudents(st.students), E.dayKey(Date.now()));
+    return { line: document.getElementById('report-talk').textContent, pos: document.querySelector('.pos').textContent, base: base.support, bonus: ts.bonus, want: E.withTalkBonus(base, ts).support }; })()`);
+  ok('通知表に「話を聞いた（この7日）: 3 人中 1 人」・「支える」に小さく足す（' + rp.base + ' ＋ ' + rp.bonus + '）', rp.line === '話を聞いた（この7日）: 3 人中 1 人' && rp.bonus === 0.03 &&
+    rp.want > rp.base && rp.pos.indexOf('支える ' + rp.want.toFixed(2)) >= 0, JSON.stringify(rp));
+  ok('… 位置の説明に「支えるには「話を聞いた」の 0.03 を足した」', /支えるには「話を聞いた」の 0\.03 を足した/.test(rp.pos), rp.pos);
+  ok('通知表（話を聞いたつき）: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
+  await page.pressEl('#tab-export');
+  await sleep(200);
+  const mdt = await page.eval(`document.getElementById('export-text').value`), mdd = await page.eval(`SekigaeEngine.mdDay(SekigaeEngine.dayKey(Date.now()))`);
+  ok('書き出しの生徒ごとに「- 話を聞いた: ' + mdd + '（最後まで聞けた）「好きな料理の話」」', mdt.indexOf('- 話を聞いた: ' + mdd + '（最後まで聞けた）「好きな料理の話」') >= 0 && mdt.indexOf('- 話を聞いた: （まだない）') >= 0, mdt.slice(0, 800));
+  await page.pressEl('#tab-room');
+  // 動きを減らす設定：動かずに並びだけ変わる
+  await page.viewport(390, 844, true, false, true);
+  await page.load(base);
+  await page.eval(`document.getElementById('tt-lunch').click(); true`);
+  await sleep(80);
+  const rflip = await page.eval(`({ t: [...document.querySelectorAll('#room-lunch .lunch-kid .kid')].map((k) => k.style.transition + k.style.transform), on: !document.getElementById('room-lunch').hidden })`);
+  ok('動きを減らす設定では、動かずに並びだけ変わる', rflip.on && rflip.t.every((x) => x === ''), JSON.stringify(rflip));
+  await page.eval(`document.getElementById('room-lunch-end').click(); true`);
+  await page.viewport(390, 844, true, false, false);
+
+  // ---- 日の区切りは午前3時（2026-10-18）：端末の時計を決まった時刻にして確かめる ----
+  const fakeClock = async (y, mo, d, h, mi) => (await page.send('Page.addScriptToEvaluateOnNewDocument', { source: `(() => { const RD = Date, off = new RD(${y}, ${mo - 1}, ${d}, ${h}, ${mi}).getTime() - RD.now();
+    class FD extends RD { constructor(...a) { if (a.length) super(...a); else super(RD.now() + off); } static now() { return RD.now() + off; } }
+    window.Date = FD; })();` })).identifier;
+  const unClock = async (id) => { await page.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: id }); };
+  await page.viewport(390, 844, true, false, false);
+  const DATEKEY = `({ key: SekigaeEngine.dayKey(Date.now()), date: document.getElementById('tt-date').textContent, title: document.getElementById('tt-title').textContent })`;
+  let clk = await fakeClock(2026, 10, 19, 2, 59);
+  await page.load(base);
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  const t259 = await page.eval(DATEKEY);
+  await unClock(clk);
+  clk = await fakeClock(2026, 10, 19, 3, 0);
+  await page.load(base);
+  const t300 = await page.eval(DATEKEY);
+  await unClock(clk);
+  ok('日の区切り: 10/19 の 2:59 は「今日」が 10/18、3:00 からは 10/19（時間割の日付）', t259.key === '2026-10-18' && t259.date === '10月18日（日）' && t259.title === '今日の時間割' &&
+    t300.key === '2026-10-19' && t300.date === '10月19日（月）', JSON.stringify([t259, t300]));
+  // 10/19 の 1:30 に開く：10/18 の頼みが「今日」。前の決まりで 10/19 の1限だった 0:30 の頼みは、10/18 の1限と重なるので空き（2限）へ
+  clk = await fakeClock(2026, 10, 19, 1, 30);
+  await page.load(base);
+  await page.eval(`(() => { const T = (d, h, m) => new Date(2026, 9, d, h, m || 0).getTime(), S = (id, c) => ({ id: id, name: '生徒' + id.slice(-1), color: c, col: c, answers: { q1: 'B' }, notes: {}, history: [], createdAt: T(10, 9) });
+    const B = (id, text, d, h, m) => ({ id: id, text: text, channel: 'board', subject: '授業', period: 1, createdAt: T(d, h, m), targets: ['s1', 's2'], firstTime: {}, results: {} });
+    localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify({ v: 1, students: [S('s1', 1), S('s2', 2)],
+      boards: [B('p', '前の日の頼み', 17, 10), B('a', '資料を3枚にまとめて', 18, 9), B('n', '夜のうちに見ておいて', 19, 0, 30)], currentId: 'a', ui: { tab: 'room' } })); return true; })()`);
+  await page.load(base);
+  const n130 = await page.eval(`({ d: ${DATEKEY}, tt: ${TT}, per: ${SAVED}.boards.map((b) => b.id + ':' + b.period) })`);
+  ok('10/19 の 1:30 に開くと、10/18 の時間割が「今日の時間割」（日付 10月18日）', n130.d.key === '2026-10-18' && n130.d.title === '今日の時間割' && n130.d.date === '10月18日（日）', JSON.stringify(n130.d));
+  ok('… 区切りが変わって重なった古い時限は、あとから出したほう（0:30 の頼み）を空いている2限へ直して保存する', JSON.stringify(n130.tt.rows) === '["1限 授業・黒板","2限 授業・黒板"]' &&
+    JSON.stringify(n130.per) === '["p:1","a:1","n:2"]', JSON.stringify(n130));
+  await openSweepSheet();
+  const s130 = await page.eval(SWEEP);
+  ok('… 1:30 に開いた掃除の時間には、10/18 の頼み2つが今日の頼みとして出る（前の日からの続きではない）', /^1\/2/.test(s130.pos) && !s130.carryTag && /資料を3枚に/.test(s130.chalk), JSON.stringify(s130));
+  await page.eval(`document.querySelector('#sheet-sweep [data-close]').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-sweep').hidden`, 2000);
+  await page.pressEl('#btn-write');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await page.eval(`(() => { const t = document.getElementById('write-text'); t.value = '明日の朝までに、表を見直して'; t.dispatchEvent(new Event('input', { bubbles: true })); document.getElementById('write-submit').click(); return true; })()`);
+  await sleep(350);
+  const w130 = await page.eval(`(() => { const st = ${SAVED}, b = st.boards[st.boards.length - 1]; return { per: b.period, day: SekigaeEngine.dayKey(b.createdAt), date: document.getElementById('room-date').textContent, rows: ${TT}.rows }; })()`);
+  ok('… 1:30 に出した頼みは 10/18 の頼み（空いている3限に入り、黒板の日付も 10月18日）', w130.per === 3 && w130.day === '2026-10-18' && w130.date === '10月18日（日）' && w130.rows[2] === '3限 授業・黒板', JSON.stringify(w130));
+  await unClock(clk);
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+
   // localStorage が使えなくても見本で動く
   await page.send('Page.addScriptToEvaluateOnNewDocument', { source: `Object.defineProperty(window, 'localStorage', { get() { throw new Error('blocked'); } });` });
   await page.load(base);
