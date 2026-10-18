@@ -170,11 +170,44 @@ const VIEW = `(() => { const v = document.getElementById('view');
     ask: document.getElementById('view-ask').textContent, blur: document.querySelectorAll('#view-chalk .m-blur').length,
     chips: document.querySelectorAll('#view-chips button').length, overflowX: v.scrollWidth - v.clientWidth }; })()`;
 /* v0.3：時間割・教室の伝え方（黒板の注記・プリント・スピーカー）・伝え方ごとの生徒の目線 */
+// 2026-10-18 枠: rows は頼みの入っている時限だけ。slots は枠の行（いつも8）。empty は空いている時限（＋は押せる・－は押せない）
 const TT = `(() => ({ title: document.getElementById('tt-title').textContent,
-  rows: [...document.querySelectorAll('#tt-list .tt-row')].map((r) => r.querySelector('.tt-p').textContent + ' ' + r.querySelector('.tt-s').textContent + '・' + r.querySelector('.tt-ch').textContent),
+  rows: [...document.querySelectorAll('#tt-list .tt-row[data-bid]')].map((r) => r.querySelector('.tt-p').textContent + ' ' + r.querySelector('.tt-s').textContent + '・' + r.querySelector('.tt-ch').textContent),
   now: [...document.querySelectorAll('#tt-list .tt-row.is-now')].map((r) => r.dataset.bid),
-  empty: document.getElementById('tt-empty').hidden ? '' : document.getElementById('tt-empty').textContent,
+  slots: [...document.querySelectorAll('#tt-list > li')].map((li) => li.querySelector('.tt-p') ? li.querySelector('.tt-p').textContent : li.textContent.trim()),
+  empty: [...document.querySelectorAll('#tt-list .tt-row.is-empty')].map((r) => r.querySelector('.tt-p').textContent + (r.tagName === 'BUTTON' ? '+' : '-')),
+  more: document.getElementById('tt-more').hidden ? '' : document.getElementById('tt-more').textContent,
   prev: !document.getElementById('tt-prev').disabled, next: !document.getElementById('tt-next').disabled }))()`;
+/* 掃除の時間のようす */
+const SWEEP = `(() => ({ open: !document.getElementById('sheet-sweep').hidden, pos: document.getElementById('sweep-pos').textContent,
+  rows: document.querySelectorAll('#sweep-body .sw-row').length, next: !document.getElementById('sweep-next').disabled, nextText: document.getElementById('sweep-next').textContent,
+  note: document.getElementById('room-note').textContent, chalk: document.getElementById('room-chalk').textContent, memos: [...document.querySelectorAll('#room-memos .board-memo')].map((x) => x.textContent),
+  voices: [...document.querySelectorAll('#sweep-body .voice')].map((x) => x.textContent), asks: [...document.querySelectorAll('#sweep-body .sw-ask-q')].map((x) => x.textContent),
+  fields: [...document.querySelectorAll('#sweep-body input[data-next]')].map((x) => (x.labels[0] || {}).textContent || ''), tips: [...document.querySelectorAll('#sweep-body .sw-tip')].map((x) => x.textContent),
+  prev: [...document.querySelectorAll('#sweep-body .sw-prev')].map((x) => x.textContent), carryTag: !!document.querySelector('#sweep-pos .tag-carry'),
+  marked: [...document.querySelectorAll('#tt-list .tt-row.is-sweep')].map((r) => r.dataset.bid), wiping: document.getElementById('room-board').classList.contains('is-wiping'),
+  ow: Math.max(document.documentElement.scrollWidth - document.documentElement.clientWidth, document.getElementById('sheet-sweep').scrollWidth - document.getElementById('sheet-sweep').clientWidth) }))()`;
+const SW_ROW = (i) => `document.querySelectorAll('#sweep-body .sw-row')[${i}]`;
+/* 前の日からの続き（時間割の下の付箋） */
+const CARRY = `(() => ({ shown: !document.getElementById('tt-carry').hidden, rows: [...document.querySelectorAll('#tt-carry .tt-carry-row')].map((r) => r.textContent),
+  sweep: !!document.getElementById('tt-sweep') && !document.getElementById('tt-sweep').disabled }))()`;
+/* 保存データの日付を1日前にずらす（「次の日」に開いたことにする） */
+const SHIFT_DAY = `(() => { const DAY = 86400000, st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})), E = SekigaeEngine;
+  const back = (d) => E.ymd(new Date(d + 'T12:00:00').getTime() - DAY);
+  st.boards.forEach((b) => { b.createdAt -= DAY; b.updatedAt -= DAY; if (b.closedAt) b.closedAt -= DAY;
+    Object.keys(b.results || {}).forEach((k) => { if (b.results[k].at) b.results[k].at -= DAY; });
+    Object.keys(b.sweep || {}).forEach((k) => { const e = b.sweep[k]; e.at -= DAY; e.log.forEach((l) => { l.day = back(l.day); }); }); });
+  st.students.forEach((s) => { s.createdAt -= DAY; s.updatedAt -= DAY; });
+  localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`;
+/* 大きい黒板と時間割の高さ（px） */
+const HEIGHTS = `(() => ({ board: Math.round(document.getElementById('room-board').getBoundingClientRect().height), tt: Math.round(document.getElementById('room-tt').getBoundingClientRect().height),
+  slots: document.querySelectorAll('#tt-list > li').length }))()`;
+/* 今日の頼みを n 個（1限から）にした保存データ（いまの黒板はどれも同じ 1限の頼み） */
+const todayBoards = (n) => `(() => { const t = new Date(); t.setHours(9, 0, 0, 0); const s = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)}) || 'null') || {};
+  const st = { v: 1, students: s.students || [], boards: [], currentId: 'n1', ui: { tab: 'room' } };
+  for (let i = 1; i <= ${n}; i++) st.boards.push({ id: 'n' + i, text: i === 1 ? '資料を3枚にまとめて。明日の朝までに' : '頼み' + i, channel: 'board', subject: '授業', period: i,
+    createdAt: t.getTime() + i * 60000, updatedAt: t.getTime(), targets: (s.students || []).map((x) => x.id), firstTime: {}, results: {} });
+  localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`;
 const ROOM = `(() => { const say = document.getElementById('room-say'), pr = document.getElementById('room-print'), st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)}) || 'null');
   return { chalk: document.getElementById('room-chalk').textContent, print: pr.hidden ? '' : document.getElementById('room-print-text').textContent,
     printHead: pr.hidden ? '' : pr.querySelector('.print-head').textContent,
@@ -206,7 +239,10 @@ const SHEET = `(() => ({ open: !document.getElementById('sheet-write').hidden, t
   free: document.getElementById('write-subject').value, text: document.getElementById('write-text').value,
   tgt: [...document.querySelectorAll('#write-targets input[data-kind="tgt"]')].map((x) => x.dataset.sid + (x.checked ? '+' : '-')),
   first: [...document.querySelectorAll('#write-targets input[data-kind="first"]:checked')].map((x) => x.dataset.sid),
-  cast: document.getElementById('write-cast').hidden ? '' : document.getElementById('write-cast').textContent }))()`;
+  cast: document.getElementById('write-cast').hidden ? '' : document.getElementById('write-cast').textContent,
+  period: Number((document.querySelector('input[name="write-period"]:checked') || {}).value || 0),
+  pdis: [...document.querySelectorAll('input[name="write-period"]:disabled')].map((x) => Number(x.value)),
+  pn: document.querySelectorAll('input[name="write-period"]').length }))()`;
 
 /* ---------- 本番 ---------- */
 const browser = findBrowser();
@@ -231,6 +267,40 @@ await page.send('Runtime.enable');
 await page.send('Log.enable');
 await page.send('Network.enable');
 let fontsOk = null;
+
+/* 掃除の時間の操作 */
+async function sweepPick(i, st) { await page.eval(`${SW_ROW(i)}.querySelector('input[value="${st}"]').click(); true`); await sleep(120); }
+async function sweepType(i, text) {
+  await page.eval(`(() => { const f = ${SW_ROW(i)}.querySelector('input[data-next]'); f.value = ${JSON.stringify(text)}; f.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
+}
+async function sweepNext() {
+  await page.eval(`document.getElementById('sweep-next').click(); true`);
+  await sleep(60);
+  await page.waitFor(`!document.getElementById('room-board').classList.contains('is-wiping')`, 3000);
+  await sleep(200);
+}
+async function openSweepSheet() {
+  await page.eval(`document.getElementById('tt-sweep').click(); true`);
+  await page.waitFor(`!document.getElementById('sheet-sweep').hidden`, 2000);
+  await sleep(350);
+}
+/* 見本の3つを決まった選び方で最後まで：1限 はじめて＝途中（一言あり）・慣れた＝終わった（うまくいった）／2限 2人ともまだ／3限 はじめて＝まだ・慣れた＝終わった */
+async function sweepAll(onMid) {
+  await sweepPick(0, 'mid');
+  await sweepType(0, '明日の1限のあと、表の3行目から');
+  if (onMid) await onMid();
+  await sweepPick(1, 'done');
+  await page.eval(`${SW_ROW(1)}.querySelector('input[data-good]').click(); true`);
+  await sweepNext();
+  await sweepPick(0, 'not');
+  await sweepPick(1, 'not');
+  await sweepNext();
+  await sweepPick(0, 'not');
+  await sweepPick(1, 'done');
+  await sweepNext();
+}
+const SUMMARY = `(() => ({ counts: [...document.querySelectorAll('#sweep-counts li')].map((x) => x.textContent.replace(/\\s+/g, '')),
+  carry: document.querySelectorAll('#sweep-carry li').length, tooMany: !!document.getElementById('sweep-too-many'), planned: !!document.getElementById('sweep-planned') }))()`;
 
 const VARIANTS = [
   { tag: '390_light', w: 390, h: 844, mobile: true, dark: false },
@@ -370,6 +440,9 @@ try {
     ok('時間割: 見本の3つ（1限 授業・黒板／2限 手伝い・お便り／3限 雑務・放送）が出した順に並び、いまの1限が強調', tt.title === '今日の時間割' &&
       JSON.stringify(tt.rows) === JSON.stringify(['1限 授業・黒板', '2限 手伝い・お便り', '3限 雑務・放送']) && JSON.stringify(tt.now) === '["ex-b1"]' && !tt.prev && !tt.next, JSON.stringify(tt));
     ok('時間割の小黒板は ' + (V.w >= 760 ? '大きい黒板の右' : '大きい黒板の下（横長）') + '・スピーカーは黒板の上', (V.w >= 760 ? lay.right : lay.below) && lay.speakerAbove, JSON.stringify(lay));
+    // 第2段から、今日の掃除の行は「掃除の時間」（掃除の時間の入口）と書く
+    ok('時間割の枠は8行（1〜4限・昼休み・5〜6限・掃除）・今日の空いている時限（4〜6限）は「＋」で押せる', JSON.stringify(tt.slots) === '["1限","2限","3限","4限","昼休み","5限","6限","掃除の時間"]' &&
+      JSON.stringify(tt.empty) === '["4限+","5限+","6限+"]' && tt.more === '', JSON.stringify(tt));
     await page.eval('window.scrollTo(0, 0); true');
     await sleep(150);
     await page.shot('10_時間割のある教室_' + V.tag + '.png');
@@ -444,6 +517,8 @@ try {
       ow: document.getElementById('sheet-write').scrollWidth - document.getElementById('sheet-write').clientWidth })`);
     ok('頼みごとを出すシート: 伝え方3つ（初めは黒板）・科目名5つのチップ（初めは授業）と自分で書く欄', sh.title === '頼みごとを出す' && JSON.stringify(sh.chs) === '["board*","letter","broadcast"]' &&
       JSON.stringify(sh.subj) === '["ゼミ","授業*","雑務","手伝い","その他"]' && sh.free && sh.ow <= 0, JSON.stringify(sh));
+    const shp = await page.eval(SHEET);
+    ok('頼みごとを出すシート: 時限のチップ6つ（うまっている1〜3限は選べない・下のボタンから開くといちばん早い空きの4限）', shp.pn === 6 && JSON.stringify(shp.pdis) === '[1,2,3]' && shp.period === 4, JSON.stringify(shp));
     await page.eval(`(() => { document.getElementById('write-ch-letter').click(); document.getElementById('write-subj-0').click(); const t = document.getElementById('write-text');
       t.value = '金曜の会議の資料を、A4 1枚にまとめてもらえると助かります'; t.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
     await sleep(200);
@@ -451,6 +526,36 @@ try {
     await page.shot('15_頼みごとを出すシート_' + V.tag + '.png');
     await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
     await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
+    // 2026-10-18 枠: 今日の頼みが1つの日と6つの日で、大きい黒板と時間割の高さが同じ（枠は8行のまま）
+    await page.eval(todayBoards(1));
+    await page.load(base);
+    const h1 = await page.eval(HEIGHTS);
+    await page.eval(todayBoards(6));
+    await page.load(base);
+    const h6 = await page.eval(HEIGHTS);
+    ok('今日の頼みが1つの日と6つの日で、大きい黒板と時間割の高さが同じ（枠は8行のまま）', h1.board === h6.board && h1.tt === h6.tt && h1.slots === 8 && h6.slots === 8, JSON.stringify([h1, h6]));
+    ok('6つうまった日: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
+
+    // ---- v0.3 第2段：掃除の時間（見本の3つを、1枚ずつ） ----
+    await page.eval('localStorage.clear(); true');
+    await page.load(base);
+    await openSweepSheet();
+    let sw = await page.eval(SWEEP);
+    ok('掃除の時間: 1枚目（1限）が大きい黒板に出て、下に「1/3」・相手2人・選ぶまで「次へ」は押せない・時間割の1限に印・横にはみ出さない', sw.open && /^1\/3/.test(sw.pos) &&
+      sw.note === '掃除の時間 1/3' && sw.rows === 2 && !sw.next && /これ、簡単にまとめておいて/.test(sw.chalk) && JSON.stringify(sw.marked) === '["ex-b1"]' && sw.ow <= 0, JSON.stringify(sw));
+    if (V.tag !== '390_dark') await page.shot('20_掃除の時間_1枚目_' + V.tag + '.png');
+    await sweepAll(V.tag === '390_light' ? async () => { await sleep(200); await page.shot('21_掃除の時間_途中を選んだ_390_light.png'); } : null);
+    sw = await page.eval(SWEEP);
+    const sm = await page.eval(SUMMARY);
+    ok('掃除の時間: 最後に「今日の掃除、おしまい」と数（終わった 2・途中 1・まだ 3）・明日の続き4つ・端に黄色い「続き」のメモ3つ・横にはみ出さない',
+      /今日の掃除、おしまい/.test(sw.chalk) && JSON.stringify(sm.counts) === '["終わった2","途中1","まだ3"]' && sm.carry === 4 && sw.memos.length === 3 &&
+      sw.nextText === '教室にもどる' && sw.ow <= 0, JSON.stringify([sw, sm]));
+    if (V.tag !== '390_dark') await page.shot('22_掃除の時間_おしまい_' + V.tag + '.png');
+    await page.eval(`document.getElementById('sweep-next').click(); true`);
+    await page.waitFor(`document.getElementById('sheet-sweep').hidden`, 2000);
+    await sleep(200);
+    ok('「教室にもどる」で掃除の時間を閉じると、大きい黒板はいまの黒板（1限）にもどる', (await page.eval(`document.getElementById('room-chalk').textContent`)) === 'これ、簡単にまとめておいて。なるはやで！' &&
+      !(await page.eval(`document.getElementById('room-board').classList.contains('is-sweeping')`)));
   }
 
   section('そのほか');
@@ -703,18 +808,196 @@ try {
   await page.load(base);
   const old = await page.eval(`({ saved: ${SAVED}.boards.map((b) => b.id + ':' + b.channel + ':' + b.subject), tt: ${TT}, chalk: document.getElementById('room-chalk').textContent })`);
   ok('古いデータ（伝え方・科目名なし）も読み込み、黒板・授業として保存し直す', JSON.stringify(old.saved) === '["o1:board:授業","o2:board:授業","o3:board:授業"]' && old.chalk === '図を直して', JSON.stringify(old));
-  ok('今日がまだ空なら「今日の時間割は、まだ空いています」（前の日へは行ける・次の日はない）', old.tt.empty === '今日の時間割は、まだ空いています' && old.tt.rows.length === 0 && old.tt.prev && !old.tt.next, JSON.stringify(old.tt));
+  // 2026-10-18 枠: 「今日の時間割は、まだ空いています」の文はやめて、空いている枠（＋ 頼みごとを書く）で見せる
+  ok('今日がまだ空なら、枠の1〜6限が全部「＋」で押せる（前の日へは行ける・次の日はない）', JSON.stringify(old.tt.empty) === '["1限+","2限+","3限+","4限+","5限+","6限+"]' &&
+    old.tt.rows.length === 0 && old.tt.prev && !old.tt.next, JSON.stringify(old.tt));
   await page.pressEl('#tt-prev');
   const d1 = await page.eval(TT);
   await page.pressEl('#tt-prev');
   const d2 = await page.eval(TT);
   ok('「← 前の日」で頼みのある日へ（6日前: 1限 授業・黒板 → 8日前: 2つ・いまの黒板の2限を強調）', d1.title === 'この日の時間割' && JSON.stringify(d1.rows) === '["1限 授業・黒板"]' && d1.prev && d1.next &&
     JSON.stringify(d2.rows) === '["1限 授業・黒板","2限 授業・黒板"]' && JSON.stringify(d2.now) === '["o2"]' && !d2.prev && d2.next, JSON.stringify([d1, d2]));
+  ok('前の日の空いている時限は押せない（薄く「―」）', JSON.stringify(d2.empty) === '["3限-","4限-","5限-","6限-"]' && (await page.eval(`document.querySelectorAll('#tt-list button[data-period]').length`)) === 0, JSON.stringify(d2.empty));
+  ok('古いデータ（時限なし）は、その日の出した順に 1限・2限… として保存し直す', JSON.stringify((await page.eval(SAVED)).boards.map((b) => b.id + ':' + b.period)) === '["o1:1","o2:2","o3:1"]');
   await page.pressEl('#tt-next');
   await page.pressEl('#tt-next');
   const d3 = await page.eval(TT);
   ok('「次の日 →」で今日に戻る', d3.title === '今日の時間割' && d3.rows.length === 0 && !d3.next, JSON.stringify(d3));
   ok('古いデータの教室: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
+
+  // ---- 2026-10-18 時間割の枠：空いている時限を押して書く・時限のチップ・直すで時限を移す・6つうまったとき・7件以上の古い日 ----
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  await page.pressEl('#tt-list .tt-row[data-period="5"]');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await sleep(250);
+  const fs5 = await page.eval(SHEET);
+  ok('空いている時限（5限）を押すと、5限を選んだ状態で「頼みごとを出す」が開く（うまっている1〜3限は選べない）', fs5.open && fs5.title === '頼みごとを出す' && fs5.period === 5 &&
+    JSON.stringify(fs5.pdis) === '[1,2,3]', JSON.stringify(fs5));
+  await page.eval(`(() => { const t = document.getElementById('write-text'); t.value = '表の数字を見直して。金曜までに'; t.dispatchEvent(new Event('input', { bubbles: true })); document.getElementById('write-submit').click(); return true; })()`);
+  await sleep(350);
+  let fst = await page.eval(SAVED), ftt = await page.eval(TT);
+  const f5 = fst.boards[fst.boards.length - 1];
+  ok('出すと5限に入る（4限は空いたまま）', f5.period === 5 && ftt.rows[3] === '5限 授業・黒板' && JSON.stringify(ftt.empty) === '["4限+","6限+"]', JSON.stringify([f5.period, ftt]));
+  await page.pressEl('#room-edit');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await sleep(250);
+  const fe = await page.eval(SHEET);
+  ok('「直す」では今の時限（5限）も選べる（ほかにうまっている1〜3限は選べない）', fe.title === '頼みごとを直す' && fe.period === 5 && JSON.stringify(fe.pdis) === '[1,2,3]', JSON.stringify(fe));
+  await page.eval(`(() => { document.getElementById('write-period-4').click(); document.getElementById('write-submit').click(); return true; })()`);
+  await sleep(350);
+  fst = await page.eval(SAVED); ftt = await page.eval(TT);
+  ok('「直す」で空いている4限へ移せる（5限は空きにもどる）', fst.boards.find((b) => b.id === f5.id).period === 4 && ftt.rows[3] === '4限 授業・黒板' && JSON.stringify(ftt.empty) === '["5限+","6限+"]', JSON.stringify(ftt));
+  await page.eval(todayBoards(6));
+  await page.load(base);
+  const full = await page.eval(TT);
+  await page.pressEl('#btn-write');
+  await sleep(300);
+  ok('今日の6つが全部うまっていると「＋」はなく、「頼みごとを出す」は開かずに知らせる', full.empty.length === 0 && full.rows.length === 6 &&
+    (await page.eval(`document.getElementById('sheet-write').hidden`)) && (await page.eval(`document.getElementById('toast-msg').textContent`)) === '今日の時間割は6限までうまっているよ。明日に回すか、どれかを直してね', JSON.stringify(full));
+  // 時限のない古いデータで、1日に8件ある日：1〜6限に入り、7・8件目は時間割の下に「この日はほかに 2 件」
+  await page.eval(`(() => { const d = new Date(); d.setDate(d.getDate() - 3); d.setHours(8, 0, 0, 0);
+    localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify({ v: 1, students: [{ id: 's1', name: '生徒A', color: 1, col: 1, answers: { q1: 'B' }, notes: {}, history: [], createdAt: d.getTime() }],
+      boards: [1, 2, 3, 4, 5, 6, 7, 8].map((i) => ({ id: 'w' + i, text: '頼み' + i, createdAt: d.getTime() + i * 600000, targets: ['s1'], firstTime: {}, results: {} })), currentId: 'w8', ui: { tab: 'room' } })); return true; })()`);
+  await page.load(base);
+  await page.pressEl('#tt-prev');
+  const w = await page.eval(`({ per: ${SAVED}.boards.map((b) => b.period), tt: ${TT} })`);
+  ok('時限のない古いデータで8件ある日: 出した順に 1〜6限、7・8件目は時限なし（0）', JSON.stringify(w.per) === '[1,2,3,4,5,6,0,0]', JSON.stringify(w.per));
+  ok('… その日の時間割は6つ埋まり、下に「この日はほかに 2 件（提出物で見られる）」・前の日の空きはない', w.tt.title === 'この日の時間割' && w.tt.rows.length === 6 && w.tt.more === 'この日はほかに 2 件（提出物で見られる）' && w.tt.empty.length === 0, JSON.stringify(w.tt));
+  await page.pressEl('#room-edit');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await sleep(200);
+  const w8 = await page.eval(`({ s: ${SHEET}, note: document.getElementById('write-period-note').hidden ? '' : document.getElementById('write-period-note').textContent })`);
+  ok('… 時限なしの頼みを直すとき、その日がうまっていれば時限は選べず「時間割に入らない」と知らせる', w8.s.period === 0 && JSON.stringify(w8.s.pdis) === '[1,2,3,4,5,6]' && /時間割に入らない/.test(w8.note), JSON.stringify(w8));
+  await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
+  await page.pressEl('#tab-subs');
+  await sleep(200);
+  const wl = await page.eval(`[...document.querySelectorAll('.sub-card .sub-date .lesson')].map((x) => x.textContent)`);
+  ok('… 提出物には8件とも出る（時限なしの2件は時限の書きなし）', wl.length === 8 && wl.filter((x) => /限/.test(x)).length === 6, JSON.stringify(wl));
+  await page.pressEl('#tab-room');
+  ok('時間割の枠（7件以上の日）: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
+
+  // ---- v0.3 第2段：掃除の時間（くわしく・390 ライト） ----
+  await page.load(base);   // 今日の時間割にもどる（上は3日前の日を見ていた）
+  ok('入口: 今日の頼みも前の日からの続きもない日は「掃除」の行を押せない', (await page.eval(CARRY)).sweep === false &&
+    /まだない/.test(await page.eval(`document.getElementById('tt-sweep').getAttribute('aria-label')`)));
+  ok('古いデータ（掃除の記録なし）も読み込み、掃除の記録は空として保存し直す', (await page.eval(`${SAVED}.boards.every((b) => b.sweep && !Object.keys(b.sweep).length)`)));
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  ok('入口: 今日の頼みがあると、時間割の「掃除」の行が「掃除の時間」になって押せる', (await page.eval(CARRY)).sweep === true && (await page.eval(`document.getElementById('tt-sweep').textContent`)) === '掃除の時間');
+  const tday = await page.eval(`SekigaeEngine.ymd(Date.now())`), md = await page.eval(`SekigaeEngine.mdDay(SekigaeEngine.ymd(Date.now()))`);
+  await openSweepSheet();
+  await sweepPick(0, 'mid');
+  let sq = await page.eval(SWEEP);
+  ok('途中を選ぶと、生徒の声・一言の欄「続き（いつ・どこから）」・本人に聞くならが出る（もう1人を選ぶまで次へは押せない）', sq.voices[0] === '続きが気になる。いつやるか決めてないと、帰ってからも頭に浮かぶかも' &&
+    JSON.stringify(sq.fields) === '["続き（いつ・どこから）"]' && sq.asks[0] === '続きは、明日のいつごろやれそう？ どこまで進んだ？' && !sq.next, JSON.stringify(sq));
+  await sweepType(0, '明日の1限のあと、表の3行目から');
+  await sweepPick(1, 'done');
+  sq = await page.eval(SWEEP);
+  const dn = await page.eval(`({ thanks: !!${SW_ROW(1)}.querySelector('[data-act="thanks"]'), good: !!${SW_ROW(1)}.querySelector('input[data-good]'), subs: !!${SW_ROW(1)}.querySelector('[data-act="to-subs"]') })`);
+  ok('終わったを選ぶと「終わったって、気づいてもらえたかも」・お礼を伝える・「この頼み方はうまくいった」・提出物に記録する。全員選ぶと次へが押せる', sq.voices[1] === '終わったって、気づいてもらえたかも' &&
+    dn.thanks && dn.good && dn.subs && sq.next, JSON.stringify([sq, dn]));
+  await page.eval(`${SW_ROW(1)}.querySelector('[data-act="thanks"]').click(); true`);
+  await sleep(250);
+  ok('「お礼を伝える」で落ちない（コピーできないときは文字を選んで知らせる）', await page.eval(`document.getElementById('toast').classList.contains('is-on')`));
+  await page.eval(`${SW_ROW(1)}.querySelector('input[data-good]').click(); true`);
+  await page.eval(`document.getElementById('sweep-next').click(); true`);
+  await sleep(60);
+  const wipe = await page.eval(SWEEP);
+  await page.waitFor(`!document.getElementById('room-board').classList.contains('is-wiping')`, 3000);
+  await sleep(200);
+  sq = await page.eval(SWEEP);
+  ok('次へ: 黒板消しで消す動きのあと、2枚目（2限）が出る。途中があった1限は端に「続き：1限 授業」のメモ', wipe.wiping && /^2\/3/.test(sq.pos) && /来週の準備で/.test(sq.chalk) &&
+    JSON.stringify(sq.memos) === '["続き：1限 授業"]' && JSON.stringify(sq.marked) === '["ex-b2"]', JSON.stringify([wipe.wiping, sq]));
+  await sweepPick(0, 'not');
+  await sweepPick(1, 'not');
+  sq = await page.eval(SWEEP);
+  ok('まだ（その日3本以上）: 声「手をつけられなかった…今日は頼みが多かったかも」・一言の欄「最初の一歩」・本人に聞くなら', sq.voices.every((v) => v === '手をつけられなかった…今日は頼みが多かったかも') &&
+    JSON.stringify(sq.fields) === '["最初の一歩","最初の一歩"]' && sq.asks.every((a) => a === 'まだのもの、何があれば始めやすい？') && !sq.tips.length, JSON.stringify(sq));
+  await sweepNext();
+  await sweepPick(0, 'not');
+  sq = await page.eval(SWEEP);
+  ok('まだ（放送だけ）: 声「そういえば、頼まれてたのを忘れてたかも」と「次からは要点をお便りでも送る」', sq.voices[0] === 'そういえば、頼まれてたのを忘れてたかも' && JSON.stringify(sq.tips) === '["次からは要点をお便りでも送る"]', JSON.stringify(sq));
+  await sweepPick(1, 'done');
+  await sweepNext();
+  const sum = await page.eval(SUMMARY);
+  ok('まとめ: 数（終わった 2・途中 1・まだ 3）・3つとも残ったので「今日は頼みを出しすぎたかも」・一言のない「まだ」があるので「安心して帰れる」は出ない', JSON.stringify(sum.counts) === '["終わった2","途中1","まだ3"]' &&
+    sum.tooMany && !sum.planned && sum.carry === 4, JSON.stringify(sum));
+  await page.eval(`document.getElementById('sweep-next').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-sweep').hidden`, 2000);
+  const ssv = await page.eval(`${SAVED}.boards.map((b) => b.id + ':' + Object.keys(b.sweep).map((k) => k.slice(-1) + b.sweep[k].st + (b.sweep[k].good ? '+' : '') + b.sweep[k].log.length).join(','))`);
+  ok('選んだ状態は頼みごとごとに保存される（うまくいった印・その日の記録1件）', JSON.stringify(ssv) === '["ex-b1:1mid1,2done+1","ex-b2:1not1,2not1","ex-b3:1not1,2done1"]', JSON.stringify(ssv));
+  await page.pressEl('#tab-subs');
+  await sleep(200);
+  const swst = await page.eval(`[...document.querySelectorAll('.sub-card[data-bid="ex-b1"] .sw-state')].map((x) => x.textContent)`);
+  ok('提出物のカードの生徒の行に、掃除の状態を小さく（「掃除（' + md + '）途中：明日の1限のあと…」）', JSON.stringify(swst) === JSON.stringify(['掃除（' + md + '）途中：明日の1限のあと、表の3行目から', '掃除（' + md + '）終わった・うまくいった頼み方']), JSON.stringify(swst));
+  await page.pressEl('#tab-export');
+  await sleep(200);
+  const mdx = await page.eval(`document.getElementById('export-text').value`);
+  ok('書き出しに「掃除: ' + md + ' 途中（続き: …）」と「うまくいった頼み方」の一覧', mdx.indexOf('    - 掃除: ' + md + ' 途中（続き: 明日の1限のあと、表の3行目から）') >= 0 &&
+    mdx.indexOf('  - ' + tday + ' 1限 授業（黒板）「これ、簡単にまとめておいて。なるはやで！」（見本：慣れた生徒さん）') >= 0, mdx.slice(0, 900));
+  await page.pressEl('#tab-room');
+  // 次の日：途中・まだの頼みが「前の日からの続き」として時間割の下に出る
+  await page.eval(SHIFT_DAY);
+  await page.load(base);
+  let cr = await page.eval(CARRY);
+  ok('次の日: 途中・まだの頼みが時間割の下に「前の日からの続き」として1件1行で出る（終わった生徒の分は出ない）・掃除の時間も押せる', cr.shown && cr.rows.length === 3 &&
+    /1限 授業（黒板）・はじめての生徒さん 途中「明日の1限のあと、表の3行目から」/.test(cr.rows[0]) && /2限 手伝い（お便り）.*まだ ほか1人/.test(cr.rows[1]) && /3限 雑務（放送）・はじめての生徒さん まだ/.test(cr.rows[2]) && cr.sweep, JSON.stringify(cr));
+  const ft = await page.eval(TT);
+  ok('… 続きは枠の外に出るので、今日の時間割は8行の枠のまま（1〜6限は空き）・横にはみ出さない', JSON.stringify(ft.empty) === '["1限+","2限+","3限+","4限+","5限+","6限+"]' && ft.slots.length === 8 && (await page.eval(OVERFLOW)) <= 0, JSON.stringify(ft));
+  await page.eval(`(() => { const el = document.getElementById('room-tt'); window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 16); return true; })()`);
+  await sleep(200);
+  await page.shot('23_前の日からの続き_390_light.png');
+  await page.pressEl('#tt-carry .tt-carry-row[data-bid="ex-b2"]');
+  await sleep(250);
+  ok('続きの行を押すと、その頼みを黒板に出す（時間割は今日のまま）', (await page.eval(ROOM)).cur === 'ex-b2' && (await page.eval(TT)).title === '今日の時間割');
+  await openSweepSheet();
+  sq = await page.eval(SWEEP);
+  const mdPrev = await page.eval(`SekigaeEngine.mdDay(SekigaeEngine.ymd(Date.now() - 86400000))`);
+  ok('次の日の掃除の時間: 続きの3つ（前の日からの続きの印・前の日の掃除の一言）・出すのは途中・まだの生徒だけ', /^1\/3/.test(sq.pos) && sq.carryTag && /前の日からの続き/.test(sq.chalk) && sq.rows === 1 &&
+    JSON.stringify(sq.prev) === JSON.stringify([mdPrev + 'の掃除：途中「明日の1限のあと、表の3行目から」']), JSON.stringify(sq));
+  await sweepPick(0, 'done');
+  await page.eval(`document.querySelector('#sheet-sweep [data-close]').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-sweep').hidden`, 2000);
+  cr = await page.eval(CARRY);
+  ok('掃除の時間で「終わった」にした続きは、時間割の下から消える（途中で閉じても、選んだものは残る）', cr.rows.length === 2 && !cr.rows.some((r) => /1限 授業/.test(r)), JSON.stringify(cr));
+  // 提出済み・締めた頼みは、掃除の時間にも続きにも出ない
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})); const b2 = st.boards.find((b) => b.id === 'ex-b2'), b3 = st.boards.find((b) => b.id === 'ex-b3');
+    b2.closedAt = Date.now(); b3.results['ex-s1'] = { kind: 'asExpected', memo: '', ack: false, at: Date.now(), submitted: true };
+    localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
+  await page.load(base);
+  cr = await page.eval(CARRY);
+  await openSweepSheet();
+  sq = await page.eval(SWEEP);
+  ok('提出済み（3限）・締めた（2限）頼みは続きから消え、掃除の時間にも出ない（今日「終わった」にした1限だけが、選んだまま出る）', !cr.shown && cr.rows.length === 0 && /^1\/1/.test(sq.pos) &&
+    sq.voices[0] === '終わったって、気づいてもらえたかも', JSON.stringify([cr, sq]));
+  await page.eval(`document.querySelector('#sheet-sweep [data-close]').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-sweep').hidden`, 2000);
+  // 「提出物に記録する」：掃除の時間を閉じて、提出物のその生徒の行へ
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  await openSweepSheet();
+  await sweepPick(0, 'done');
+  await page.eval(`${SW_ROW(0)}.querySelector('[data-act="to-subs"]').click(); true`);
+  await sleep(350);
+  const ts = await page.eval(`({ sweep: document.getElementById('sheet-sweep').hidden, subs: !document.getElementById('pane-subs').hidden, focus: document.activeElement && document.activeElement.id,
+    state: (document.querySelector('.sub-card[data-bid="ex-b1"] .sub-row[data-sid="ex-s1"] .sw-state') || {}).textContent })`);
+  ok('「提出物に記録する」で掃除の時間を閉じ、提出物のその生徒の行（返ってきたものの選択）へ', ts.sweep && ts.subs && ts.focus === 'res-ex-b1-ex-s1-asExpected' && /終わった/.test(ts.state || ''), JSON.stringify(ts));
+  await page.pressEl('#tab-room');
+  // 動きを減らす設定：黒板消しの動きなしで、すぐ次の1枚
+  await page.viewport(390, 844, true, false, true);
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  await openSweepSheet();
+  await sweepPick(0, 'done');
+  await sweepPick(1, 'done');
+  await page.eval(`document.getElementById('sweep-next').click(); true`);
+  sq = await page.eval(SWEEP);
+  ok('動きを減らす設定では、黒板消しの動きなしで、すぐ2枚目が出る', !sq.wiping && /^2\/3/.test(sq.pos), JSON.stringify(sq));
+  await page.eval(`document.querySelector('#sheet-sweep [data-close]').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-sweep').hidden`, 2000);
+  await page.viewport(390, 844, true, false, false);
 
   // 動きを減らす設定：ふわっと → 短いフェード
   await page.viewport(390, 844, true, false, true);
