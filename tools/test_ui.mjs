@@ -172,9 +172,11 @@ const VIEW = `(() => { const v = document.getElementById('view');
 /* v0.3：時間割・教室の伝え方（黒板の注記・プリント・スピーカー）・伝え方ごとの生徒の目線 */
 // 2026-10-18 枠: rows は頼みの入っている時限だけ。slots は枠の行（いつも8）。empty は空いている時限（＋は押せる・－は押せない）
 const TT = `(() => ({ title: document.getElementById('tt-title').textContent,
-  rows: [...document.querySelectorAll('#tt-list .tt-row[data-bid]')].map((r) => (r.querySelector('.tt-p') || { textContent: '昼休み' }).textContent + ' ' + r.querySelector('.tt-s').textContent + '・' + r.querySelector('.tt-ch').textContent),
+  rows: [...document.querySelectorAll('#tt-list .tt-row[data-bid]')].map((r) => r.querySelector('.tt-p').childNodes[0].textContent + ' ' + r.querySelector('.tt-s').textContent + '・' + r.querySelector('.tt-ch-t').textContent),
   now: [...document.querySelectorAll('#tt-list .tt-row.is-now')].map((r) => r.dataset.bid),
-  slots: [...document.querySelectorAll('#tt-list > li')].map((li) => li.querySelector('.tt-p') ? li.querySelector('.tt-p').textContent : li.textContent.trim()),
+  slots: [...document.querySelectorAll('#tt-list > li')].map((li) => li.querySelector('.tt-p') ? li.querySelector('.tt-p').childNodes[0].textContent : li.querySelector('.tt-row').childNodes[0].textContent.trim()),
+  marks: [...document.querySelectorAll('#tt-list .tt-mark')].map((m) => m.closest('.tt-row').dataset.bid + ':' + m.textContent),
+  sel: [...document.querySelectorAll('#tt-list > li.tt-now > .tt-row')].map((r) => r.dataset.slot),
   empty: [...document.querySelectorAll('#tt-list .tt-row.is-empty')].map((r) => r.querySelector('.tt-p').textContent + (r.tagName === 'BUTTON' ? '+' : '-')),
   more: document.getElementById('tt-more').hidden ? '' : document.getElementById('tt-more').textContent,
   prev: !document.getElementById('tt-prev').disabled, next: !document.getElementById('tt-next').disabled }))()`;
@@ -196,17 +198,18 @@ const SWEEP = `(() => ({ open: !document.getElementById('sheet-sweep').hidden, p
 const SW_ROW = (i) => `document.querySelectorAll('#sweep-body .sw-row')[${i}]`;
 /* 昼休みのようす */
 // v0.3.1：昼休みは丸いテーブルを出さず、今ある机のとなりあう席に移る。groups＝まとまりごとの人数・kids＝昼休みの机にいる生徒・desks＝授業の机にいる生徒
-const LUNCH = `(() => { const ld = [...document.querySelectorAll('#room-rows button.desk.is-lunch')], g = {};
+const LUNCH = `(() => { const ld = [...document.querySelectorAll('#room-rows button.desk.is-lunch')], g = {}, st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)}));
   ld.forEach((d) => { g[d.dataset.group] = (g[d.dataset.group] || 0) + 1; });
-  return { on: !document.getElementById('room-lunch-note').hidden, chalk: document.getElementById('room-chalk').textContent,
+  return { on: !!(st.time && st.time.slot === 'lunch'), chalk: document.getElementById('room-chalk').textContent,
+    note: document.getElementById('room-meta').hidden ? '' : document.getElementById('room-note').textContent, lunchNote: !!document.getElementById('room-lunch-note'),
     groups: Object.keys(g).sort().map((k) => String(g[k])), kids: ld.length, desks: document.querySelectorAll('#room-rows button.desk:not(.is-lunch)').length,
     allDesks: document.querySelectorAll('#room-rows .desk').length, round: document.querySelectorAll('.lunch-group, .lunch-table, .lunch-rug, .lunch-kid, #room-lunch').length,
     row: (document.getElementById('tt-lunch') || {}).textContent || '', tea: !document.getElementById('room-tea').hidden, btn: document.getElementById('btn-write').textContent,
     writeOff: document.getElementById('btn-write').getAttribute('aria-disabled') === 'true', badges: document.querySelectorAll('#room-rows .badge-talk').length,
-    saved: JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})).lunch, ow: document.documentElement.scrollWidth - document.documentElement.clientWidth }; })()`;
+    saved: st.time, ow: document.documentElement.scrollWidth - document.documentElement.clientWidth }; })()`;
 /* 机の並びの中の場所：{ 生徒: [段, 列, 向き（昼休みの机なら度）, まとまり] }（段は前の席から数える） */
 const LUNCHPOS = `(() => { const nc = window.matchMedia('(min-width: 760px)').matches ? 5 : 3, out = {}; let line = 0;
-  document.querySelectorAll('#room-rows .row').forEach((r) => { const ds = [...r.querySelectorAll('.row-desks > .desk')];
+  document.querySelectorAll('#room-rows .row').forEach((r) => { const ds = [...r.querySelectorAll('.row-desks > .seat > .desk')];
     ds.forEach((d, i) => { if (d.dataset.sid) out[d.dataset.sid] = [line + Math.floor(i / nc), i % nc, d.classList.contains('is-lunch') ? parseInt(d.style.getPropertyValue('--rot'), 10) : null, d.dataset.group || null]; });
     line += ds.length / nc; });
   return out; })()`;
@@ -242,11 +245,12 @@ const todayBoards = (n) => `(() => { const t = new Date(Date.now() - 3 * 3600000
   for (let i = 1; i <= ${n}; i++) st.boards.push({ id: 'n' + i, text: i === 1 ? '資料を3枚にまとめて。明日の朝までに' : '頼み' + i, channel: 'board', subject: '授業', period: i,
     createdAt: t.getTime() + i * 60000, updatedAt: t.getTime(), targets: (s.students || []).map((x) => x.id), firstTime: {}, results: {} });
   localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`;
-const ROOM = `(() => { const say = document.getElementById('room-say'), pr = document.getElementById('room-print'), st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)}) || 'null');
-  return { chalk: document.getElementById('room-chalk').textContent, print: pr.hidden ? '' : document.getElementById('room-print-text').textContent,
-    printHead: pr.hidden ? '' : pr.querySelector('.print-head').textContent,
-    say: say.hidden ? '' : document.getElementById('room-say-text').textContent, sayK: document.getElementById('room-say-k').textContent,
-    sayOp: say.hidden ? 0 : Number(getComputedStyle(say).opacity), speaker: !document.getElementById('room-speaker').disabled, cur: st && st.currentId }; })()`;
+const ROOM = `(() => { const say = document.getElementById('room-say'), st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)}) || 'null');
+  return { chalk: document.getElementById('room-chalk').textContent, print: !!document.getElementById('room-print'),
+    papers: [...document.querySelectorAll('#room-rows .desk-paper')].map((p) => p.dataset.sid).sort(), paperBid: [...new Set([...document.querySelectorAll('#room-rows .desk-paper')].map((p) => p.dataset.bid))],
+    say: say.hidden ? '' : document.getElementById('room-say-text').textContent, sayK: document.getElementById('room-say-k').textContent, sayOff: say.classList.contains('is-off'),
+    sayOp: say.hidden ? 0 : Number(getComputedStyle(say).opacity), speaker: !document.getElementById('room-speaker').disabled, cur: st && st.currentId, time: st && st.time,
+    date: document.getElementById('room-date').textContent }; })()`;
 const LAYOUT = `(() => { const b = document.getElementById('room-board').getBoundingClientRect(), t = document.getElementById('room-tt').getBoundingClientRect(), s = document.getElementById('room-speaker').getBoundingClientRect();
   return { right: t.left >= b.right - 1 && t.top < b.bottom, below: t.top >= b.bottom - 1, speakerAbove: s.bottom <= b.top + 1 }; })()`;
 const VIEW2 = `(() => { const q = (s) => document.querySelector(s), blur = q('#view-pa-text .m-blur, #view-papers .paper.is-top .m-blur, #view-chalk .m-blur');
@@ -265,8 +269,26 @@ const SAVED = `JSON.parse(localStorage.getItem(${JSON.stringify(KEY)}))`;
    （2026-10-18 使ってみての指摘「教卓と先生が少し左に寄っている。真ん中に」で、大きい黒板の中心から席の列の中心に変えた） */
 const TEACHER = `(() => { const t = document.getElementById('room-teacher').getBoundingClientRect(), r = document.getElementById('room-rows').getBoundingClientRect();
   return Math.round((t.left + t.width / 2) - (r.left + r.width / 2)); })()`;
-const PRINTX = `(() => { const p = document.getElementById('room-print').getBoundingClientRect(), r = document.getElementById('room-rows').getBoundingClientRect();
+const SPEAKERX = `(() => { const p = document.getElementById('room-speaker').getBoundingClientRect(), r = document.getElementById('room-rows').getBoundingClientRect();
   return Math.round((p.left + p.width / 2) - (r.left + r.width / 2)); })()`;
+/* v0.4 段A：放送の吹き出しと大きい黒板が重ならない（吹き出しはスピーカーの下・黒板の上）。お便りを大きく読む紙 */
+const SAYBOX = `(() => { const s = document.getElementById('room-say'), b = document.getElementById('room-board').getBoundingClientRect(), r = s.getBoundingClientRect();
+  return { shown: !s.hidden && !s.classList.contains('is-off'), below: Math.round(r.bottom) <= Math.round(b.top), boardH: Math.round(b.height) }; })()`;
+const LETTERPOP = `(() => { const p = document.getElementById('letter-pop'), r = p.getBoundingClientRect();
+  return { open: !p.hidden, text: document.getElementById('letter-pop-text').textContent, meta: document.getElementById('letter-pop-meta').textContent,
+    to: document.getElementById('letter-pop-to').textContent, inView: r.left >= 0 && r.right <= document.documentElement.clientWidth + 1,
+    expanded: [...document.querySelectorAll('#room-rows .desk-paper[aria-expanded="true"]')].map((x) => x.dataset.sid) }; })()`;
+/* 見出し（アイコン・題・説明がない／タブと「？」はある）と、ふだんは出さない説明の文 */
+const HEAD = `(() => { const h1 = document.querySelector('header h1'), hr = h1 ? h1.getBoundingClientRect() : { width: 0, height: 0 };
+  return { logo: !!document.querySelector('.logo, .brand, .brand-sub'), h1Shown: !!h1 && hr.width > 2 && hr.height > 2, h1Text: h1 ? h1.textContent : '', help: !!document.getElementById('btn-help'),
+    tabs: document.querySelectorAll('header [role="tab"]').length, title: document.title }; })()`;
+const NOTES = `(() => { const vis = (el) => !!el && !el.hidden && el.getBoundingClientRect().width > 2 && getComputedStyle(el).visibility !== 'hidden';
+  const tip = document.getElementById('room-shuffle-tip'), sh = document.getElementById('room-shuffle');
+  return { seatNote: [...document.querySelectorAll('.floor p, .floor span')].some((p) => vis(p) && /席の前後は|机を押すと、その生徒の目線/.test(p.textContent)),
+    shuffleText: [...document.querySelectorAll('.seat-tools span, .seat-tools p')].some((p) => vis(p) && /左右の席だけくじで/.test(p.textContent)),
+    shuffleTitle: sh.title, tip: vis(tip), tipText: tip ? tip.textContent : '', lunchNote: [...document.querySelectorAll('.floor p')].some((p) => vis(p) && /となりあう席に集まっている/.test(p.textContent)),
+    labels: [...document.querySelectorAll('#room-rows .row-label')].map((l) => l.textContent + (vis(l) ? '+' : '-')),
+    exNote: vis(document.getElementById('room-ex')) }; })()`;
 const CLOCKDATE = `(() => { const c = document.getElementById('view-clock'), r = c.getBoundingClientRect(), d = document.getElementById('view-date').getBoundingClientRect();
   return { shown: !c.hidden, size: c.dataset.size, clock: [r.left, r.top, r.right, r.bottom].map(Math.round), date: [d.left, d.top, d.right, d.bottom].map(Math.round),
     overlap: !c.hidden && !(r.right <= d.left || d.right <= r.left || r.bottom <= d.top || d.bottom <= r.top) }; })()`;
@@ -359,12 +381,22 @@ try {
     ok('最初に見本の生徒2人（はじめて＝後ろ・慣れた＝前）と見本の黒板', JSON.stringify(desks) === JSON.stringify([['ex-s2', 'front'], ['ex-s1', 'back']]) &&
       (await page.eval(`document.getElementById('room-chalk').textContent`)) === 'これ、簡単にまとめておいて。なるはやで！', JSON.stringify(desks));
     ok('教室: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0, String(await page.eval(OVERFLOW)));
+    // v0.4 段A：見出しはタブと「？」だけ（アイコン・題・説明は見えない。ページの題はそのまま）・説明の文はふだん出さない・列の名前は読み上げ用だけ
+    const hd = await page.eval(HEAD), nt = await page.eval(NOTES);
+    ok('見出しはタブ4つと「？」だけ（アイコン・題・説明は見えない。読み上げ用の題とページの題は「マネジメント教室」のまま）', !hd.logo && !hd.h1Shown && hd.h1Text === 'マネジメント教室' &&
+      hd.help && hd.tabs === 4 && hd.title === 'マネジメント教室', JSON.stringify(hd));
+    ok('席の説明の文・席替えの説明・昼休みの説明はふだん出ない（見本を消す文は残る）・席替えの説明はカーソルを合わせると出る（title）', !nt.seatNote && !nt.shuffleText && !nt.lunchNote && !nt.tip &&
+      nt.shuffleTitle === '前後は「慣れ」のまま、左右の席だけくじで入れ替えます' && nt.exNote, JSON.stringify(nt));
+    ok('教室の列の名前（前の席・中ほどの席・後ろの席）は見えない（読み上げ用には残る）', JSON.stringify(nt.labels) === JSON.stringify(['前の席-', '中ほどの席-', '後ろの席-']), JSON.stringify(nt.labels));
     const bg = await page.eval(`getComputedStyle(document.body).backgroundColor`);
     ok('body に背景色（' + (V.dark ? 'ダーク' : 'ライト') + '）', V.dark ? bg === 'rgb(18, 24, 21)' : bg === 'rgb(238, 242, 239)', bg);
     await page.shot('01_教室_' + V.tag + '.png', true);
     // 2026-10-18 調整 K: 先生と教卓は、大きい黒板の真ん中の下（パソコンでは右に時間割があっても）
     const dxT = await page.eval(TEACHER);
     ok('先生と教卓は教室（席の列）の真ん中（中心の差 ' + dxT + 'px・±8px 以内）', Math.abs(dxT) <= 8, String(dxT));
+    // v0.4 段A：スピーカーも、大きい黒板の真ん中ではなく教室（席の列）の真ん中
+    const dxS = await page.eval(SPEAKERX);
+    ok('スピーカーも教室（席の列）の真ん中（中心の差 ' + dxS + 'px・±8px 以内）', Math.abs(dxS) <= 8, String(dxS));
 
     // 生徒の目線（見本の「はじめての生徒」）
     await page.pressEl('button.desk[data-sid="ex-s1"]');
@@ -478,11 +510,19 @@ try {
       JSON.stringify(tt.rows) === JSON.stringify(['1限 授業・黒板', '2限 手伝い・お便り', '3限 雑務・放送']) && JSON.stringify(tt.now) === '["ex-b1"]' && !tt.prev && !tt.next, JSON.stringify(tt));
     ok('時間割の小黒板は ' + (V.w >= 760 ? '大きい黒板の右' : '大きい黒板の下（横長）') + '・スピーカーは黒板の上', (V.w >= 760 ? lay.right : lay.below) && lay.speakerAbove, JSON.stringify(lay));
     // 第2段から、今日の掃除の行は「掃除の時間」（掃除の時間の入口）と書く
-    ok('時間割の枠は8行（1〜4限・昼休み・5〜6限・掃除）・今日の空いている時限（4〜6限）は「＋」で押せる', JSON.stringify(tt.slots) === '["1限","2限","3限","4限","昼休み","5限","6限","掃除の時間"]' &&
+    // v0.4 段A：放課後を足して9行（期待を8行から変えた）
+    ok('時間割の枠は9行（1〜4限・昼休み・5〜6限・掃除・放課後）・今日の空いている時限（4〜6限）は「＋」で押せる', JSON.stringify(tt.slots) === '["1限","2限","3限","4限","昼休み","5限","6限","掃除の時間","放課後"]' &&
       JSON.stringify(tt.empty) === '["4限+","5限+","6限+"]' && tt.more === '', JSON.stringify(tt));
     await page.eval('window.scrollTo(0, 0); true');
     await sleep(150);
     await page.shot('10_時間割のある教室_' + V.tag + '.png');
+    // v0.4 段A：大きい黒板の右上の日付は縦書きのまま、2けたの数字を立てる（縦中横）。その下に今の時間
+    const bdt = await page.eval(`(() => { const d = document.getElementById('room-date'); return { text: d.textContent, mode: getComputedStyle(d).writingMode, time: (d.querySelector('.bd-time') || {}).textContent || '',
+      tcy: [...d.querySelectorAll('.bd-date .tcy')].map((x) => x.textContent + ':' + getComputedStyle(x).textCombineUpright + ':' + (x.getBoundingClientRect().width > x.getBoundingClientRect().height ? 'w' : 'h')) }; })()`);
+    ok('大きい黒板の右上：縦書きの日付の数字（月・日）は縦中横でまっすぐ立つ・その下に今の時間「1限」', bdt.mode === 'vertical-rl' && bdt.tcy.length === 2 && bdt.tcy.every((x) => x.split(':')[1] === 'all') &&
+      bdt.time === '1限' && /^\d+月\d+日（.）1限$/.test(bdt.text), JSON.stringify(bdt));
+    if (V.tag === '1280_light') await page.shot('31_黒板の日付と今の時間_1280_light.png');
+    const boardH0 = (await page.eval(SAYBOX)).boardH;
     // ---- v0.3.1：時間割の選んでいる行に「直す」（黒板の下の「いまの黒板・相手・直す・コピー」の行はなし） ----
     const tm = await page.eval(TTEDIT);
     ok('黒板の下の「いまの黒板・相手・直す・コピー」の行はない・選んでいる行（1限）の右端にだけ「直す」', tm.metaHidden && !tm.oldEdit && !tm.oldCopy && tm.edits === 1 && tm.nowBid === 'ex-b1', JSON.stringify(tm));
@@ -497,32 +537,59 @@ try {
     await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
     await sleep(150);
     ok('… 閉じると、黒板の下の行はまた出ない・横にはみ出さない', (await page.eval(`document.getElementById('room-meta').hidden`)) && (await page.eval(OVERFLOW)) <= 0);
-    // お便り：時間割の2限を押す → 大きい黒板は「（お便りで配った）」、教卓の前に白いプリント
+    // お便り：時間割の2限を押す → 2限の時間になる（v0.4 段A：大きい黒板には何も書かず、お便りは相手の机に小さな紙。教卓の前のプリントはなくした）
     await page.pressEl('#tt-list .tt-row[data-bid="ex-b2"]');
     await sleep(250);
     let rm = await page.eval(ROOM);
-    ok('時間割の行（2限）を押すと、大きい黒板がその頼みに切り替わる（いまの黒板＝2限・強調も移る）', rm.cur === 'ex-b2' && JSON.stringify((await page.eval(TT)).now) === '["ex-b2"]', JSON.stringify(rm));
+    ok('時間割の行（2限）を押すと、2限の時間になる（いまの黒板＝2限・強調も移る・選んだ時間は保存）', rm.cur === 'ex-b2' && JSON.stringify((await page.eval(TT)).now) === '["ex-b2"]' &&
+      !!rm.time && rm.time.slot === 2, JSON.stringify(rm));
     const tm2 = await page.eval(TTEDIT);
     ok('… 「直す」も2限に移る・いちばん長い行（2限 手伝い・お便り）でも科目名が切れない', tm2.edits === 1 && tm2.nowBid === 'ex-b2' && !tm2.liOver && !tm2.rowOver && !tm2.cut.length, JSON.stringify(tm2));
-    ok('お便り: 大きい黒板には「（お便りで配った）」と小さく、教卓の前に「おたより」のプリント（本文は頼みの文）', /（お便りで配った）/.test(rm.chalk) && /^おたより/.test(rm.printHead) &&
-      rm.print === '来週の準備で、資料の印刷を手伝ってもらえると助かります' && !rm.speaker, JSON.stringify(rm));
+    ok('お便り: 大きい黒板には一言を書かない（「（お便りで配った）」なし）・教卓の前のプリントはない・相手2人の机それぞれに小さな紙', rm.chalk === '' && !rm.print &&
+      JSON.stringify(rm.papers) === '["ex-s1","ex-s2"]' && JSON.stringify(rm.paperBid) === '["ex-b2"]' && !rm.speaker && /2限$/.test(rm.date), JSON.stringify(rm));
     ok('お便り: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
-    const dxP = await page.eval(PRINTX);
-    ok('教卓の前のプリントも教室（席の列）の真ん中（中心の差 ' + dxP + 'px・±8px 以内）', Math.abs(dxP) <= 8, String(dxP));
     await page.shot('11_お便り_' + V.tag + '.png', true);
-    // 放送：3限を押す → スピーカーから文字が吹き出しで出て、3秒ほどで薄れて消える
+    await page.pressEl('#room-rows .desk-paper[data-sid="ex-s1"]');
+    await sleep(350);
+    let lp = await page.eval(LETTERPOP);
+    ok('机の紙を押すと、そのお便りが大きく読める（時限と科目・本文・配った相手）・画面からはみ出さない', lp.open && lp.meta === '2限 手伝い' && lp.text === '来週の準備で、資料の印刷を手伝ってもらえると助かります' &&
+      lp.to === '配った相手：はじめての生徒さん、慣れた生徒さん' && lp.inView && JSON.stringify(lp.expanded) === '["ex-s1"]' && (await page.eval(OVERFLOW)) <= 0, JSON.stringify(lp));
+    if (V.tag === '390_light') await page.shot('32_お便りを開いた_390_light.png');
+    await page.pressEl('#room-rows .desk-paper[data-sid="ex-s1"]');
+    await sleep(200);
+    ok('… もう一度押すと閉じる（机の目線は開かない）', !(await page.eval(LETTERPOP)).open && (await page.eval(`document.getElementById('view').hidden`)));
+    if (!V.mobile) {
+      // パソコン：カーソルを合わせると出て、外すと消える
+      const pr = await page.eval(`(() => { const r = document.querySelector('#room-rows .desk-paper[data-sid="ex-s2"]').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+      await page.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 5, y: 5 });
+      await page.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: pr.x, y: pr.y });
+      await sleep(250);
+      const hov = await page.eval(LETTERPOP);
+      await page.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 5, y: 5 });
+      await sleep(200);
+      ok('パソコン: 机の紙にカーソルを合わせると大きく読め、外すと消える', hov.open && JSON.stringify(hov.expanded) === '["ex-s2"]' && !(await page.eval(LETTERPOP)).open, JSON.stringify(hov));
+    }
+    // 放送：3限を押す → その時間の間は、スピーカーの下に吹き出しがずっと出ている（v0.4 段A：3秒で消える形から変えた）
     await page.pressEl('#tt-list .tt-row[data-bid="ex-b3"]');
     await page.eval('window.scrollTo(0, 0); true');
     await sleep(550);
     rm = await page.eval(ROOM);
-    ok('放送: 時間割の3限を押すと、スピーカーから文字が吹き出しで出る（放送中…）', rm.cur === 'ex-b3' && rm.say === 'あとで部屋の片づけ、お願いね' && rm.sayK === '放送中…' && rm.sayOp > 0.6 && rm.speaker, JSON.stringify(rm));
+    ok('放送: 時間割の3限を押すと、スピーカーの下に吹き出しが出る（放送中…）・大きい黒板には一言を書かない・机に紙はない', rm.cur === 'ex-b3' && rm.say === 'あとで部屋の片づけ、お願いね' &&
+      rm.sayK === '放送中…' && rm.sayOp > 0.6 && rm.speaker && rm.chalk === '' && !rm.papers.length, JSON.stringify(rm));
+    const sbx = await page.eval(SAYBOX);
+    ok('放送: 吹き出しはスピーカーの下で、大きい黒板に重ならない（黒板の高さは変わらない）', sbx.shown && sbx.below && sbx.boardH === boardH0, JSON.stringify([sbx, boardH0]));
     await page.shot('12_放送_' + V.tag + '.png');
-    const gone = await page.waitFor(`document.getElementById('room-say').hidden`, 4500);
+    await sleep(3600);
     rm = await page.eval(ROOM);
-    ok('放送: 3秒ほどで薄れて消え、大きい黒板には「（放送で伝えた）」だけが残る', gone && rm.say === '' && /（放送で伝えた）/.test(rm.chalk) && rm.print === '', JSON.stringify(rm));
+    ok('放送: 3秒たっても、その時間の間は出したまま', rm.say === 'あとで部屋の片づけ、お願いね' && !rm.sayOff && rm.sayOp > 0.9, JSON.stringify(rm));
     await page.pressEl('#room-speaker');
-    await sleep(300);
-    ok('放送: スピーカーを押すと、もう一度流れる', (await page.eval(ROOM)).say === 'あとで部屋の片づけ、お願いね');
+    await sleep(700);
+    rm = await page.eval(ROOM);
+    ok('放送: スピーカーを押すと、吹き出しがふわっと消える', rm.sayOff && rm.sayOp < 0.05, JSON.stringify(rm));
+    await page.pressEl('#room-speaker');
+    await sleep(700);
+    rm = await page.eval(ROOM);
+    ok('放送: もう一度押すと、また出る', !rm.sayOff && rm.sayOp > 0.9 && rm.say === 'あとで部屋の片づけ、お願いね', JSON.stringify(rm));
     ok('放送: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
     // お便りの生徒の目線：机の上の紙
     await page.pressEl('#tt-list .tt-row[data-bid="ex-b2"]');
@@ -573,11 +640,18 @@ try {
     ok('頼みごとを出すシート: 伝え方3つ（初めは黒板）・科目名5つのチップ（初めは授業）と自分で書く欄', sh.title === '頼みごとを出す' && JSON.stringify(sh.chs) === '["board*","letter","broadcast"]' &&
       JSON.stringify(sh.subj) === '["ゼミ","授業*","雑務","手伝い","その他"]' && sh.free && sh.ow <= 0, JSON.stringify(sh));
     const shp = await page.eval(SHEET);
-    ok('頼みごとを出すシート: 時限のチップ6つ（うまっている1〜3限は選べない・下のボタンから開くといちばん早い空きの4限）', shp.pn === 6 && JSON.stringify(shp.pdis) === '[1,2,3]' && shp.period === 4, JSON.stringify(shp));
+    // v0.4 段A：昼休みの枠にもふつうの頼みが入るので、チップは7つ（期待を6つから変えた）
+    ok('頼みごとを出すシート: 枠のチップ7つ（1〜4限・昼休み・5〜6限。うまっている1〜3限は選べない・今の時間の3限はうまっているので、いちばん早い空きの4限）', shp.pn === 7 &&
+      JSON.stringify(shp.pdis) === '[1,2,3]' && shp.period === 4, JSON.stringify(shp));
     await page.eval(`(() => { document.getElementById('write-ch-letter').click(); document.getElementById('write-subj-0').click(); const t = document.getElementById('write-text');
       t.value = '金曜の会議の資料を、A4 1枚にまとめてもらえると助かります'; t.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
     await sleep(200);
-    ok('シートでお便りを選ぶと、書いている文が教卓の前のプリントに映る', (await page.eval(ROOM)).print === '金曜の会議の資料を、A4 1枚にまとめてもらえると助かります');
+    // v0.4 段A：教卓の前のプリントはなくした。書いている途中のお便りは、シートの書く欄（お便りの紙の見た目）だけ
+    const wl0 = await page.eval(ROOM);
+    ok('シートでお便りを選ぶと、書く欄がお便りの紙の見た目になる（教室には出さない：プリントも机の紙もない）', (await page.eval(`document.getElementById('write-slate').dataset.ch`)) === 'letter' &&
+      !wl0.print && !wl0.papers.length, JSON.stringify(wl0));
+    // 書いている途中の教室は、書いている枠（4限）のようす：今の時間（3限）の放送の吹き出しは出さず、黒板の右上は「4限」
+    ok('… 書いている途中の教室は、書いている枠（4限）のようす（3限の放送の吹き出しは出ない・黒板の右上は「4限」）', wl0.say === '' && /4限$/.test(wl0.date), JSON.stringify(wl0));
     await page.shot('15_頼みごとを出すシート_' + V.tag + '.png');
     await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
     await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
@@ -588,7 +662,7 @@ try {
     await page.eval(todayBoards(6));
     await page.load(base);
     const h6 = await page.eval(HEIGHTS);
-    ok('今日の頼みが1つの日と6つの日で、大きい黒板と時間割の高さが同じ（枠は8行のまま）', h1.board === h6.board && h1.tt === h6.tt && h1.slots === 8 && h6.slots === 8, JSON.stringify([h1, h6]));
+    ok('今日の頼みが1つの日と6つの日で、大きい黒板と時間割の高さが同じ（枠は9行のまま）', h1.board === h6.board && h1.tt === h6.tt && h1.slots === 9 && h6.slots === 9, JSON.stringify([h1, h6]));
     ok('6つうまった日: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
 
     // ---- v0.3 第2段：掃除の時間（見本の3つを、1枚ずつ） ----
@@ -609,8 +683,11 @@ try {
     await page.eval(`document.getElementById('sweep-next').click(); true`);
     await page.waitFor(`document.getElementById('sheet-sweep').hidden`, 2000);
     await sleep(200);
-    ok('「教室にもどる」で掃除の時間を閉じると、大きい黒板はいまの黒板（1限）にもどる', (await page.eval(`document.getElementById('room-chalk').textContent`)) === 'これ、簡単にまとめておいて。なるはやで！' &&
-      !(await page.eval(`document.getElementById('room-board').classList.contains('is-sweeping')`)));
+    // v0.4 段A：掃除の行を押すと時間は「掃除」になり、閉じても「掃除」のまま（期待を「いまの黒板（1限）にもどる」から変えた）。行には掃除のあとの印
+    const sw2 = await page.eval(ROOM), stt = await page.eval(TT);
+    ok('「教室にもどる」で閉じると、時間は「掃除」のまま（大きい黒板は日付と「掃除」だけ）・時間割の掃除の行を選んでいる', sw2.chalk === '' && /掃除$/.test(sw2.date) && !!sw2.time && sw2.time.slot === 'sweep' &&
+      JSON.stringify(stt.sel) === '["sweep"]' && !(await page.eval(`document.getElementById('room-board').classList.contains('is-sweeping')`)), JSON.stringify([sw2, stt.sel]));
+    ok('… 掃除のあと、時間割の行に小さな印（途中・まだが残った1限・2限・3限は「続き」）', JSON.stringify(stt.marks) === '["ex-b1:続き","ex-b2:続き","ex-b3:続き"]', JSON.stringify(stt.marks));
 
     // ---- v0.3 第3段：昼休み（見本の2人） ----
     await page.eval('window.scrollTo(0, 0); true');
@@ -618,18 +695,19 @@ try {
     await page.eval(`document.getElementById('tt-lunch').click(); true`);
     await sleep(900);
     const ln = await page.eval(LUNCH), lpos = await page.eval(LUNCHPOS);
-    // v0.3.1：丸いテーブルの輪をやめて、今ある机のとなりあう席に移る（期待を「輪に2人・机は空き」から変えた）
-    ok('昼休み: 黒板には「昼休み」とだけ・生徒2人はとなりあう机に移る（丸いテーブル・新しい机はない）・時間割は「昼休み中（…から）」・横にはみ出さない', ln.on && ln.chalk === '昼休み' &&
-      JSON.stringify(ln.groups) === '["2"]' && ln.kids === 2 && ln.desks === 0 && ln.round === 0 && ln.allDesks === (V.w >= 760 ? 15 : 9) && /^昼休み中（\d+:\d\dから）$/.test(ln.row) && ln.tea && ln.ow <= 0, JSON.stringify(ln));
+    // v0.3.1：丸いテーブルの輪をやめて、今ある机のとなりあう席に移る。v0.4 段A：黒板の大きい「昼休み」の字はなくし、時間割の行は「昼休み（…から）」（期待を変えた）
+    ok('昼休み: 黒板には何も書かない・生徒2人はとなりあう机に移る（丸いテーブル・新しい机はない）・時間割と黒板の下は「昼休み（…から）」・横にはみ出さない', ln.on && ln.chalk === '' &&
+      JSON.stringify(ln.groups) === '["2"]' && ln.kids === 2 && ln.desks === 0 && ln.round === 0 && ln.allDesks === (V.w >= 760 ? 15 : 9) && /^昼休み（\d+:\d\dから）$/.test(ln.row) &&
+      /^昼休み（\d+:\d\dから）$/.test(ln.note) && ln.tea && ln.ow <= 0, JSON.stringify(ln));
     const lr = Object.values(lpos).map((p) => p[2]).sort((a, b) => a - b);
     ok('… 2人はとなりあう席で向かい合わせ（左右なら ±90度・前後なら 0度と180度）', lunchAdjacent(lpos) && (JSON.stringify(lr) === '[-90,90]' || JSON.stringify(lr) === '[0,180]'), JSON.stringify(lpos));
     // 写真はお知らせが消えてから
-    if (V.tag !== '390_dark') { await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 4000); await sleep(350); await page.shot('24_昼休みの教室_' + V.tag + '.png', true); }
-    await page.eval(`document.getElementById('room-lunch-end').click(); true`);
+    if (V.tag !== '390_dark') { await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 7000); await sleep(350); await page.shot('24_昼休みの教室_' + V.tag + '.png', true); }
+    await page.pressEl('#tt-list .tt-row[data-bid="ex-b3"]');
     await sleep(900);
     const lb = await page.eval(LUNCH);
-    ok('「授業にもどる」で生徒が自分の席にもどる（保存も消える）', !lb.on && lb.desks === 2 && lb.kids === 0 && lb.saved === null && lb.row === '昼休み' &&
-      JSON.stringify(await page.eval(LUNCHPOS)) === JSON.stringify(cpos), JSON.stringify([lb, cpos]));
+    ok('昼休みのあと、ほかの行（3限）を押すと3限になり、生徒は自分の席にもどる（「授業にもどる」はない）', !lb.on && lb.desks === 2 && lb.kids === 0 && !!lb.saved && lb.saved.slot === 3 && lb.row === '昼休み' &&
+      !(await page.eval(`!!document.getElementById('room-lunch-end')`)) && JSON.stringify(await page.eval(LUNCHPOS)) === JSON.stringify(cpos), JSON.stringify([lb, cpos]));
   }
 
   section('そのほか');
@@ -659,14 +737,26 @@ try {
   await page.waitFor(`document.getElementById('view').hidden`, 2000);
 
   // ---- 2026-10-17 追加：左右ばらばらの席・席替え・いちばん強い選択肢・提出と「これまでの提出物」 ----
-  const seatIdx = await page.eval(`(() => { const idx = (seat, sid) => [...document.querySelectorAll('.row[data-seat="' + seat + '"] .row-desks > *')].findIndex((el) => el.dataset && el.dataset.sid === sid);
+  const seatIdx = await page.eval(`(() => { const idx = (seat, sid) => [...document.querySelectorAll('.row[data-seat="' + seat + '"] .row-desks > .seat')].findIndex((el) => { const d = el.querySelector('.desk'); return !!d && d.dataset.sid === sid; });
     return [idx('front', 'ex-s2'), idx('back', 'ex-s1')]; })()`);
   ok('席: 見本の生徒は左右ばらばら（慣れた生徒＝前の2番目・はじめての生徒＝後ろの3番目）', seatIdx[0] === 1 && seatIdx[1] === 2, JSON.stringify(seatIdx));
   await page.eval(`document.getElementById('room-shuffle').click(); true`);
   await sleep(250);
   const sh = await page.eval(`({ n: document.querySelectorAll('button.desk').length, cols: JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})).students.map((s) => s.col),
     toast: document.getElementById('toast').classList.contains('is-on') })`);
-  ok('席替え: 生徒は2人のまま、左右の席（0〜4）が決まり直す', sh.n === 2 && sh.cols.every((c) => Number.isInteger(c) && c >= 0 && c < 5) && sh.toast, JSON.stringify(sh));
+  ok('席替え: 生徒は2人のまま、左右の席（0〜4）が決まり直す・お知らせ「左右の席をくじで入れ替えたよ（前後は「慣れ」のまま）」', sh.n === 2 && sh.cols.every((c) => Number.isInteger(c) && c >= 0 && c < 5) && sh.toast &&
+    (await page.eval(`document.getElementById('toast-msg').textContent`)) === '左右の席をくじで入れ替えたよ（前後は「慣れ」のまま）', JSON.stringify(sh));
+  // スマホ：席替えのボタンを長押しすると小さな説明が出る（席替えはしない）
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 4000);
+  const lpb = await page.eval(`(() => { const b = document.getElementById('room-shuffle'); b.scrollIntoView({ block: 'center' }); const r = b.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+  const colsBefore = await page.eval(`${SAVED}.students.map((s) => s.col)`);
+  await page.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: lpb.x, y: lpb.y }] });
+  await sleep(800);
+  await page.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await sleep(250);
+  const lpn = await page.eval(NOTES);
+  ok('スマホ：席替えのボタンを長押しすると「前後は「慣れ」のまま、左右の席だけくじで入れ替えます」の小さな説明が出る（席替えはしない）', lpn.tip &&
+    lpn.tipText === '前後は「慣れ」のまま、左右の席だけくじで入れ替えます' && JSON.stringify(await page.eval(`${SAVED}.students.map((s) => s.col)`)) === JSON.stringify(colsBefore), JSON.stringify([lpn, colsBefore]));
   await page.eval(`document.getElementById('btn-add-student').click(); true`);
   await page.waitFor(`!document.getElementById('sheet-card').hidden`, 2000);
   await sleep(300);
@@ -939,8 +1029,20 @@ try {
   const full = await page.eval(TT);
   await page.pressEl('#btn-write');
   await sleep(300);
-  ok('今日の6つが全部うまっていると「＋」はなく、「頼みごとを出す」は開かずに知らせる', full.empty.length === 0 && full.rows.length === 6 &&
-    (await page.eval(`document.getElementById('sheet-write').hidden`)) && (await page.eval(`document.getElementById('toast-msg').textContent`)) === '今日の時間割は6限までうまっているよ。明日に回すか、どれかを直してね', JSON.stringify(full));
+  // v0.4 段A：昼休みの枠にもふつうの頼みが入るので、1〜6限がうまっていても昼休みが空いていれば開く（期待を変えた）
+  const s6 = await page.eval(SHEET);
+  ok('1〜6限が全部うまっていると「＋」はなく、「頼みごとを出す」は空いている昼休みを選んで開く', full.empty.length === 0 && full.rows.length === 6 && s6.open && s6.period === 4.5 &&
+    JSON.stringify(s6.pdis) === '[1,2,3,4,5,6]', JSON.stringify([full, s6]));
+  await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})); const t = new Date(Date.now() - 3 * 3600000); t.setHours(12, 10, 0, 0);
+    st.boards.push({ id: 'nL', text: '昼の頼み', channel: 'board', subject: '授業', period: 0, lunch: true, createdAt: t.getTime(), updatedAt: t.getTime(), targets: [], firstTime: {}, results: {} });
+    localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
+  await page.load(base);
+  await page.pressEl('#btn-write');
+  await sleep(300);
+  ok('… 昼休みもうまっていると、開かずに知らせる', (await page.eval(`document.getElementById('sheet-write').hidden`)) &&
+    (await page.eval(`document.getElementById('toast-msg').textContent`)) === '今日の時間割は6限と昼休みまでうまっているよ。明日に回すか、どれかを直してね');
   // 時限のない古いデータで、1日に8件ある日：1〜6限に入り、7・8件目は時間割の下に「この日はほかに 2 件」
   await page.eval(`(() => { const d = new Date(Date.now() - 3 * 3600000); d.setDate(d.getDate() - 3); d.setHours(8, 0, 0, 0);
     localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify({ v: 1, students: [{ id: 's1', name: '生徒A', color: 1, col: 1, answers: { q1: 'B' }, notes: {}, history: [], createdAt: d.getTime() }],
@@ -957,7 +1059,9 @@ try {
   await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
   await sleep(200);
   const w8 = await page.eval(`({ s: ${SHEET}, note: document.getElementById('write-period-note').hidden ? '' : document.getElementById('write-period-note').textContent })`);
-  ok('… 時限なしの頼みを直すとき、その日がうまっていれば時限は選べず「時間割に入らない」と知らせる', w8.s.period === 0 && JSON.stringify(w8.s.pdis) === '[1,2,3,4,5,6]' && /時間割に入らない/.test(w8.note), JSON.stringify(w8));
+  // v0.4 段A：その日の昼休みの枠は空いているので、時限なしの頼みも昼休みには入れられる（期待を「時間割に入らない」から変えた）
+  ok('… 時限なしの頼みを直すとき、1〜6限がうまっていれば選べるのは空いている昼休みだけ（まだ選ばれていない）', w8.s.period === 0 && JSON.stringify(w8.s.pdis) === '[1,2,3,4,5,6]' &&
+    /空いている時限を選んで/.test(w8.note), JSON.stringify(w8));
   await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
   await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
   await page.pressEl('#tab-subs');
@@ -969,8 +1073,12 @@ try {
 
   // ---- v0.3 第2段：掃除の時間（くわしく・390 ライト） ----
   await page.load(base);   // 今日の時間割にもどる（上は3日前の日を見ていた）
-  ok('入口: 今日の頼みも前の日からの続きもない日は「掃除」の行を押せない', (await page.eval(CARRY)).sweep === false &&
-    /まだない/.test(await page.eval(`document.getElementById('tt-sweep').getAttribute('aria-label')`)));
+  // v0.4 段A：掃除の行はいつでも押せる。掃除するものがないときは、わけを知らせる（期待を「押せない」から変えた）
+  await page.pressEl('#tt-sweep');
+  await sleep(300);
+  ok('入口: 今日の頼みも前の日からの続きもない日も「掃除」の行は押せて、「今日はまだ頼みごとがないので、掃除するものはないよ」と知らせる（掃除の時間は開かない・時間は「掃除」）',
+    (await page.eval(CARRY)).sweep === true && (await page.eval(`document.getElementById('sheet-sweep').hidden`)) &&
+    (await page.eval(`document.getElementById('toast-msg').textContent`)) === '今日はまだ頼みごとがないので、掃除するものはないよ' && (await page.eval(`${SAVED}.time.slot`)) === 'sweep');
   ok('古いデータ（掃除の記録なし）も読み込み、掃除の記録は空として保存し直す', (await page.eval(`${SAVED}.boards.every((b) => b.sweep && !Object.keys(b.sweep).length)`)));
   await page.eval('localStorage.clear(); true');
   await page.load(base);
@@ -1034,7 +1142,7 @@ try {
   ok('次の日: 途中・まだの頼みが時間割の下に「前の日からの続き」として1件1行で出る（終わった生徒の分は出ない）・掃除の時間も押せる', cr.shown && cr.rows.length === 3 &&
     /1限 授業（黒板）・はじめての生徒さん 途中「明日の1限のあと、表の3行目から」/.test(cr.rows[0]) && /2限 手伝い（お便り）.*まだ ほか1人/.test(cr.rows[1]) && /3限 雑務（放送）・はじめての生徒さん まだ/.test(cr.rows[2]) && cr.sweep, JSON.stringify(cr));
   const ft = await page.eval(TT);
-  ok('… 続きは枠の外に出るので、今日の時間割は8行の枠のまま（1〜6限は空き）・横にはみ出さない', JSON.stringify(ft.empty) === '["1限+","2限+","3限+","4限+","5限+","6限+"]' && ft.slots.length === 8 && (await page.eval(OVERFLOW)) <= 0, JSON.stringify(ft));
+  ok('… 続きは枠の外に出るので、今日の時間割は9行の枠のまま（1〜6限は空き）・横にはみ出さない', JSON.stringify(ft.empty) === '["1限+","2限+","3限+","4限+","5限+","6限+"]' && ft.slots.length === 9 && (await page.eval(OVERFLOW)) <= 0, JSON.stringify(ft));
   await page.eval(`(() => { const el = document.getElementById('room-tt'); window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 16); return true; })()`);
   await sleep(200);
   await page.shot('23_前の日からの続き_390_light.png');
@@ -1093,16 +1201,23 @@ try {
   await page.load(base);
   const rm = await page.eval(`(() => { const s = getComputedStyle(document.getElementById('view')); return { d: s.transitionDuration, f: s.filter }; })()`);
   ok('動きを減らす設定では、切り替えは 0.15 秒のフェードだけ（ぼかしなし）', /^0\.15s/.test(rm.d) && rm.f === 'none', JSON.stringify(rm));
-  // 動きを減らす設定の放送：吹き出しは薄れずに「放送で伝えた」と出したまま（黒板には重ねない）
+  // 動きを減らす設定の放送：その時間の間は出したまま（黒板には重ねない）。スピーカーを押すと、すぐ消える・出る
   await page.eval('localStorage.clear(); true');
   await page.load(base);
   await page.pressEl('#tt-list .tt-row[data-bid="ex-b3"]');
   await sleep(3800);
   const rms = await page.eval(`(() => { const r = ${ROOM}, s = document.getElementById('room-say').getBoundingClientRect(), b = document.getElementById('room-board').getBoundingClientRect(); return Object.assign(r, { overBoard: s.bottom > b.top + 1 }); })()`);
-  ok('動きを減らす設定の放送: 3秒たっても薄れず「放送で伝えた」と出したまま（黒板に重ねない）', rms.say === 'あとで部屋の片づけ、お願いね' && rms.sayK === '放送で伝えた' && rms.sayOp === 1 && !rms.overBoard, JSON.stringify(rms));
+  // v0.4 段A：今日の放送は「放送中…」（期待を「放送で伝えた」から変えた）
+  ok('動きを減らす設定の放送: 3秒たっても薄れず出したまま（黒板に重ねない）', rms.say === 'あとで部屋の片づけ、お願いね' && rms.sayK === '放送中…' && rms.sayOp === 1 && !rms.overBoard, JSON.stringify(rms));
   ok('動きを減らす設定の放送: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
   await page.eval('window.scrollTo(0, 0); true');
   await page.shot('17_放送_動きを減らす設定_390_light.png');
+  await page.pressEl('#room-speaker');
+  await sleep(60);
+  const rmo = await page.eval(ROOM);
+  await page.pressEl('#room-speaker');
+  await sleep(60);
+  ok('動きを減らす設定: スピーカーを押すと、すぐ消える・もう一度押すと、すぐ出る', rmo.sayOff && rmo.sayOp === 0 && (await page.eval(ROOM)).sayOp === 1, JSON.stringify(rmo));
   // ライトの端末でも data-theme="dark" ならダーク
   await page.viewport(1280, 800, false, false, false);
   await page.load(base);
@@ -1127,7 +1242,7 @@ try {
     [['n3', 'B', 0], ['n4', 'B', 2], ['n5', 'A', 1]].forEach((x, i) => st.students.push({ id: x[0], name: '生徒' + (i + 3), color: i + 3, col: x[2], answers: { q1: x[1] }, notes: {}, history: [], createdAt: t, updatedAt: t }));
     localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
   await page.load(base);
-  ok('古いデータ（「話を聞いた」の記録なし）も読み込み、記録は空として保存し直す', await page.eval(`${SAVED}.students.every((s) => Array.isArray(s.talks) && !s.talks.length) && ${SAVED}.lunch === null`));
+  ok('古いデータ（「話を聞いた」の記録なし）も読み込み、記録は空として保存し直す（選んだ時間もまだない）', await page.eval(`${SAVED}.students.every((s) => Array.isArray(s.talks) && !s.talks.length) && !('lunch' in ${SAVED}) && ${SAVED}.time === null`));
   const cpos5 = await page.eval(LUNCHPOS);
   await page.eval(`document.getElementById('tt-lunch').click(); true`);
   await sleep(80);
@@ -1140,12 +1255,16 @@ try {
     lq.desks === 0 && lq.round === 0 && lunchAdjacent(lp5) && flip.some((x) => /transform/.test(x)), JSON.stringify([lq, lp5, flip]));
   ok('… 生徒の向きが変わる（まとまりの真ん中の方を向く）・移った机に名札', Object.values(lp5).some((p) => p[2] !== 0) &&
     (await page.eval(`[...document.querySelectorAll('#room-rows .desk.is-lunch')].every((d) => d.querySelector('.tag-n').textContent.length > 0)`)), JSON.stringify(lp5));
-  // v0.3.1：昼休みの間は「放送」だけ出せる（期待を「頼みごとを出すが押せない形」から変えた）
-  ok('昼休みの間の下のボタンは「放送を出す」（押せる）', lq.btn === '放送を出す' && !lq.writeOff, JSON.stringify(lq));
-  await page.eval(`document.querySelector('#tt-list button[data-period]').click(); true`);
-  await sleep(200);
-  ok('昼休みの間は、時間割の空きからは開かずに「昼休みのあとにしよう」', (await page.eval(`document.getElementById('sheet-write').hidden`)) &&
-    (await page.eval(`document.getElementById('toast-msg').textContent`)) === '昼休みのあとにしよう（昼休みに頼みごとをすると、休めなかったかも）');
+  // v0.4 段A：下のボタンはいつも「頼みごとを出す」。昼休みの枠にも、ふつうの頼み（黒板・お便り・放送）を入れられる（期待を「放送を出す」「時間割の空きからは開かない」から変えた）
+  ok('昼休みの間も、下のボタンは「頼みごとを出す」', lq.btn === '頼みごとを出す' && !lq.writeOff, JSON.stringify(lq));
+  await page.pressEl('#btn-write');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await sleep(250);
+  const lw = await page.eval(`({ s: ${SHEET}, dis: [...document.querySelectorAll('input[name="write-ch"]:disabled')].map((x) => x.value) })`);
+  ok('昼休みの間の「頼みごとを出す」：枠は「昼休み」が選ばれている・伝え方は3つとも選べる', lw.s.open && lw.s.title === '頼みごとを出す' && lw.s.period === 4.5 && !lw.dis.length && lw.s.pn === 7, JSON.stringify(lw));
+  await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
+  await sleep(150);
   // 「話を聞いた」の記録
   await page.pressEl('#room-rows .desk.is-lunch[data-sid="ex-s1"]');
   await page.waitFor(`!document.getElementById('sheet-talk').hidden`, 2000);
@@ -1187,25 +1306,25 @@ try {
   const before5 = await page.eval(LUNCHPOS);
   await page.load(base);
   lq = await page.eval(LUNCH);
-  ok('昼休みにしたことは保存され、開き直しても「授業にもどる」まで昼休みのまま', lq.on && lq.chalk === '昼休み' && /^昼休み中/.test(lq.row) && lq.saved && lq.saved.day === tday2, JSON.stringify(lq));
+  // v0.4 段A：「授業にもどる」はなくした。黒板の大きい「昼休み」の字もなし（期待を変えた）
+  ok('昼休みを選んだことは保存され、開き直しても（ほかの行を押すまで）昼休みのまま', lq.on && lq.chalk === '' && /^昼休み（\d+:\d\dから）$/.test(lq.row) && !!lq.saved && lq.saved.day === tday2 && lq.saved.slot === 'lunch', JSON.stringify(lq));
   ok('… 開き直しても同じ並び（昼休みを始めた時刻を種にしている）', JSON.stringify(await page.eval(LUNCHPOS)) === JSON.stringify(before5) && JSON.stringify(before5) === JSON.stringify(lp5), JSON.stringify(before5));
-  await page.eval(`document.getElementById('room-lunch-end').click(); true`);
+  await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
   await sleep(300);
-  ok('「授業にもどる」で、5人とも自分の席にもどる', JSON.stringify(await page.eval(LUNCHPOS)) === JSON.stringify(cpos5) && (await page.eval(`${SAVED}.lunch`)) === null);
+  ok('ほかの行（1限）を押すと、5人とも自分の席にもどる（時間は1限）', JSON.stringify(await page.eval(LUNCHPOS)) === JSON.stringify(cpos5) && (await page.eval(`${SAVED}.time.slot`)) === 1);
   await page.eval(`document.getElementById('tt-lunch').click(); true`);
   await sleep(300);
-  ok('次に昼休みを押すと、並びの種（昼休みを始めた時刻）が新しくなる', (await page.eval(`${SAVED}.lunch.at`)) > lq.saved.at && lunchAdjacent(await page.eval(LUNCHPOS)));
+  ok('次に昼休みを押すと、並びの種（昼休みを選んだ時刻）が新しくなる', (await page.eval(`${SAVED}.time.at`)) > lq.saved.at && (await page.eval(`${SAVED}.time.slot`)) === 'lunch' && lunchAdjacent(await page.eval(LUNCHPOS)));
+  const lunchAt = await page.eval(`${SAVED}.time.at`), lpos2 = await page.eval(LUNCHPOS);
+  await page.eval(`document.getElementById('tt-lunch').click(); true`);
+  await sleep(300);
+  ok('昼休みの行をもう一度押しても、昼休みのまま（並びも同じ）', (await page.eval(LUNCH)).on && (await page.eval(`${SAVED}.time.at`)) === lunchAt && JSON.stringify(await page.eval(LUNCHPOS)) === JSON.stringify(lpos2));
   await page.load(base);
-  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})); st.lunch.day = SekigaeEngine.dayKey(Date.now() - 86400000);
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})); st.time.at = Date.now() - 86400000;
     localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
   await page.load(base);
   lq = await page.eval(LUNCH);
-  ok('次の日（午前3時の区切りのあと）には授業に戻っている', !lq.on && lq.desks === 5 && lq.row === '昼休み' && !lq.writeOff, JSON.stringify(lq));
-  await page.eval(`document.getElementById('tt-lunch').click(); true`);
-  await sleep(300);
-  await page.eval(`document.getElementById('tt-lunch').click(); true`);
-  await sleep(300);
-  ok('1日に何度でも押せる（時間割の「昼休み中」を押しても授業にもどる）', !(await page.eval(LUNCH)).on && (await page.eval(`${SAVED}.lunch`)) === null);
+  ok('次の日（午前3時の区切りのあと）には、選んだ時間はなくなって自分の席', !lq.on && lq.desks === 5 && lq.row === '昼休み' && lq.saved === null && !lq.writeOff, JSON.stringify(lq));
   // 生徒の目線：その日に記録があれば「昼休みから」の声
   await page.pressEl('button.desk[data-sid="ex-s1"]');
   await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
@@ -1246,12 +1365,12 @@ try {
   await page.load(base);
   await page.eval(`document.getElementById('tt-lunch').click(); true`);
   await sleep(80);
-  const rflip = await page.eval(`({ t: [...document.querySelectorAll('#room-rows .desk.is-lunch .kid')].map((k) => k.style.transition + k.style.transform), on: !document.getElementById('room-lunch-note').hidden })`);
+  const rflip = await page.eval(`({ t: [...document.querySelectorAll('#room-rows .desk.is-lunch .kid')].map((k) => k.style.transition + k.style.transform), on: ${SAVED}.time.slot === 'lunch' })`);
   ok('動きを減らす設定では、動かずに並びだけ変わる（となりあう席に移って向きも変わる）', rflip.on && rflip.t.length === 5 && rflip.t.every((x) => x === '') && lunchAdjacent(await page.eval(LUNCHPOS)), JSON.stringify(rflip));
-  await page.eval(`document.getElementById('room-lunch-end').click(); true`);
+  await page.eval(`document.querySelector('#tt-list .tt-row[data-bid="ex-b1"]').click(); true`);
   await page.viewport(390, 844, true, false, false);
 
-  // ---- v0.3.1：昼休みの放送（昼休みの間は放送だけ・時間割の「昼休み」に入る・1日1つ・昼休みの教室で流れる） ----
+  // ---- v0.3.1 → v0.4 段A：昼休みの枠の頼み（どの伝え方も・1日1つ）。昼休みの放送は、昼休みの間ずっと吹き出しに ----
   await page.eval('localStorage.clear(); true');
   await page.load(base);
   await page.eval(`document.getElementById('tt-lunch').click(); true`);
@@ -1260,45 +1379,59 @@ try {
   await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
   await sleep(250);
   const LSHEET = `({ s: ${SHEET}, dis: [...document.querySelectorAll('input[name="write-ch"]:disabled')].map((x) => x.value),
-    chips: [...document.querySelectorAll('input[name="write-period"]')].map((x) => x.closest('label').textContent), note: !document.getElementById('write-ch-note').hidden })`;
+    chips: [...document.querySelectorAll('input[name="write-period"]')].map((x) => x.closest('label').textContent.replace('（うまっている）', '')) })`;
   const ls = await page.eval(LSHEET);
-  ok('昼休みの間の「放送を出す」：伝え方は放送だけ（黒板・お便りは選べない）・時限のかわりに「昼休み」', ls.s.title === '昼休みの放送を出す' && ls.s.ch === 'broadcast' &&
-    JSON.stringify(ls.dis) === '["board","letter"]' && JSON.stringify(ls.chips) === '["昼休み"]' && ls.note, JSON.stringify(ls));
-  await page.eval(`(() => { const t = document.getElementById('write-text'); t.value = '昼休みのうちに、プリントを取りに来てね'; t.dispatchEvent(new Event('input', { bubbles: true }));
+  // v0.4 段A：昼休みの間も「頼みごとを出す」。伝え方は3つとも、枠のチップは7つで「昼休み」が選ばれている（期待を「放送だけ・昼休みだけ」から変えた）
+  ok('昼休みの間の「頼みごとを出す」：伝え方は3つとも選べる・枠のチップは1〜4限・昼休み・5〜6限で「昼休み」が選ばれている', ls.s.title === '頼みごとを出す' && !ls.dis.length &&
+    JSON.stringify(ls.chips) === '["1限","2限","3限","4限","昼休み","5限","6限"]' && ls.s.period === 4.5, JSON.stringify(ls));
+  await page.eval(`(() => { document.getElementById('write-ch-broadcast').click(); const t = document.getElementById('write-text'); t.value = '昼休みのうちに、プリントを取りに来てね'; t.dispatchEvent(new Event('input', { bubbles: true }));
     document.getElementById('write-subj-2').click(); document.getElementById('write-submit').click(); return true; })()`);
   await sleep(500);
-  const lc = await page.eval(`(() => { const st = ${SAVED}, b = st.boards[st.boards.length - 1]; return { ch: b.channel, lunch: b.lunch, per: b.period, subj: b.subject, cur: st.currentId === b.id, id: b.id, tt: ${TT}, room: ${ROOM} }; })()`);
-  ok('出すと時間割の「昼休み」に入り（「昼休み 雑務・放送」）、昼休みの教室でスピーカーから流れる', lc.ch === 'broadcast' && lc.lunch === true && lc.per === 0 && lc.subj === '雑務' && lc.cur &&
-    lc.tt.rows.indexOf('昼休み 雑務・放送') >= 0 && lc.room.say === '昼休みのうちに、プリントを取りに来てね' && lc.room.speaker && /^昼休み/.test(lc.room.chalk), JSON.stringify(lc));
-  ok('… 時間割の1〜6限の空きはそのまま（昼休みの放送は時限を使わない）', JSON.stringify(lc.tt.empty) === '["4限+","5限+","6限+"]', JSON.stringify(lc.tt.empty));
-  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 4000); await sleep(350);
-  await page.eval(`(() => { window.scrollTo(0, 0); document.getElementById('room-speaker').click(); return true; })()`);
-  await sleep(500);
-  ok('昼休みの教室でスピーカーを押すと、もう一度流れる', (await page.eval(ROOM)).say === '昼休みのうちに、プリントを取りに来てね');
+  const lc = await page.eval(`(() => { const st = ${SAVED}, b = st.boards[st.boards.length - 1]; return { ch: b.channel, lunch: b.lunch, per: b.period, subj: b.subject, cur: st.currentId === b.id, id: b.id, tt: ${TT}, room: ${ROOM}, on: ${LUNCH}.on }; })()`);
+  ok('出すと時間割の「昼休み」に入り（「昼休み 雑務・放送」）、昼休みのまま、スピーカーの下に吹き出しが出る（黒板には一言なし）', lc.ch === 'broadcast' && lc.lunch === true && lc.per === 0 && lc.subj === '雑務' && lc.cur &&
+    lc.tt.rows.indexOf('昼休み 雑務・放送') >= 0 && lc.room.say === '昼休みのうちに、プリントを取りに来てね' && lc.room.speaker && lc.room.chalk === '' && lc.on, JSON.stringify(lc));
+  ok('… 時間割の1〜6限の空きはそのまま（昼休みの枠の頼みは時限を使わない）', JSON.stringify(lc.tt.empty) === '["4限+","5限+","6限+"]', JSON.stringify(lc.tt.empty));
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 7000); await sleep(350);
+  await page.eval('window.scrollTo(0, 0); true');
   await page.shot('27_昼休みの放送_390_light.png');
-  await page.eval(`document.getElementById('btn-write').click(); true`);
-  await sleep(250);
-  ok('昼休みの放送は1日1つ：2つ目は開かずに「今日の昼休みの放送は、もう出したよ（直すなら時間割から）」・下のボタンは押せない形', (await page.eval(`document.getElementById('sheet-write').hidden`)) &&
-    (await page.eval(`document.getElementById('toast-msg').textContent`)) === '今日の昼休みの放送は、もう出したよ（直すなら時間割から）' && (await page.eval(LUNCH)).writeOff);
-  await page.pressEl('#tt-list .tt-lunch-cell .tt-edit');
+  // 昼休みの枠は1日1つ：うまったあとは、下のボタンからは空いている時限（4限）を選んで開く
+  await page.pressEl('#btn-write');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await sleep(200);
+  const l2 = await page.eval(LSHEET);
+  ok('昼休みの枠は1日1つ：うまったあとは、下のボタンからは空いている時限（4限）を選んで開く（昼休みのチップは選べない）', l2.s.open && l2.s.period === 4 && JSON.stringify(l2.s.pdis) === '[1,2,3,4.5]', JSON.stringify(l2));
+  await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
+  // 時間割の昼休みの行の「直す」：枠は昼休みのまま、伝え方は変えられる（黒板にすると、昼休みの黒板に字が出る）
+  await page.pressEl('#tt-list .tt-now .tt-edit');
   await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
   await sleep(250);
   const le = await page.eval(LSHEET);
-  ok('時間割の昼休みの放送の「直す」：伝え方は放送のまま・時限は「昼休み」', le.s.title === '頼みごとを直す' && le.s.ch === 'broadcast' && JSON.stringify(le.dis) === '["board","letter"]' &&
-    JSON.stringify(le.chips) === '["昼休み"]' && le.s.text === '昼休みのうちに、プリントを取りに来てね', JSON.stringify(le));
-  await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
-  await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
-  ok('昼休みの放送（時間割の昼休みの行つき）: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
-  await page.eval(`document.getElementById('room-lunch-end').click(); true`);
-  await sleep(300);
-  await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
-  await sleep(200);
-  await page.pressEl('#tt-list .tt-lunch-cell .tt-row[data-bid]');
+  ok('時間割の昼休みの頼みの「直す」：枠は「昼休み」のまま・伝え方は3つとも選べる', le.s.title === '頼みごとを直す' && le.s.ch === 'broadcast' && !le.dis.length && le.s.period === 4.5 &&
+    le.s.text === '昼休みのうちに、プリントを取りに来てね', JSON.stringify(le));
+  await page.eval(`(() => { document.getElementById('write-ch-board').click(); document.getElementById('write-submit').click(); return true; })()`);
+  await sleep(500);
+  const lbd = await page.eval(`({ room: ${ROOM}, lunch: ${LUNCH}, tt: ${TT} })`);
+  ok('昼休みの枠に黒板の頼み：昼休みのまま（生徒は集まったまま）、大きい黒板にその字が出る', lbd.lunch.on && lbd.lunch.kids === 2 && lbd.room.chalk === '昼休みのうちに、プリントを取りに来てね' && !lbd.room.say &&
+    lbd.tt.rows.indexOf('昼休み 雑務・黒板') >= 0, JSON.stringify(lbd));
+  ok('昼休みの枠の頼み（時間割の昼休みの行つき）: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
+  // 放送にもどして、授業の時間（1限）から時間割の昼休みの行を押すと、昼休みになって吹き出しが出る
+  await page.pressEl('#tt-list .tt-now .tt-edit');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await page.eval(`(() => { document.getElementById('write-ch-broadcast').click(); document.getElementById('write-submit').click(); return true; })()`);
   await sleep(400);
-  const lr2 = await page.eval(ROOM);
-  ok('授業のときに時間割の昼休みの放送を押すと、黒板に出してスピーカーが流れる', lr2.cur === lc.id && /（放送で伝えた）/.test(lr2.chalk) && lr2.say === '昼休みのうちに、プリントを取りに来てね', JSON.stringify(lr2));
+  await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
+  await sleep(300);
+  await page.pressEl('#tt-lunch');
+  await sleep(500);
+  const lr2 = await page.eval(`({ room: ${ROOM}, on: ${LUNCH}.on })`);
+  ok('授業のときに時間割の昼休みの行（放送入り）を押すと、昼休みになって吹き出しが出る', lr2.on && lr2.room.cur === lc.id && lr2.room.chalk === '' && lr2.room.say === '昼休みのうちに、プリントを取りに来てね', JSON.stringify(lr2));
+  // 生徒の目線（昼休みの間は机を押すと「話を聞いた」なので、1限にしてから目線の小さな時間割で昼休みの頼みへ）
+  await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
+  await sleep(300);
   await page.pressEl('button.desk[data-sid="ex-s2"]');
   await page.waitFor(`document.getElementById('view').classList.contains('is-settled')`, 3000);
+  await page.pressEl('#view-tt-list .tt-row[data-bid="' + lc.id + '"]');
   await sleep(300);
   const lv = await page.eval(VIEW2);
   ok('昼休みの放送の生徒の目線：放送の声に足して「せっかくの昼休み、頼まれたことが気になって休めなかったかも」・足すとよいもの「急ぎでなければ、昼休みのあとで大丈夫だよ」',
@@ -1321,12 +1454,12 @@ try {
   const l10 = await page.eval(LUNCH), p10 = await page.eval(LUNCHPOS);
   ok('10人（パソコン5列）：4・3・3 のまとまりで、全員がとなりあう席・席は重ならない・机の数は15のまま・横にはみ出さない', JSON.stringify(l10.groups) === '["4","3","3"]' && l10.kids === 10 &&
     l10.allDesks === 15 && l10.round === 0 && lunchAdjacent(p10) && new Set(Object.values(p10).map((p) => p[0] + ':' + p[1])).size === 10 && l10.ow <= 0, JSON.stringify([l10, p10]));
-  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 4000); await sleep(350);
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 7000); await sleep(350);
   await page.shot('28_昼休みの席_10人_1280_light.png', true);
-  await page.eval(`document.getElementById('room-lunch-end').click(); true`);
+  await page.eval(`document.querySelector('#tt-list .tt-row[data-bid="ex-b1"]').click(); true`);
   await sleep(300);
-  ok('… 授業にもどると、10人とも自分の席', JSON.stringify(await page.eval(LUNCHPOS)) === JSON.stringify(c10));
-  // パソコンの時間割の昼休みの行：昼休みの放送（科目「手伝い」）を選んでいても科目名が切れずに「直す」。選んでいないときは放送の印
+  ok('… ほかの行（1限）を押すと、10人とも自分の席', JSON.stringify(await page.eval(LUNCHPOS)) === JSON.stringify(c10));
+  // パソコンの時間割の昼休みの行：頼み（科目「手伝い」）が入っていて選んでいると、科目名が切れずに「直す」（時刻は黒板の下に）。選んでいないときは伝え方の印
   await page.eval('localStorage.clear(); true');
   await page.load(base);
   await page.eval(`document.getElementById('tt-lunch').click(); true`);
@@ -1334,20 +1467,20 @@ try {
   await page.pressEl('#btn-write');
   await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
   await sleep(250);
-  await page.eval(`(() => { const t = document.getElementById('write-text'); t.value = '昼休みのうちに、プリントを取りに来てね'; t.dispatchEvent(new Event('input', { bubbles: true }));
+  await page.eval(`(() => { document.getElementById('write-ch-broadcast').click(); const t = document.getElementById('write-text'); t.value = '昼休みのうちに、プリントを取りに来てね'; t.dispatchEvent(new Event('input', { bubbles: true }));
     document.getElementById('write-subj-3').click(); document.getElementById('write-submit').click(); return true; })()`);
   await sleep(500);
-  const LCELL = `(() => { const c = document.querySelector('#tt-list .tt-lunch-cell'), ch = c && c.querySelector('.tt-row[data-bid] .tt-ch');
-    return c ? { over: c.scrollWidth > c.clientWidth + 1, edit: !!c.querySelector('.tt-now .tt-edit'), icon: !!ch && ch.getBoundingClientRect().width > 0,
-      subj: [...c.querySelectorAll('.tt-s')].map((s) => s.textContent + (s.scrollWidth > s.clientWidth + 1 ? '（切れている）' : '')) } : null; })()`;
-  const pc1 = await page.eval(LCELL);
+  const LROW = `(() => { const r = document.getElementById('tt-lunch'), li = r && r.closest('li'), ic = r && r.querySelector('.tt-ch .ch-ico'), w = r && r.querySelector('.tt-when');
+    return r ? { over: li.scrollWidth > li.clientWidth + 1, edit: !!li.querySelector('.tt-edit'), icon: !!ic && ic.getBoundingClientRect().width > 0, when: !!w && w.getBoundingClientRect().width > 2,
+      subj: [...li.querySelectorAll('.tt-s')].map((s) => s.textContent + (s.scrollWidth > s.clientWidth + 1 ? '（切れている）' : '')),
+      note: document.getElementById('room-meta').hidden ? '' : document.getElementById('room-note').textContent } : null; })()`;
+  const pc1 = await page.eval(LROW);
   await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
   await sleep(200);
-  const pc2 = await page.eval(LCELL);
-  ok('パソコンの時間割の昼休みの行：昼休みの放送を選んでいると「手伝い」が切れずに「直す」・選んでいないときは放送の印・はみ出さない',
-    !!pc1 && !!pc2 && pc1.edit && !pc1.over && JSON.stringify(pc1.subj) === '["手伝い"]' && !pc2.edit && pc2.icon && !pc2.over && JSON.stringify(pc2.subj) === '["手伝い"]', JSON.stringify([pc1, pc2]));
-  await page.eval(`document.getElementById('room-lunch-end').click(); true`);
-  await sleep(300);
+  const pc2 = await page.eval(LROW);
+  ok('パソコンの時間割の昼休みの行：頼みが入っていて選んでいると「手伝い」が切れずに「直す」（時刻は黒板の下に）・選んでいないときは伝え方の印・はみ出さない',
+    !!pc1 && !!pc2 && pc1.edit && !pc1.over && JSON.stringify(pc1.subj) === '["手伝い"]' && !pc1.when && /^昼休み（\d+:\d\dから）$/.test(pc1.note) &&
+    !pc2.edit && pc2.icon && !pc2.over && JSON.stringify(pc2.subj) === '["手伝い"]', JSON.stringify([pc1, pc2]));
   // 幅の狭いスマホ（360px）：2列の時間割で、どの行を選んでも科目名が切れず、「直す」は押しやすい大きさ
   await page.viewport(360, 780, true, false, false);
   await page.eval('localStorage.clear(); true');
@@ -1361,6 +1494,102 @@ try {
   ok('幅の狭いスマホ（360px）：どの行を選んでも科目名が切れない・「直す」は 40×30 以上・横にはみ出さない', n360.every((t, i) => t.nowBid === 'ex-b' + (i + 1) && !t.cut.length && !t.liOver && t.ew >= 40 && t.eh >= 30) &&
     (await page.eval(OVERFLOW)) <= 0, JSON.stringify(n360));
   await page.viewport(390, 844, true, false, false);
+
+  // ---- v0.4 段A：時間割で時間を選ぶ（保存）・放課後・お便りは相手の机だけ（昼休みでも自分の机）・掃除のあとの印・掃除するものがないわけ ----
+  await page.viewport(390, 844, true, false, false);
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  // 空いている時限（5限）を押す → 5限にして「頼みごとを出す」。閉じても5限のまま・開き直しても5限
+  await page.pressEl('#tt-list .tt-row[data-period="5"]');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
+  await page.load(base);
+  const t5 = await page.eval(`({ tt: ${TT}, room: ${ROOM} })`);
+  ok('選んだ時間は保存される：空いている5限を選ぶと、開き直しても5限（黒板は空・日付の下に「5限」）', JSON.stringify(t5.tt.sel) === '["5"]' && t5.room.chalk === '' && /5限$/.test(t5.room.date) &&
+    !!t5.room.time && t5.room.time.slot === 5 && t5.room.cur === '', JSON.stringify(t5));
+  await page.pressEl('#btn-write');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  ok('… 下の「頼みごとを出す」は、今の時間（5限）を選んで開く', (await page.eval(SHEET)).period === 5);
+  await page.eval(`document.querySelector('#sheet-write [data-close]').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-write').hidden`, 2000);
+  // 放課後：生徒は帰る（机は残る）。黒板は日付と「放課後」だけ
+  await page.pressEl('#tt-after');
+  await sleep(900);
+  const af = await page.eval(`(() => { const kids = [...document.querySelectorAll('#room-rows .desk:not(.is-empty) > .kid')];
+    return { after: document.getElementById('room-rows').classList.contains('is-after'), kids: kids.map((k) => Number(getComputedStyle(k).opacity)), desks: document.querySelectorAll('#room-rows button.desk').length,
+      chairs: [...document.querySelectorAll('#room-rows .kid-chair')].map((c) => Number(getComputedStyle(c).opacity)), room: ${ROOM}, tt: ${TT},
+      label: document.querySelector('#room-rows button.desk').getAttribute('aria-label') }; })()`);
+  ok('放課後を押すと、生徒は教室からいなくなる（机と名札は残り、椅子が見える）・黒板は日付と「放課後」だけ', af.after && af.kids.every((o) => o === 0) && af.desks === 2 && af.chairs.every((o) => o === 1) &&
+    af.room.chalk === '' && /放課後$/.test(af.room.date) && af.room.time.slot === 'after' && JSON.stringify(af.tt.sel) === '["after"]' && /放課後/.test(af.label), JSON.stringify(af));
+  ok('放課後: 横にはみ出さない', (await page.eval(OVERFLOW)) <= 0);
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 4000); await sleep(350);
+  await page.eval('window.scrollTo(0, 0); true');
+  await page.shot('29_放課後_390_light.png', true);
+  await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
+  await sleep(900);
+  ok('… ほかの行（1限）を押すと、生徒が席にもどる', (await page.eval(`[...document.querySelectorAll('#room-rows .desk:not(.is-empty) > .kid')].every((k) => Number(getComputedStyle(k).opacity) === 1) && !document.getElementById('room-rows').classList.contains('is-after')`)));
+  // お便りは相手の机にだけ（はじめての生徒だけに配る）。昼休みに生徒が移っても、紙は自分の机に置いたまま
+  await page.pressEl('#tt-list .tt-row[data-period="4"]');
+  await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
+  await page.eval(`(() => { document.getElementById('write-ch-letter').click(); document.getElementById('tgt-ex-s2').click(); const t = document.getElementById('write-text'); t.value = 'この表、金曜までに見ておいてね';
+    t.dispatchEvent(new Event('input', { bubbles: true })); document.getElementById('write-period-lunch').click(); document.getElementById('write-submit').click(); return true; })()`);
+  await sleep(900);
+  const home = await page.eval(`(() => { const st = ${SAVED}; return st.boards[st.boards.length - 1]; })()`);
+  const lpp = await page.eval(`(() => { const seat = (el) => { const sts = [...document.querySelectorAll('#room-rows .row-desks > .seat')]; return sts.indexOf(el.closest('.seat')); };
+    return { papers: [...document.querySelectorAll('#room-rows .desk-paper')].map((p) => p.dataset.sid + '@' + seat(p)), kid: (() => { const d = document.querySelector('#room-rows .desk.is-lunch[data-sid="ex-s1"]'); return d ? seat(d) : -1; })(),
+      on: ${LUNCH}.on }; })()`);
+  ok('お便りは相手（はじめての生徒だけ）の机にだけ紙を置く・昼休みの枠に出すと昼休みのまま', home.channel === 'letter' && home.lunch === true && JSON.stringify(home.targets) === '["ex-s1"]' && lpp.on &&
+    lpp.papers.length === 1 && /^ex-s1@/.test(lpp.papers[0]), JSON.stringify([home, lpp]));
+  // 生徒が自分の机から移った並びになるまで、昼休みを選び直す（並びは選んだ時刻で決まる）
+  const PAPERPOS = `(() => { const sts = [...document.querySelectorAll('#room-rows .row-desks > .seat')], seat = (el) => sts.indexOf(el.closest('.seat')), d = document.querySelector('#room-rows .desk.is-lunch[data-sid="ex-s1"]');
+    return { papers: [...document.querySelectorAll('#room-rows .desk-paper')].map((p) => p.dataset.sid + '@' + seat(p)), kid: d ? seat(d) : -1 }; })()`;
+  await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
+  await sleep(300);
+  const seatHome = await page.eval(`(() => { const d = document.querySelector('#room-rows .desk[data-sid="ex-s1"]'); return [...document.querySelectorAll('#room-rows .row-desks > .seat')].indexOf(d.closest('.seat')); })()`);
+  let pp = lpp;
+  for (let k = 0; k < 6 && pp.kid === seatHome; k++) {
+    await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
+    await sleep(120);
+    await page.pressEl('#tt-lunch');
+    await sleep(300);
+    pp = await page.eval(PAPERPOS);
+  }
+  ok('… 昼休みに生徒が移っても、紙は自分の机（授業の席）に置いたまま（移った先の机ではない）', pp.papers.length === 1 && pp.papers[0] === 'ex-s1@' + seatHome && pp.kid !== seatHome && pp.kid >= 0, JSON.stringify([pp, seatHome]));
+  await page.pressEl('#tt-list .tt-row[data-bid="ex-b1"]');
+  await sleep(300);
+  // 掃除のあとの印：1限は全員終わった＝✓、2限・3限は途中・まだが残る＝「続き」
+  await page.eval('localStorage.clear(); true');
+  await page.load(base);
+  await openSweepSheet();
+  await sweepPick(0, 'done');
+  await sweepPick(1, 'done');
+  await sweepNext();
+  await sweepPick(0, 'mid');
+  await sweepPick(1, 'done');
+  await sweepNext();
+  await sweepPick(0, 'not');
+  await sweepPick(1, 'not');
+  await sweepNext();
+  await page.eval(`document.getElementById('sweep-next').click(); true`);
+  await page.waitFor(`document.getElementById('sheet-sweep').hidden`, 2000);
+  await sleep(300);
+  const mk = await page.eval(TT);
+  ok('掃除のあと、時間割の行に小さな印：全員終わった1限は「✓」、途中・まだが残る2限・3限は「続き」', JSON.stringify(mk.marks) === '["ex-b1:✓","ex-b2:続き","ex-b3:続き"]', JSON.stringify(mk.marks));
+  const mcut = (await page.eval(TTEDIT)).cut;
+  ok('掃除のあとの時間割: 横にはみ出さない・科目名が切れない', (await page.eval(OVERFLOW)) <= 0 && !mcut.length, JSON.stringify(mcut));
+  await page.waitFor(`!document.getElementById('toast').classList.contains('is-on')`, 4000); await sleep(200);
+  await page.eval(`(() => { const el = document.getElementById('room-tt'); window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 16); return true; })()`);
+  await sleep(200);
+  await page.shot('30_掃除のあとの時間割_390_light.png');
+  // 掃除するものがないわけ：相手が全員提出済み
+  await page.eval(`(() => { const st = JSON.parse(localStorage.getItem(${JSON.stringify(KEY)})); st.boards.forEach((b) => { b.targets.forEach((sid) => { b.results[sid] = { kind: 'asExpected', memo: '', ack: false, at: Date.now(), submitted: true }; }); });
+    localStorage.setItem(${JSON.stringify(KEY)}, JSON.stringify(st)); return true; })()`);
+  await page.load(base);
+  await page.pressEl('#tt-sweep');
+  await sleep(300);
+  ok('掃除するものがないわけ：相手が全員提出済みなら「今日の頼みは、相手が全員提出済み（締めたものも）なので、掃除するものはないよ」', (await page.eval(`document.getElementById('sheet-sweep').hidden`)) &&
+    (await page.eval(`document.getElementById('toast-msg').textContent`)) === '今日の頼みは、相手が全員提出済み（締めたものも）なので、掃除するものはないよ');
 
   // ---- 日の区切りは午前3時（2026-10-18）：端末の時計を決まった時刻にして確かめる ----
   const fakeClock = async (y, mo, d, h, mi) => (await page.send('Page.addScriptToEvaluateOnNewDocument', { source: `(() => { const RD = Date, off = new RD(${y}, ${mo - 1}, ${d}, ${h}, ${mi}).getTime() - RD.now();
@@ -1402,7 +1631,7 @@ try {
   await page.waitFor(`!document.getElementById('sheet-write').hidden`, 2000);
   await page.eval(`(() => { const t = document.getElementById('write-text'); t.value = '明日の朝までに、表を見直して'; t.dispatchEvent(new Event('input', { bubbles: true })); document.getElementById('write-submit').click(); return true; })()`);
   await sleep(350);
-  const w130 = await page.eval(`(() => { const st = ${SAVED}, b = st.boards[st.boards.length - 1]; return { per: b.period, day: SekigaeEngine.dayKey(b.createdAt), date: document.getElementById('room-date').textContent, rows: ${TT}.rows }; })()`);
+  const w130 = await page.eval(`(() => { const st = ${SAVED}, b = st.boards[st.boards.length - 1]; return { per: b.period, day: SekigaeEngine.dayKey(b.createdAt), date: document.querySelector('#room-date .bd-date').textContent, rows: ${TT}.rows }; })()`);
   ok('… 1:30 に出した頼みは 10/18 の頼み（空いている3限に入り、黒板の日付も 10月18日）', w130.per === 3 && w130.day === '2026-10-18' && w130.date === '10月18日（日）' && w130.rows[2] === '3限 授業・黒板', JSON.stringify(w130));
   await unClock(clk);
   await page.eval('localStorage.clear(); true');

@@ -119,13 +119,8 @@ h1, h2, h3 { text-wrap: balance; }
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 /* ---- 上の帯と画面のタブ ---- */
-.top-in { display: flex; align-items: center; gap: 12px; padding-block: 14px 4px; }
-.brand { flex: 1; min-width: 0; }
-.brand h1 { margin: 0; display: flex; align-items: center; gap: 10px; font: 700 23px/1.2 var(--font-round); letter-spacing: .06em; }
-/* 見出しの印：アプリのアイコン（黒板の緑に、チョークと、かすれて消える線）。tools/make_icons.py の logo-64.png を埋め込み */
-.logo { flex: none; width: 32px; height: 32px; border-radius: 8px; background: var(--board) url("data:image/png;base64,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") center / cover no-repeat; box-shadow: 0 1px 2px var(--btn-drop); }
-.brand-sub { margin: 3px 0 0; font-size: 12.5px; color: var(--muted); }
-.tabs { display: flex; gap: 2px; margin-top: 6px; border-bottom: 1.5px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+.top-in { display: flex; align-items: center; gap: 10px; padding-block: 8px 0; }
+.tabs { flex: 1; min-width: 0; display: flex; gap: 2px; margin-top: 0; border-bottom: 1.5px solid var(--line); overflow-x: auto; scrollbar-width: none; }
 .tab {
   flex: none; border: 0; background: none; padding: 10px 14px 9px; margin-bottom: -1.5px;
   border-bottom: 3px solid transparent; border-radius: 8px 8px 0 0;
@@ -193,6 +188,10 @@ h1, h2, h3 { text-wrap: balance; }
 .chalk-text.is-long { --fs: 16.5px; }
 .chalk-text.is-empty { color: var(--chalk-dim); font-weight: 400; }
 .board-date { position: absolute; top: 14px; right: 12px; margin: 0; writing-mode: vertical-rl; font: 400 13px/1.3 var(--font-chalk); color: var(--chalk-dim); letter-spacing: .1em; }
+/* 大きい黒板の右上：縦書きの日付（2けたの数字は縦中横で立てる）と、その下に今の時間 */
+#room-date { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+.bd-time { font-size: 14px; font-weight: 600; color: var(--chalk); letter-spacing: .04em; }
+.tcy { text-combine-upright: all; -webkit-text-combine: horizontal; }
 .tray { position: absolute; left: 12%; right: 12%; bottom: 2px; height: 9px; border-radius: 2px; background: var(--board-frame-2); box-shadow: 0 2px 0 var(--shadow); }
 .tray i { position: absolute; bottom: 5px; height: 6px; border-radius: 3px; }
 .tray .ch-w { left: 14%; width: 26px; background: var(--chalk); }
@@ -211,20 +210,18 @@ h1, h2, h3 { text-wrap: balance; }
 /* ---- 黒板の列：左に大きい黒板、右に「今日の時間割」の小さい黒板（スマホは大きい黒板の下に横長で）。黒板の上の壁にスピーカー ---- */
 .board-row { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "pa" "board" "meta" "tt" "ttb" "lectern"; max-width: 820px; margin: 0 auto; }
 .board-row > .tt-below { grid-area: ttb; min-width: 0; }   /* 時間割の枠の外（下）：ほかに N 件・前の日からの続き */
-.board-row > .pa { grid-area: pa; }
+.board-row > .pa { grid-area: pa; }   /* スピーカーも教室（席の列）の真ん中。パソコンでは黒板と時間割の両方の幅の真ん中 */
 .board-row > .lectern { grid-area: lectern; }   /* 先生と教卓は、教室（席の列）の真ん中。パソコンでは黒板と時間割の両方の幅の真ん中＝席の列の真ん中 */
-/* 床の前（教卓の前のプリント）も同じ列に合わせる */
-.front-row { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 820px; margin: 0 auto; }
 .board-row > .board { grid-area: board; width: 100%; max-width: none; display: flex; flex-direction: column; }
 .board-row > .board > .board-face { flex: 1 1 auto; }
 .board-row > .board-meta { grid-area: meta; max-width: none; margin: 10px 0 0; }
 .board-row > .tt { grid-area: tt; margin-top: 16px; }
 @media (min-width: 760px) {
-  .board-row { max-width: 1048px; grid-template-columns: minmax(0, 820px) 214px; grid-template-areas: "pa ." "board tt" "meta ttb" "lectern lectern"; column-gap: 18px; justify-content: center; }
+  .board-row { max-width: 1048px; grid-template-columns: minmax(0, 820px) 214px; grid-template-areas: "pa pa" "board tt" "meta ttb" "lectern lectern"; column-gap: 18px; justify-content: center; }
   .board-row > .tt { margin-top: 0; }
 }
-/* スピーカー（壁に掛けた箱。放送の頼みのときだけ押せる。押すと沈む） */
-.pa { position: relative; z-index: 6; display: flex; justify-content: center; align-items: flex-start; height: 48px; }
+/* スピーカー（壁に掛けた箱。放送の頼みのときだけ押せる。押すと沈む）。吹き出しはスピーカーの下に置き、黒板の字に重ねない */
+.pa { position: relative; z-index: 6; display: flex; flex-direction: column; align-items: center; min-height: 48px; }
 .speaker {
   --edge: var(--speaker-edge); --lift: 3px; position: relative; flex: none; width: 60px; height: 38px; padding: 0; border: 0; border-radius: 7px;
   background: var(--speaker); color: var(--speaker-grille);
@@ -242,27 +239,24 @@ h1, h2, h3 { text-wrap: balance; }
 .speaker:disabled { cursor: default; opacity: .6; transform: translateY(-2px); box-shadow: 0 2px 0 var(--edge); }
 .waves { position: absolute; left: calc(50% + 35px); top: 4px; width: 18px; height: 26px; overflow: visible; opacity: 0; pointer-events: none; }
 .waves path { fill: none; stroke: var(--muted); stroke-width: 2.2; stroke-linecap: round; }
-.pa.is-playing .waves { opacity: 1; animation: waves .7s ease-in-out infinite alternate; }
+.pa.is-playing .waves { opacity: 1; animation: waves .7s ease-in-out 4 alternate; }
 @keyframes waves { from { opacity: .35; } to { opacity: 1; } }
-/* スピーカーから出る文字（吹き出し）。3秒ほどで薄れて消える。動きを減らす設定では薄れずに出したまま */
+/* スピーカーから出る文字（吹き出し）。その時間を選んでいる間はずっと出したまま。スピーカーの下に置くので、黒板の字には重ならない。
+   スピーカーを押すと、ふわっと消える（場所は空けたまま＝黒板は動かない）。もう一度押すとまた出る */
 .pa-say {
-  position: absolute; top: 50px; left: 50%; width: max-content; max-width: min(520px, 92%); transform: translateX(-50%);
+  position: relative; width: max-content; max-width: min(560px, 100%); margin: 50px auto 14px;
   padding: 8px 16px 11px; border-radius: 18px; background: var(--surface); color: var(--fg); border: 2px solid var(--fg); box-shadow: 0 4px 0 var(--shadow);
+  transition: opacity .45s ease, transform .45s ease, filter .45s ease, visibility 0s;
 }
 .pa-say::before { content: ""; position: absolute; top: -8px; left: 50%; width: 13px; height: 13px; margin-left: -7px; background: var(--surface); border-left: 2px solid var(--fg); border-top: 2px solid var(--fg); transform: rotate(45deg); }
+.pa > .speaker { position: absolute; top: 0; left: 50%; margin-left: -30px; }
 .pa-k { margin: 0; font: 700 11.5px/1.6 var(--font-round); letter-spacing: .08em; color: var(--muted); }
 .pa-text { margin: 0; font: 700 16px/1.65 var(--font-round); white-space: pre-wrap; overflow-wrap: anywhere; }
-.pa-say.is-on { animation: say 3.4s ease forwards; }
-@keyframes say {
-  0% { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(.94); }
-  9% { opacity: 1; transform: translateX(-50%); filter: blur(0); }
-  48% { opacity: 1; filter: blur(0); }
-  100% { opacity: 0; transform: translateX(-50%) translateY(6px); filter: blur(5px); }
-}
+.pa-say.is-off { opacity: 0; transform: translateY(-6px) scale(.97); filter: blur(3px); visibility: hidden; transition: opacity .45s ease, transform .45s ease, filter .45s ease, visibility 0s .45s; }
+.pa-say.is-in { animation: say-in .45s ease; }
+@keyframes say-in { from { opacity: 0; transform: translateY(-6px) scale(.97); filter: blur(3px); } }
 .pa-say.is-draft { border-style: dashed; }
-/* 動きを減らす設定：吹き出しは黒板に重ねず、スピーカーの下に置いたまま */
-.pa.is-stay { height: auto; flex-direction: column; align-items: center; padding-bottom: 12px; }
-.pa.is-stay .pa-say { position: relative; top: auto; left: auto; transform: none; margin-top: 10px; }
+@media (prefers-reduced-motion: reduce) { .pa-say, .pa-say.is-off { transition: none; } .pa-say.is-in { animation: none; } }
 /* 今日の時間割（小さい黒板）。行を押すと、大きい黒板がその頼みに切り替わる */
 .tt { display: flex; flex-direction: column; min-width: 0; padding: 8px; border-radius: 7px; background: linear-gradient(to bottom, var(--board-frame), var(--board-frame-2)); box-shadow: 0 4px 0 var(--board-frame-2), 0 12px 22px var(--shadow); }
 .tt-face {
@@ -272,8 +266,8 @@ h1, h2, h3 { text-wrap: balance; }
 .tt-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 8px; margin-bottom: 6px; padding-bottom: 5px; border-bottom: 1.5px dashed var(--chalk-dim); }
 .tt-title { margin: 0; font: 600 15.5px/1.4 var(--font-chalk); letter-spacing: .08em; }
 .tt-date { margin: 0; font: 400 12px/1.4 var(--font-chalk); color: var(--chalk-dim); }
-/* 時間割の枠：行は最初から8つ（1〜4限・昼休み・5〜6限・掃除）。頼みの数で行の数・高さは変わらない */
-.tt-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(4, 30px) 26px repeat(3, 30px); gap: 3px; }
+/* 時間割の枠：行は最初から9つ（1〜4限・昼休み・5〜6限・掃除・放課後）。どの行も、押すとその時間になる。頼みの数で行の数・高さは変わらない */
+.tt-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(7, 29px) repeat(2, 21px); gap: 2px; }
 .tt-list > li { display: flex; min-width: 0; }
 .tt-list .tt-row { flex: 1 1 auto; min-width: 0; min-height: 0; height: 100%; padding: 0 6px; white-space: nowrap; overflow: hidden; }
 .tt-list .tt-s { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -284,13 +278,11 @@ h1, h2, h3 { text-wrap: balance; }
 .tt-row.tt-break::before, .tt-row.tt-break::after { content: ""; flex: 1 1 auto; border-top: 1.5px dashed var(--chalk-dim); opacity: .55; }
 @media (hover: hover) { div.tt-row:hover { background: none; } }
 .tt-more { margin: 6px 2px 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
-/* 掃除の行（掃除の時間の入口）。今日の頼みか前の日からの続きがあるときだけ押せる */
-.tt-row.tt-sweep { cursor: pointer; }
-.tt-row.tt-sweep:not(:disabled) { color: var(--chalk-yellow); letter-spacing: .12em; }
-.tt-row.tt-sweep:disabled { cursor: default; }
-@media (hover: hover) { .tt-row.tt-sweep:not(:disabled):hover { background: var(--board-hi); } }
+/* 今日の昼休み・掃除・放課後の行（押すと、その時間になる）。黄色いチョークの字 */
+button.tt-row.tt-break { cursor: pointer; color: var(--chalk-yellow); letter-spacing: .12em; }
+@media (hover: hover) { button.tt-row.tt-break:hover { background: var(--board-hi); } }
 .tt-row.is-sweep { border-style: dashed; border-color: var(--chalk-yellow); }
-/* 選んでいる行（いまの黒板）：行ごと黄色い枠で囲んで、右の端に小さく「直す」 */
+/* 選んでいる行（今の時間）：行ごと黄色い枠で囲む。頼みが入っていれば、右の端に小さく「直す」 */
 .tt-now { display: flex; align-items: stretch; min-width: 0; border: 1.5px solid var(--chalk-yellow); border-radius: 6px; background: var(--board-hi); }
 .tt-now > .tt-row, .tt-now > .tt-row.is-now { flex: 1 1 auto; min-width: 0; border-color: transparent; background: none; }
 /* 選んでいる行は、伝え方を印だけにして「直す」の場所をあける（字は読み上げの文に残す） */
@@ -303,40 +295,34 @@ h1, h2, h3 { text-wrap: balance; }
 @media (hover: hover) { .tt-edit:hover { background: var(--board-hi); } }
 .tt-edit:active { transform: translateY(1px); box-shadow: 0 0 0 var(--board-frame-2); }
 .tt-edit:focus-visible { outline: 3px solid var(--chalk); outline-offset: 1px; }
-/* 昼休みの行に昼休みの放送が入ったとき：左に「昼休み」（押すと昼休みにする・授業にもどる）、右にその放送 */
-.tt-lunch-cell { display: flex; align-items: stretch; gap: 4px; min-width: 0; }
-.tt-lunch-cell > .tt-break { flex: none; width: auto; }
-.tt-lunch-cell > .tt-break::before, .tt-lunch-cell > .tt-break::after { display: none; }
-.tt-lunch-cell > .tt-lunch { padding: 0 8px; border: 1.5px dashed var(--chalk-yellow); border-radius: 6px; }
-.tt-lunch-cell > .tt-row.is-filled, .tt-lunch-cell > .tt-now { flex: 1 1 auto; min-width: 0; }
-.tt-lunch-cell .tt-row.is-filled { grid-template-columns: minmax(0, 1fr) auto; }
-.tt-lunch-time { white-space: nowrap; }
+/* 昼休みを選んだ時刻（「昼休み（12:10から）」）。パソコンの時間割は幅が狭いので、頼みの入った昼休みの行では出さない（黒板の下に出す） */
+.tt-when { letter-spacing: .02em; font-size: .92em; }
+@media (min-width: 760px) { .tt-row[data-bid] .tt-when { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+/* 掃除のあとの印：全員終わった＝✓、途中・まだが残る＝「続き」 */
+.tt-mark { flex: none; font: 700 12px/1 var(--font-chalk); color: var(--chalk-yellow); }
+.tt-mark.is-left { padding: 2px 3px 3px; border: 1px dashed var(--chalk-pink); border-radius: 4px; color: var(--chalk-pink); font-size: 10.5px; letter-spacing: .02em; }
+/* 印のある行は、伝え方を印だけにする（字は読み上げの文に残す）。選んでいる行は、印のかわりに「直す」 */
+.tt-row.has-mark .tt-ch-t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.tt-now .tt-mark { display: none; }
 @media (min-width: 760px) {
-  /* パソコンの時間割は幅が狭いので、昼休みの行では時刻と「放送」の字を出さない（放送は印だけ。時刻は黒板の下、字は読み上げの文で）。
-     選んでいるときは印も出さず、「直す」の場所にする */
-  .tt-lunch-cell .tt-lunch-time, .tt-lunch-cell .tt-ch-t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .tt-lunch-cell > .tt-lunch { padding: 0 6px; }
-  .tt-lunch-cell .tt-now .tt-ch { display: none; }
-  .tt-lunch-cell .tt-now .tt-row { grid-template-columns: minmax(0, 1fr); padding: 0 4px 0 6px; }
-  .tt-lunch-cell .tt-edit { padding: 0 6px; }
+  /* パソコン：選んでいる行の「直す」は 24px の高さ。頼みの入った昼休みの行を選んでいるときは、伝え方の印も出さない（「昼休み」の字のぶん狭いので） */
+  .tt-edit { margin: 1px 2px 1px 0; }
+  .tt-now > .tt-row[data-slot="lunch"] .tt-ch { display: none; }
 }
-/* 昼休みの行（昼休みの入口）。今日だけ押せる。昼休み中は「昼休み中（12:10から）」 */
-.tt-row.tt-lunch { cursor: pointer; color: var(--chalk-yellow); letter-spacing: .12em; }
-@media (hover: hover) { .tt-row.tt-lunch:hover { background: var(--board-hi); } }
-.tt-row.tt-lunch.is-on { border-style: dashed; border-color: var(--chalk-yellow); background: var(--board-hi); letter-spacing: .04em; }
-/* 昼休みの教室：黒板には「昼休み」とだけ（昼休みの放送があれば小さく）。先生は教卓で休む */
-.board.is-lunch .board-face > .chalk-text { padding-top: 22px; text-align: center; font-size: 34px; letter-spacing: .5em; color: var(--chalk); }
-.board.is-lunch .board-face > .chalk-text .chalk-hint { margin-top: 10px; font-size: 13px; letter-spacing: .04em; }
 /* 昼休みの席：生徒は今ある机のうち、となりあう席に移って、まとまりの真ん中を向く（新しい机や丸いテーブルは出さない。名札は昼休みにいる机に） */
 .desk.is-lunch .kid { transform: translate(var(--lx, 0px), var(--ly, 0px)) rotate(var(--rot, 0deg)); }
 .badge-talk { background: var(--surface); color: var(--fg); border-color: var(--fg); }
-.lunch-note { max-width: 820px; margin: -18px auto 20px; font-size: 13px; line-height: 1.7; color: var(--floor-ink); text-align: center; }
 /* 先生の休けい：教卓の上の湯のみ */
 .tea { position: absolute; z-index: 2; bottom: 40px; left: calc(50% + 40px); width: 22px; height: 18px; border-radius: 3px 3px 8px 8px; background: var(--paper); box-shadow: inset 0 -4px 0 var(--paper-line), 0 2px 3px var(--btn-drop); }
 .tea::before, .tea::after { content: ""; position: absolute; bottom: 21px; width: 2px; height: 10px; border-radius: 2px; background: var(--muted); opacity: .6; }
 .tea::before { left: 6px; transform: rotate(-12deg); } .tea::after { left: 13px; transform: rotate(10deg); }
-/* 昼休みの間、今日の昼休みの放送をもう出したときの「放送を出す」（押せない形。押すと「もう出したよ」） */
-.btn.is-off { opacity: .5; }
+/* 放課後：生徒は教室からいなくなる（机と名札は残り、椅子が見える）。ふわっと消える（動きを減らす設定では、すぐ） */
+.kid-chair { position: absolute; left: 50%; bottom: 0; width: 68px; height: 55px; margin-left: -34px; opacity: 0; pointer-events: none; }
+.kid-chair svg { display: block; width: 100%; height: 100%; }
+.rows .desk > .kid, .rows .kid-chair { transition: opacity .6s ease, filter .6s ease; }
+.rows.is-after .desk:not(.is-empty) > .kid { opacity: 0; filter: blur(2px); }
+.rows.is-after .kid-chair { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .rows .desk > .kid, .rows .kid-chair { transition: none; } }
 /* 前の日からの続き：時間割の枠の外（下）に、1件1行の付箋で */
 .tt-carry { margin-top: 10px; padding: 8px 10px 10px; border-radius: 4px; background: var(--warn-bg); color: var(--warn-fg); box-shadow: 0 2px 6px var(--btn-drop); transform: rotate(-.6deg); }
 .tt-carry-k { margin: 0 0 4px; font: 700 12px/1.5 var(--font-round); letter-spacing: .06em; }
@@ -370,13 +356,13 @@ h1, h2, h3 { text-wrap: balance; }
 .tt-p { color: var(--chalk-yellow); font-size: 13.5px; white-space: nowrap; }
 .tt-s { min-width: 0; overflow-wrap: anywhere; }
 .tt-ch { display: inline-flex; align-items: center; gap: 3px; color: var(--chalk-dim); font: 600 11px/1.2 var(--font-chalk); white-space: nowrap; }
-.tt-nav { display: flex; justify-content: space-between; gap: 6px; margin-top: auto; padding-top: 6px; }
+.tt-nav { display: flex; justify-content: space-between; gap: 6px; margin-top: auto; padding-top: 4px; }
 .tt-nav button { min-height: 34px; padding: 4px 6px; border: 0; border-radius: 6px; background: none; color: var(--chalk); font: 600 12.5px/1.2 var(--font-chalk); }
 .tt-nav button:disabled { color: var(--chalk-dim); opacity: .55; cursor: default; }
 .tt-row:focus-visible, .tt-nav button:focus-visible { outline: 3px solid var(--chalk); outline-offset: 2px; }
-/* スマホ：2列（1限|2限・3限|4限・昼休み・5限|6限・掃除） */
+/* スマホ：2列（1限|2限・3限|4限・昼休み・5限|6限・掃除|放課後） */
 @media (max-width: 759.98px) {
-  .tt-list { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: 40px 40px 32px 40px 40px; gap: 4px; }
+  .tt-list { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: 40px 40px 40px 40px 36px; gap: 4px; }
   .tt-list > .tt-wide { grid-column: 1 / -1; }
   /* スマホの2列：選んでいる行は、すき間をつめて「直す」を押しやすい大きさにする */
   .tt-now .tt-row { gap: 0 5px; padding: 0 4px 0 6px; }
@@ -386,6 +372,7 @@ h1, h2, h3 { text-wrap: balance; }
 @media (max-width: 389.98px) {
   #tt-list .tt-ch-t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   #tt-list .tt-now .tt-ch { display: none; }
+  #tt-list .tt-row.has-mark .ch-ico { display: none; }
 }
 /* 伝え方の印（黒板・お便り・放送） */
 .ch-ico { display: inline-block; flex: none; width: 20px; height: 14px; overflow: visible; vertical-align: -2px; }
@@ -396,12 +383,41 @@ h1, h2, h3 { text-wrap: balance; }
 .i-spk { fill: var(--speaker); stroke: var(--speaker-grille); stroke-width: 1.2; }
 .i-grille { fill: var(--speaker-grille); }
 .i-wave { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
-/* お便り：教卓の前あたりに置いた白いプリント（上に「おたより」、本文は印刷の字） */
-.print { position: relative; width: min(100%, 360px); margin: -4px auto 26px; padding: 12px 16px 16px; border-radius: 2px; background: var(--print); color: var(--print-ink); box-shadow: 0 1px 0 var(--print-edge), 0 8px 18px var(--shadow); transform: rotate(-1.2deg); }
+/* お便り：白いプリント（上に「おたより」、本文は印刷の字）。机の上の小さな紙を押すと、大きく読める */
+.print { position: relative; width: min(100%, 360px); margin: 0; padding: 12px 16px 16px; border-radius: 2px; background: var(--print); color: var(--print-ink); box-shadow: 0 1px 0 var(--print-edge), 0 8px 18px var(--shadow); transform: rotate(-1.2deg); }
 .print-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 3px double var(--print-line); }
 .print-title { font: 700 17px/1.3 var(--font-round); letter-spacing: .3em; color: var(--print-head); }
 .print-meta { font: 500 11.5px/1.4 var(--font-body); color: var(--print-muted); }
 .print-text { margin: 0; font: 500 14.5px/1.85 var(--font-print); white-space: pre-wrap; overflow-wrap: anywhere; }
+.print-to { margin: 10px 0 0; padding-top: 6px; border-top: 1px dashed var(--print-line); font: 500 11.5px/1.5 var(--font-body); color: var(--print-muted); }
+/* 配ったお便り：相手の生徒それぞれの机の右上に小さな紙（字は小さい）。机のボタンとは別のボタンで、机の上に重ねる。
+   押す（パソコンはカーソルを合わせる）と、大きく読める。昼休みに生徒が移っても、紙は自分の机に置いたまま */
+.seat { position: relative; display: grid; min-width: 0; }
+.desk-paper {
+  position: absolute; z-index: 3; top: -24px; right: -6px; width: 36px; height: 44px; padding: 0; border: 0; border-radius: 3px; background: none; color: inherit;
+  transform: rotate(8deg); transition: transform .25s cubic-bezier(.3, .7, .4, 1.5);
+}
+.dp-sheet {
+  display: flex; flex-direction: column; gap: 3px; width: 100%; height: 100%; padding: 4px 5px 0; overflow: hidden; border-radius: 2px;
+  background: var(--print); box-shadow: 0 1px 0 var(--print-edge), 0 4px 8px var(--shadow);
+}
+.dp-head { display: block; width: 182%; margin-bottom: 1px; padding-bottom: 2px; border-bottom: 3px double var(--print-line); transform: scale(.55); transform-origin: 0 0; font: 700 9px/1.1 var(--font-round); letter-spacing: .2em; color: var(--print-head); white-space: nowrap; }
+.dp-line { display: block; flex: none; width: 100%; height: 2px; margin-top: -2px; border-radius: 1px; background: var(--print-muted); opacity: .5; }
+.dp-line + .dp-line { margin-top: 0; }
+.dp-line:nth-child(3) { width: 82%; } .dp-line:nth-child(5) { width: 64%; }
+@media (hover: hover) { .desk-paper:hover { transform: rotate(3deg) translateY(-2px) scale(1.08); } }
+.desk-paper:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.desk-paper[aria-expanded="true"] .dp-sheet { box-shadow: 0 0 0 2.5px var(--primary), 0 4px 8px var(--shadow); }
+.desk.has-paper .desk-badges { right: 34px; }
+@media (min-width: 760px) { .desk-paper { right: -8px; } }
+/* 大きく読むお便り（机の紙の近くに浮かぶ。外を押す・Esc・もう一度押すと閉じる） */
+.letter-pop { position: absolute; z-index: 30; left: 16px; top: 0; width: min(340px, calc(100vw - 32px)); }
+.letter-pop .print { width: 100%; transform: rotate(-.8deg); box-shadow: 0 1px 0 var(--print-edge), 0 14px 30px var(--shadow); }
+.letter-pop.is-in .print { animation: lp-in .2s ease; }
+@keyframes lp-in { from { opacity: 0; transform: rotate(-.8deg) translateY(6px) scale(.97); } }
+.lp-close { position: absolute; z-index: 1; top: -16px; right: -6px; }
+.letter-pop .print-head { padding-right: 30px; }
+@media (prefers-reduced-motion: reduce) { .desk-paper { transition: none; } .letter-pop.is-in .print { animation: none; } }
 
 /* 先生と教卓（教室では、いつもの顔） */
 .lectern { position: relative; display: grid; justify-items: center; height: 118px; margin-top: 4px; }
@@ -415,7 +431,7 @@ h1, h2, h3 { text-wrap: balance; }
 
 /* ---- 床と机 ---- */
 .floor { background: repeating-linear-gradient(90deg, var(--floor) 0 58px, var(--floor-line) 58px 60px); border-top: 3px solid var(--wall-2); }
-.floor > .wrap { padding-block: 18px calc(110px + env(safe-area-inset-bottom, 0px)); }
+.floor > .wrap { padding-block: 28px calc(110px + env(safe-area-inset-bottom, 0px)); }
 .rows { display: grid; gap: 20px; max-width: 820px; margin: 0 auto; }
 .row-label { margin: 0 0 16px; font: 700 12px/1.3 var(--font-round); letter-spacing: .1em; color: var(--floor-ink); }
 .row-desks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 10px; }
@@ -461,8 +477,11 @@ button.desk:active .desk-top { transform: translateY(calc(var(--lift) * -.4)); b
 .badge-review { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-bg); }
 .desk.is-off { opacity: .55; }
 .desk.is-empty .desk-top { background: var(--desk-empty); box-shadow: 0 3px 0 var(--desk-empty-edge); transform: translateY(-3px); }
-.seat-note, .ex-note { max-width: 820px; margin: 18px auto 0; font-size: 13px; line-height: 1.75; color: var(--floor-ink); }
-.seat-tools { max-width: 820px; margin: 20px auto 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: 13px; line-height: 1.6; color: var(--floor-ink); }
+.ex-note { max-width: 820px; margin: 18px auto 0; font-size: 13px; line-height: 1.75; color: var(--floor-ink); }
+.seat-tools { position: relative; max-width: 820px; margin: 20px auto 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: 13px; line-height: 1.6; color: var(--floor-ink); }
+/* 席替えの小さな説明：パソコンはカーソルを合わせると出る（title）。スマホは長押しで、ボタンの上に少しのあいだ出す（押しても席替えはしない） */
+#room-shuffle { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.tip { position: absolute; z-index: 5; left: 0; bottom: calc(100% + 8px); max-width: min(320px, calc(100vw - 32px)); padding: 7px 11px; border-radius: 10px; background: var(--toast-bg); color: var(--toast-fg); font: 700 12.5px/1.5 var(--font-round); box-shadow: 0 6px 16px var(--shadow); }
 .ex-note { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 8px; color: var(--fg); }
 
 /* ---- 下の操作バー（画面の下の端に固定。左右と下は端末の安全領域ぶん足す） ---- */
@@ -547,7 +566,6 @@ textarea.field { resize: vertical; }
 /* 昼休みの間は放送だけ（黒板・お便りは選べない） */
 .ch-opt input:disabled { cursor: not-allowed; }
 .ch-opt input:disabled + span { opacity: .4; border-style: dashed; }
-.ch-note { margin: -8px 0 14px; }
 /* 要点のお便り：書く欄の下に、元の放送の文を小さく */
 .cast-src { margin: 4px 0 0; padding: 8px 12px; border-radius: 12px; border: 1.5px dashed var(--muted); background: var(--surface-2); color: var(--muted); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
 .cast-src-tip { display: block; margin-top: 2px; font: 700 13px/1.5 var(--font-round); color: var(--fg); }
@@ -911,21 +929,17 @@ textarea.field { resize: vertical; }
 </head>
 <body>
 <div class="app" id="app">
+  <!-- 上の帯：タブと「？」だけ（アプリの名前は読み上げ用の見出しにだけ残す。ページの題はそのまま） -->
   <header class="top">
     <div class="wrap top-in">
-      <div class="brand">
-        <h1><span class="logo" aria-hidden="true"></span>マネジメント教室</h1>
-        <p class="brand-sub">頼み方が、相手の席からどう見えるか</p>
-      </div>
-      <button class="icon-btn" id="btn-help" type="button" aria-label="考え方">？</button>
-    </div>
-    <div class="wrap">
+      <h1 class="sr-only">マネジメント教室</h1>
       <div class="tabs" role="tablist" aria-label="画面">
         <button class="tab" role="tab" type="button" id="tab-room" aria-controls="pane-room" aria-selected="true">教室</button>
         <button class="tab" role="tab" type="button" id="tab-subs" aria-controls="pane-subs" aria-selected="false" tabindex="-1">提出物</button>
         <button class="tab" role="tab" type="button" id="tab-report" aria-controls="pane-report" aria-selected="false" tabindex="-1">通知表</button>
         <button class="tab" role="tab" type="button" id="tab-export" aria-controls="pane-export" aria-selected="false" tabindex="-1">書き出す</button>
       </div>
+      <button class="icon-btn" id="btn-help" type="button" aria-label="考え方">？</button>
     </div>
   </header>
 
@@ -948,12 +962,9 @@ textarea.field { resize: vertical; }
               </div>
               <div class="tray" aria-hidden="true"><i class="ch-w"></i><i class="ch-y"></i><i class="ch-p"></i><i class="eraser"></i></div>
             </div>
-            <!-- 黒板の下の行：書いている途中・昼休み中・掃除の時間の、その時だけ出す（いつもの「いまの黒板・直す・コピー」はなし。直すは時間割から） -->
+            <!-- 黒板の下の行：書いている途中・昼休み（12:10から）・掃除の時間の、その時だけ出す（「授業にもどる」はなし。ほかの行を押すと、その時間になる） -->
             <div class="board-meta" id="room-meta" hidden>
               <p class="board-note" id="room-note"></p>
-              <div class="board-links">
-                <button class="btn btn-small" type="button" id="room-lunch-end" hidden>授業にもどる</button>
-              </div>
             </div>
             <aside class="tt" id="room-tt" aria-labelledby="tt-title">
               <div class="tt-face">
@@ -973,11 +984,9 @@ textarea.field { resize: vertical; }
       </div>
       <div class="floor">
         <div class="wrap">
-          <div class="front-row"><div class="print" id="room-print" hidden><p class="print-head"><span class="print-title">おたより</span><span class="print-meta" id="room-print-meta"></span></p><p class="print-text" id="room-print-text"></p></div></div>
-          <p class="lunch-note" id="room-lunch-note" hidden>昼休み：生徒はとなりあう席に集まっている。生徒を押すと「話を聞いた（雑談）」を記録できる。先生は教卓で休けい中（輪には入らない）</p>
           <div class="rows" id="room-rows" role="group" aria-label="生徒の席"></div>
-          <div class="seat-tools"><button class="btn btn-small" type="button" id="room-shuffle">席替え</button><span>前後は「慣れ」のまま、左右の席だけくじで入れ替えます</span></div>
-          <p class="seat-note">席の前後は、その人に言葉が届くのに必要なはっきりさ（カードの Q1「慣れ」）。出来の良し悪しではありません。机を押すと、その生徒の目線に切り替わります。</p>
+          <div class="seat-tools"><button class="btn btn-small" type="button" id="room-shuffle" title="前後は「慣れ」のまま、左右の席だけくじで入れ替えます" aria-describedby="room-shuffle-tip">席替え</button>
+            <span class="tip" id="room-shuffle-tip" role="tooltip" hidden>前後は「慣れ」のまま、左右の席だけくじで入れ替えます</span></div>
           <p class="ex-note" id="room-ex" hidden><span>見本の生徒と頼みごと（時間割の3つ）が入っています。</span><button class="link-btn" type="button" id="room-ex-clear">見本をまとめて消す</button></p>
         </div>
       </div>
@@ -1016,6 +1025,12 @@ textarea.field { resize: vertical; }
     <button class="btn btn-primary" type="button" id="btn-write">頼みごとを出す</button>
   </div>
 </nav>
+<!-- 机の上のお便りを大きく読む（紙を押す・パソコンはカーソルを合わせる） -->
+<div class="letter-pop" id="letter-pop" hidden>
+  <button class="icon-btn lp-close" type="button" id="letter-pop-close" aria-label="お便りを閉じる">×</button>
+  <article class="print" aria-labelledby="letter-pop-title"><p class="print-head"><span class="print-title" id="letter-pop-title">おたより</span><span class="print-meta" id="letter-pop-meta"></span></p>
+    <p class="print-text" id="letter-pop-text"></p><p class="print-to" id="letter-pop-to"></p></article>
+</div>
 
 <div class="scrim" id="scrim" hidden></div>
 <section class="sheet is-low" id="sheet-write" role="dialog" aria-modal="true" aria-labelledby="write-title" hidden>
@@ -1031,7 +1046,6 @@ textarea.field { resize: vertical; }
       <label class="ch-opt"><input type="radio" name="write-ch" id="write-ch-letter" value="letter"><span><svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><path class="i-paper" d="M4.5 .8 H12.5 L15.5 3.8 V13.2 H4.5 Z"/><path class="i-ink" d="M6.8 5.5 H13.2 M6.8 8 H13.2 M6.8 10.5 H11"/></svg><b>お便り</b><small>文字で配る</small></span></label>
       <label class="ch-opt"><input type="radio" name="write-ch" id="write-ch-broadcast" value="broadcast"><span><svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><rect class="i-spk" x="1" y="2.5" width="10" height="9" rx="1.6"/><circle class="i-grille" cx="6" cy="7" r="2.3"/><path class="i-wave" d="M13.5 4.5 Q15.5 7 13.5 9.5 M16 2.5 Q19.5 7 16 11.5"/></svg><b>放送</b><small>口や Zoom で伝えた</small></span></label>
     </fieldset>
-    <p class="small ch-note" id="write-ch-note" hidden>昼休みの間は、放送だけ出せる（時間割の「昼休み」に入る。1日1つ）</p>
     <label class="lbl" for="write-text" id="write-text-lbl">頼みごと（書いた字が黒板に映る）</label>
     <div class="slate" id="write-slate" data-ch="board"><textarea id="write-text" name="write-text" maxlength="400" rows="4" autocomplete="off" placeholder="例：明日10時のゼミで使う図を、A4 1枚にまとめて。30分くらいで。途中で一度見せてね"></textarea></div>
     <p class="count" id="write-count">0/400</p>
@@ -1126,10 +1140,12 @@ textarea.field { resize: vertical; }
   <div class="help-body">
     <p>頼んだ自分には、頼みごとがはっきり見えている。でも、相手の席からは違って見えるかもしれない。マネジメント教室は、その見え方を確かめる鏡です。</p>
     <p><b>生徒は「あなたから見たその人」の仮の像</b>で、本人の評価ではありません。いつでも書き直せます。</p>
-    <p><b>席の前後</b>は、その人に言葉が届くのに必要なはっきりさ。出来の良し悪しではありません。</p>
-    <p><b>時間割</b>は、その日の頼みごとを1限から6限の枠に入れたものです（空いている時限を押すと、そこに書けます。選んでいる行の右の「直す」で直せます）。日付は午前3時に切り替わります（0時から2時台は、前の日として数えます）。伝え方は3つ。<b>黒板</b>（その場で説明）・<b>お便り</b>（文字で配る）・<b>放送</b>（口や Zoom で伝えた。紙に残らない）。同じ日に頼みが重なると、生徒の目線に「今日の頼みから」の心の声が足されます。放送（口だけ）は、黒板やお便りより残りにくいとされます。要点（何を・いつまで）を文字でも送ると残りやすくなります。1日の頼みが多いときや、前の頼みの途中で次を頼むときは、迷ったり続きを忘れたりしやすくなります。</p>
-    <p><b>昼休み</b>は、時間割の「昼休み」を押すと始まります。生徒は、今ある机のうちとなりあう席に2〜4人ずつ移って、まとまりの真ん中を向きます（並びは昼休みを始めたときに決まり、開き直しても同じです）。先生は教卓で休みます。生徒を押すと「話を聞いた（雑談）」を記録できます。昼休みの間に出せるのは放送だけで、時間割の「昼休み」に入ります（1日1つ）。</p>
-    <p><b>掃除の時間</b>は、1日の終わりに、今日の頼み（と前の日からの続き）を記録から1つずつ出して、生徒ごとに「終わった・途中・まだ」を選ぶ時間です。途中・まだは、続きをいつ・どこからやるか（最初の一歩）を一言で決めておくと、次の日の時間割の下に「前の日からの続き」として出ます。</p>
+    <p><b>席の前後</b>は、その人に言葉が届くのに必要なはっきりさ（カードの Q1「慣れ」）。出来の良し悪しではありません。机を押すと、その生徒の目線に切り替わります。<b>席替え</b>は、前後は「慣れ」のまま、左右の席だけくじで入れ替えます。</p>
+    <p><b>時間割</b>は、その日の頼みごとを1限から6限と昼休みの枠に入れたものです。行は9つ（1〜4限・昼休み・5〜6限・掃除・放課後）で、どの行も押すとその時間になります（空いている時限を押すと、そこに書けます。選んでいる行の右の「直す」で直せます）。大きい黒板の右上には、日付と今の時間が出ます。日付は午前3時に切り替わります（0時から2時台は、前の日として数えます）。</p>
+    <p>伝え方は3つ。<b>黒板</b>（その場で説明。黒板に字が出る）・<b>お便り</b>（文字で配る。相手の机に小さな紙が置かれ、紙を押すと大きく読める。パソコンはカーソルを合わせても出る）・<b>放送</b>（口や Zoom で伝えた。紙に残らない。その時間の間はスピーカーの下に吹き出しが出て、スピーカーを押すと消える・もう一度押すと出る）。同じ日に頼みが重なると、生徒の目線に「今日の頼みから」の心の声が足されます。放送（口だけ）は、黒板やお便りより残りにくいとされます。要点（何を・いつまで）を文字でも送ると残りやすくなります。1日の頼みが多いときや、前の頼みの途中で次を頼むときは、迷ったり続きを忘れたりしやすくなります。</p>
+    <p><b>昼休み</b>は、時間割の「昼休み」を押すと始まり、ほかの行を押すと終わります。生徒は、今ある机のうちとなりあう席に2〜4人ずつ移って、まとまりの真ん中を向きます（並びは昼休みを選んだ時刻で決まり、開き直しても同じです）。先生は教卓で休みます（輪には入りません）。生徒を押すと「話を聞いた（雑談）」を記録できます。昼休みの枠にも頼みごとを入れられます（1日1つ。どの伝え方でも、生徒の目線に「休めなかったかも」が出ます）。</p>
+    <p><b>掃除の時間</b>は、1日の終わりに、今日の頼み（と前の日からの続き）を記録から1つずつ出して、生徒ごとに「終わった・途中・まだ」を選ぶ時間です。掃除の行はいつでも押せます（掃除するものがないときは、わけを知らせます）。途中・まだは、続きをいつ・どこからやるか（最初の一歩）を一言で決めておくと、次の日の時間割の下に「前の日からの続き」として出ます。掃除のあと、時間割の行に印が付きます（全員終わった＝✓、途中・まだが残る＝「続き」）。</p>
+    <p><b>放課後</b>を押すと、生徒は帰ります（机は残ります）。</p>
     <p><b>心の声は「〜かも」の仮説</b>です。相手の立場を想像するより、本人に聞いたほうが当たります。「本人に聞くなら」の一言で確かめよう。</p>
     <p><b>通知表</b>は、黒板の文を言葉の一覧で機械的に数えた目安です。ずれたときは、まず黒板を疑う（何人もずれたら、なおさら）。</p>
     <p>データはこの端末のブラウザにだけ保存されます。</p>
@@ -1464,15 +1480,22 @@ var SekigaeEngine = (function () {
   function lessonMeta(b) { b = b || {}; return { channel: normChannel(b.channel), subject: normSubject(b.subject) }; }
   function channelLabel(c) { return CHANNEL_BY[normChannel(c)].label; }
   /* 「2限 手伝い（お便り）」 */
-  /* 昼休みの枠：4限と5限のあいだ（並びと割り込みで数える順は 4.5）。昼休みには放送だけ、1日1つ */
+  /* 昼休みの枠：4限と5限のあいだ（並びと割り込みで数える順は 4.5）。どの伝え方の頼みも入る（頼みの lunch: true・1日1つ） */
   var LUNCH_SLOT = 4.5;
+  /* 頼みの入る枠（時間割の並びの順）。掃除と放課後は頼みの入らない時間 */
+  var SLOTS = [1, 2, 3, 4, LUNCH_SLOT, 5, 6];
+  var TIME_NAME = { lunch: '昼休み', sweep: '掃除', after: '放課後' };
   function periodName(p) { return p === LUNCH_SLOT ? '昼休み' : p ? p + '限' : ''; }
+  /* 今の時間の名前：1〜6＝「1限」〜「6限」、'lunch'（4.5）＝「昼休み」、'sweep'＝「掃除」、'after'＝「放課後」 */
+  function timeName(t) { return TIME_NAME[t] || periodName(t); }
   function lessonLabel(b, period) { return (period ? periodName(period) + ' ' : '') + normSubject(b.subject) + '（' + channelLabel(b.channel) + '）'; }
   function byTime(x, y) { return (x.b.createdAt - y.b.createdAt) || (x.i - y.i); }
   /* ===== 時限（1〜6限の枠）。頼みごとは period を持つ。1日に同じ時限は1つだけ。0＝時間割に入らない ===== */
   var PERIOD_MAX = 6;
   function validPeriod(p) { return typeof p === 'number' && p >= 1 && p <= PERIOD_MAX && Math.floor(p) === p; }
   function pkey(b, i) { return b && b.id != null ? String(b.id) : '#' + i; }
+  /* 1日に1つずつ入る枠の名前（段Bで「1つの枠に伝え方ごとに1つ」にするときは、ここに伝え方を足す） */
+  function slotKey(slot, b) { return String(slot); }
   /* 頼みごとごとの時限。持っている時限はそのまま（同じ日に重なったら先に出したほう）。
      持っていない頼み（古いデータ）は、その日の出した順に空いている時限を小さい順に入れ、7番目からは 0。
      はっきり 0（時間割に入らない）としてあるものは 0 のまま */
@@ -1481,22 +1504,22 @@ var SekigaeEngine = (function () {
     var arr = (boards || []).map(function (b, i) { return { b: b, i: i }; }).sort(byTime);
     arr.forEach(function (x) {
       var k = dayKey(x.b.createdAt), u = used[k] || (used[k] = {});
-      // 昼休みの放送：その日の昼休みの枠（1日1つ。2つ目からは、ふつうの頼みとして空いている時限へ）
-      if (isLunchCast(x.b) && !u.lunch) { u.lunch = true; out[pkey(x.b, x.i)] = LUNCH_SLOT; }
-      else if (validPeriod(x.b.period) && !u[x.b.period]) { u[x.b.period] = true; out[pkey(x.b, x.i)] = x.b.period; }
+      // 昼休みの枠の頼み：その日の昼休み（1日1つ。2つ目からは、ふつうの頼みとして空いている時限へ）
+      if (isLunch(x.b) && !u[slotKey(LUNCH_SLOT, x.b)]) { u[slotKey(LUNCH_SLOT, x.b)] = true; out[pkey(x.b, x.i)] = LUNCH_SLOT; }
+      else if (validPeriod(x.b.period) && !u[slotKey(x.b.period, x.b)]) { u[slotKey(x.b.period, x.b)] = true; out[pkey(x.b, x.i)] = x.b.period; }
       else rest.push(x);
     });
     rest.forEach(function (x) {
       var k = dayKey(x.b.createdAt), u = used[k], p = 0;
-      if (x.b.period !== 0 || isLunchCast(x.b)) for (var n = 1; n <= PERIOD_MAX; n++) if (!u[n]) { p = n; break; }
-      if (p) u[p] = true;
+      if (x.b.period !== 0 || isLunch(x.b)) for (var n = 1; n <= PERIOD_MAX; n++) if (!u[slotKey(n, x.b)]) { p = n; break; }
+      if (p) u[slotKey(p, x.b)] = true;
       out[pkey(x.b, x.i)] = p;
     });
     return out;
   }
-  function isLunchCast(b) { return !!(b && b.lunch === true && normChannel(b.channel) === 'broadcast'); }
-  /* その日の昼休みの放送（なければ null） */
-  function lunchCastOf(boards, key) {
+  function isLunch(b) { return !!(b && b.lunch === true); }
+  /* その日の昼休みの枠の頼み（なければ null） */
+  function lunchOf(boards, key) {
     var per = periods(boards), hit = null;
     (boards || []).forEach(function (b, i) { if (!hit && dayKey(b.createdAt) === key && per[pkey(b, i)] === LUNCH_SLOT) hit = b; });
     return hit;
@@ -1507,6 +1530,21 @@ var SekigaeEngine = (function () {
     (boards || []).forEach(function (b, i) { if (dayKey(b.createdAt) === key && String(b.id) !== String(exceptId) && per[pkey(b, i)]) used[per[pkey(b, i)]] = true; });
     for (var n = 1; n <= PERIOD_MAX; n++) if (!used[n]) out.push(n);
     return out;
+  }
+  /* その日の空いている枠（1〜4限・昼休み・5〜6限の順。exceptId の頼みの枠は空きとみなす） */
+  function freeSlots(boards, key, exceptId) {
+    var per = periods(boards), used = {};
+    (boards || []).forEach(function (b, i) { if (dayKey(b.createdAt) === key && String(b.id) !== String(exceptId) && per[pkey(b, i)]) used[per[pkey(b, i)]] = true; });
+    return SLOTS.filter(function (s) { return !used[s]; });
+  }
+  /* その日のその枠の頼み（段A は1つまで。並びは 黒板・お便り・放送 の順） */
+  var CH_ORDER = { board: 0, letter: 1, broadcast: 2 };
+  function slotBoards(boards, key, slot) {
+    var per = periods(boards);
+    return (boards || []).map(function (b, i) { return { b: b, i: i }; })
+      .filter(function (x) { return dayKey(x.b.createdAt) === key && per[pkey(x.b, x.i)] === slot; })
+      .sort(function (x, y) { return (CH_ORDER[normChannel(x.b.channel)] - CH_ORDER[normChannel(y.b.channel)]) || byTime(x, y); })
+      .map(function (x) { return x.b; });
   }
   /* その日の頼み（時限の順。時間割に入らない頼みは最後に、出した順） */
   function dayList(boards, key) {
@@ -1686,6 +1724,28 @@ var SekigaeEngine = (function () {
       return { board: it.board, period: it.period, day: it.day, pairs: pairs };
     }).filter(function (c) { return c.pairs.length; });
   }
+  /* 掃除するものがないわけ（あれば ''）：今日の頼みがない＝none／頼みの相手がいない＝noTargets／相手が全員提出済みか締めた＝allDone */
+  function sweepEmptyWhy(boards, day) {
+    if (sweepList(boards, day).length) return '';
+    var mine = (boards || []).filter(function (b) { return dayKey(b.createdAt) === day; });
+    if (!mine.length) return 'none';
+    if (mine.every(function (b) { return !(b.targets || []).length; })) return 'noTargets';
+    return 'allDone';
+  }
+  /* 掃除のあとの時間割の印：相手が全員「終わった」（提出済みも終わった扱い）＝ done（✓）、途中・まだが残る＝ left（続き）。
+     まだ掃除していない頼みは ''。それぞれの生徒のいちばん新しい記録で決める */
+  function sweepMark(b) {
+    var swept = false, left = false, done = true;
+    ((b && b.targets) || []).forEach(function (sid) {
+      var e = sweepOf(b, sid), l = e && e.log && e.log.length ? e.log[e.log.length - 1] : null;
+      if (l) swept = true;
+      if (submittedBy(b, sid)) return;
+      if (l && isLeft(l.st)) left = true;
+      if (!l || l.st !== 'done') done = false;
+    });
+    if (!swept) return '';
+    return left ? 'left' : done ? 'done' : '';
+  }
   function mdDay(day) { var p = String(day).split('-'); return Number(p[1]) + '/' + Number(p[2]); }
   /* 書き出しの「掃除: 10/18 途中（続き: …）→ 10/19 終わった」 */
   function sweepLogText(e) {
@@ -1724,7 +1784,6 @@ var SekigaeEngine = (function () {
     var bonus = ts ? ts.bonus : 0, s = r2(Math.min(1, rc.support + bonus));
     return { demand: rc.demand, support: s, base: rc.support, bonus: bonus, n: rc.n, quad: quadrant(rc.demand, s) };
   }
-  /* 昼休みの輪：近くの席の生徒どうしで2〜3人ずつ（席の前後 → 左右の順にならべて、なるべく同じ大きさに分ける） */
   /* ===== 昼休みの席：今ある机のうち、となりあう席（前後・左右）に2〜4人ずつ移って、まとまりの真ん中を向く =====
      机の並びは lines 段 × cols 列（スマホ3列・パソコン5列）。昼休みを始めた時刻を種にして決める（同じ種なら同じ並び） */
   /* まとまりの人数：3人を中心に（10人なら 4・3・3）。2人なら1つ、4人なら 2×2 の1つ。大きい順 */
@@ -1963,8 +2022,8 @@ var SekigaeEngine = (function () {
     /* 放送：いちばん上に置く（心の声・本人に聞くなら・「要点をお便りでも送る」）。お便りがもうあれば送るチップは出さない */
     if (cast) add('broadcast', 10, { voice: 'さっき何て言ってた…？ メモしてないと忘れるかも',
       ask: 'さっき放送で言ったこと、何をいつまでにって受け取った？', chip: opt.letterCopy ? '' : '要点をお便りでも送る', act: 'letter' });
-    /* 昼休みの放送（昼休みの人づきあいは本人が選べるときだけ休みになる。重みは中くらい・赤い枠はつけない） */
-    if (cast && opt.lunch) add('castLunch', 5, { voice: 'せっかくの昼休み、頼まれたことが気になって休めなかったかも',
+    /* 昼休みの枠の頼み（どの伝え方でも。昼休みの人づきあいは本人が選べるときだけ休みになる。重みは中くらい・赤い枠はつけない） */
+    if (opt.lunch) add('lunch', 5, { voice: 'せっかくの昼休み、頼まれたことが気になって休めなかったかも',
       chip: /昼休みのあと/.test(f.text) ? '' : '急ぎでなければ、昼休みのあとで大丈夫だよ' });
     if (castMany) add('castMany', 6, { voice: 'いくつ頼まれたっけ…どれか抜けてるかも', ask: '放送で頼んだこと、いくつあったか覚えてる？' });
     else if (castLong) add('castLong', 5, { voice: '長くて、途中から覚えきれないかも' });
@@ -2187,11 +2246,12 @@ var SekigaeEngine = (function () {
     normChannel: normChannel, normSubject: normSubject, lessonMeta: lessonMeta, channelLabel: channelLabel, lessonLabel: lessonLabel,
     dayList: dayList, periods: periods, dayKeys: dayKeys, sameText: sameText, hasLetterCopy: hasLetterCopy, channelCounts: channelCounts,
     errandCount: errandCount, interrupted: interrupted, dayView: dayView, busiestDay: busiestDay,
-    PERIOD_MAX: PERIOD_MAX, validPeriod: validPeriod, freePeriods: freePeriods,
+    PERIOD_MAX: PERIOD_MAX, validPeriod: validPeriod, freePeriods: freePeriods, SLOTS: SLOTS, timeName: timeName, freeSlots: freeSlots, slotBoards: slotBoards,
+    sweepEmptyWhy: sweepEmptyWhy, sweepMark: sweepMark,
     SWEEP_ST: SWEEP_ST, SWEEP_NEXT_MAX: SWEEP_NEXT_MAX, markSweep: markSweep, sweepList: sweepList, sweepCtx: sweepCtx, sweepVoice: sweepVoice,
     TALK_MAX: TALK_MAX, TALK_TOPIC_MAX: TALK_TOPIC_MAX, TALK_VOICE: TALK_VOICE, talkOn: talkOn, setTalk: setTalk, dropTalk: dropTalk, talkSummary: talkSummary,
     withTalkBonus: withTalkBonus, talkStudents: talkStudents, talkText: talkText,
-    LUNCH_SLOT: LUNCH_SLOT, periodName: periodName, isLunchCast: isLunchCast, lunchCastOf: lunchCastOf,
+    LUNCH_SLOT: LUNCH_SLOT, periodName: periodName, isLunch: isLunch, lunchOf: lunchOf,
     lunchSizes: lunchSizes, seededRandom: seededRandom, facingOf: facingOf, lunchSeats: lunchSeats,
     sweepSummary: sweepSummary, carryOver: carryOver, sweepLogText: sweepLogText, goodBoards: goodBoards, logOn: logOn, logBefore: logBefore, mdDay: mdDay,
     QUESTIONS: QUESTIONS, RESULTS: RESULTS, RESULT_BY: RESULT_BY, SEAT_LABEL: SEAT_LABEL, DAY: DAY,
@@ -2267,7 +2327,7 @@ function defaultState() {
       { id: 'ex-b3', text: 'あとで部屋の片づけ、お願いね', channel: 'broadcast', subject: '雑務', period: 3, example: true, createdAt: t + 2, updatedAt: t + 2, targets: ['ex-s1', 'ex-s2'], firstTime: {}, results: {} }
     ],
     currentId: 'ex-b1',
-    lunch: null,
+    time: null,   // 選んでいる時間（時間割の行）：{ day, slot, at }
     ui: { tab: 'room' }
   };
 }
@@ -2333,8 +2393,8 @@ function normalize(raw) {
     if (meta.channel === 'letter' && typeof b.fromCast === 'string' && b.fromCast) nb.fromCast = b.fromCast.slice(0, 40);
     // 時限（1〜6・0＝時間割に入らない）。ないもの（古いデータ）は下でその日の出した順に入れる
     if (typeof b.period === 'number') nb.period = b.period;
-    // 昼休みの放送（v0.3.1）：放送のときだけ。時限は使わない（時間割の「昼休み」・1日1つ）
-    if (b.lunch === true && meta.channel === 'broadcast') nb.lunch = true;
+    // 昼休みの枠の頼み（v0.3.1 は放送だけ、v0.4 からはどの伝え方も）。時限は使わない（時間割の「昼休み」・1日1つ）
+    if (b.lunch === true) nb.lunch = true;
     // 掃除の時間の記録（v0.3 第2段）。古いデータには無いので空
     nb.sweep = normSweep(b.sweep, seenS);
     out.boards.push(nb);
@@ -2342,14 +2402,20 @@ function normalize(raw) {
   const per = E.periods(out.boards);
   out.boards.forEach((b) => {
     const p = per[b.id] || 0;
-    if (p === E.LUNCH_SLOT) { b.period = 0; return; }   // 昼休みの放送は時限 0 のまま
-    delete b.lunch;   // 同じ日の2つ目の昼休みの放送は、ふつうの頼みとして空いている時限へ
+    if (p === E.LUNCH_SLOT) { b.period = 0; return; }   // 昼休みの枠の頼みは時限 0 のまま
+    delete b.lunch;   // 同じ日の2つ目は、ふつうの頼みとして空いている時限へ
     b.period = p;
   });
-  // 昼休み（v0.3 第3段）：保存する。次の日（午前3時の区切り）には授業に戻っている（日が違えば昼休みではない）
-  out.lunch = raw.lunch && /^\d{4}-\d{2}-\d{2}$/.test(String(raw.lunch.day)) ? { day: String(raw.lunch.day), at: Number(raw.lunch.at) || 0 } : null;
-  if (out.lunch && out.lunch.day !== E.dayKey(Date.now())) out.lunch = null;
-  out.currentId = out.boards.some((b) => b.id === raw.currentId) ? String(raw.currentId) : (out.boards.length ? latestBoard(out.boards).id : '');
+  // 選んでいる時間（v0.4）：{ day, slot（1〜6・'lunch'・'sweep'・'after'）, at }。今日選んだものだけ（次の日＝午前3時の区切りには選び直し）。
+  // 前の版の昼休み（lunch: { day, at }）は、昼休みを選んだことにして読む
+  const rt = raw.time && typeof raw.time === 'object' ? raw.time : raw.lunch && typeof raw.lunch === 'object' ? { day: raw.lunch.day, slot: 'lunch', at: raw.lunch.at } : null;
+  const slot = rt && (rt.slot === 'lunch' || rt.slot === 'sweep' || rt.slot === 'after' || E.validPeriod(rt.slot)) ? rt.slot : null;
+  out.time = slot && /^\d{4}-\d{2}-\d{2}$/.test(String(rt.day)) && Number(rt.at) && E.dayKey(Number(rt.at)) === E.dayKey(Date.now()) ? { day: String(rt.day), slot: slot, at: Number(rt.at) } : null;
+  if (out.time) {
+    // 選んでいる時間の頼み（なければ空き＝いまの黒板はなし）
+    const ids = slot === 'sweep' || slot === 'after' ? [] : E.slotBoards(out.boards, out.time.day, slot === 'lunch' ? E.LUNCH_SLOT : slot).map((b) => b.id);
+    out.currentId = ids.indexOf(String(raw.currentId)) >= 0 ? String(raw.currentId) : (ids[0] || '');
+  } else out.currentId = out.boards.some((b) => b.id === raw.currentId) ? String(raw.currentId) : (out.boards.length ? latestBoard(out.boards).id : '');
   if (raw.ui && TABS.indexOf(raw.ui.tab) >= 0) out.ui.tab = raw.ui.tab;
   return out;
 }
@@ -2418,11 +2484,11 @@ function headsHTML(seat) {
 /* ===== お知らせ・コピー ===== */
 let toastTimer = 0;
 function announce(msg) { const live = $('sr-live'); live.textContent = ''; setTimeout(() => { live.textContent = msg; }, 40); }
-function toast(msg) {
+function toast(msg, ms) {
   $('toast-msg').textContent = msg;
   $('toast').classList.add('is-on');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => $('toast').classList.remove('is-on'), 2800);
+  toastTimer = setTimeout(() => $('toast').classList.remove('is-on'), ms || 2800);   // 長い一言（昼休みの説明など）は少し長く
   announce(msg);
 }
 /* コピーはクリックの中で呼ぶ。だめなら文字を選んだ状態にする */
@@ -2455,6 +2521,7 @@ function popLayer(id) { const i = layers.indexOf(id); if (i >= 0) layers.splice(
 let sheetEl = null, sheetOpener = null;
 function openSheet(id, opt) {
   opt = opt || {};
+  closeLetter();
   if (sheetEl) closeSheet(true);
   const el = $(id);
   sheetOpener = opt.opener || document.activeElement;
@@ -2506,6 +2573,7 @@ function closeConfirm(run) {
 /* ===== タブ ===== */
 function showTab(name, focus) {
   if (TABS.indexOf(name) < 0) name = 'room';
+  closeLetter();   // 机の上のお便りを開いていたら閉じる
   const changed = state.ui.tab !== name;
   state.ui.tab = name;
   save();
@@ -2530,11 +2598,8 @@ function renderActivePane() {
 /* ===== 教室 ===== */
 let writeMode = 'new', writeDraft = '', writePreview = null, writeTargets = new Set(), writeFirst = new Set();
 let writeChannel = 'board', writeDraftMeta = null, writeFromCast = null;   // writeFromCast：要点のお便りの元の放送の id
-/* 昼休みの放送：writeLunch＝いまのシートが昼休みの放送（伝え方は放送だけ・時限は「昼休み」）。書きかけは、ふだんの書きかけとは別にとっておく */
-let writeLunch = false, lunchDraft = '', lunchSubject = '', writeOpenerTT = false;
-const LUNCH_CAST_DONE = '今日の昼休みの放送は、もう出したよ（直すなら時間割から）';
+let writeBid = '', writeOpenerTT = false;   // writeBid：直している頼み。writeOpenerTT：時間割の「直す」から開いた
 let ttDay = '';                 // 時間割で見ている日（'' は今日）
-let sayBid = '', sayTimer = 0;  // スピーカーから流している頼み
 /* 伝え方の印（黒板・お便り・放送） */
 const CH_ICON = {
   board: '<svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><rect class="i-board" x="1" y="1" width="18" height="12" rx="1.5"/><path class="i-chalk" d="M4.5 5 H11 M4.5 8.5 H14"/></svg>',
@@ -2552,13 +2617,14 @@ function sizeClass(el, text) {
   el.classList.toggle('is-mid', n > 40 && n <= 90);
   el.classList.toggle('is-long', n > 90);
 }
-function setChalk(el, text) {
-  const empty = !text.trim();
+/* 黒板の字：黒板の頼みの字だけ（お便り・放送の一言や、昼休みの大きな字は出さない）。頼みごとがまだ1つもないときだけ、始め方を薄く */
+function setChalk(el, text, hint) {
+  const empty = !String(text || '').trim();
   el.classList.toggle('is-empty', empty);
-  el.textContent = empty ? 'まだ頼みごとがない黒板。「頼みごとを出す」から始めよう' : text;
+  el.textContent = empty ? (hint ? 'まだ頼みごとがない黒板。「頼みごとを出す」から始めよう' : '') : text;
   sizeClass(el, empty ? '' : text);
 }
-/* お便り・放送で伝えた頼みは、黒板には小さな注記だけ */
+/* 生徒の目線の黒板：お便り・放送で伝えた頼みは、黒板には小さな注記だけ */
 function setChalkNote(el, ch, hint) {
   el.classList.remove('is-empty', 'is-mid', 'is-long');
   el.innerHTML = '<span class="chalk-note">' + (ch === 'letter' ? '（お便りで配った）' : '（放送で伝えた）') + '</span>' + (hint ? '<span class="chalk-hint">' + esc(hint) + '</span>' : '');
@@ -2575,147 +2641,193 @@ function writeSubjectValue() {
   const c = document.querySelector('input[name="write-subj"]:checked');
   return c ? c.value : '授業';
 }
+/* 縦書きの日付・時間の数字（10・18・1限の1）をまっすぐ立てる（縦中横） */
+const tcyHTML = (s) => esc(s).replace(/\d+/g, (m) => '<span class="tcy">' + m + '</span>');
+/* 大きい黒板の右上：縦書きの日付と、その下に今の時間（1限〜6限・昼休み・掃除・放課後） */
+function setBoardDate(day, name) {
+  $('room-date').innerHTML = '<span class="bd-date">' + tcyHTML(dateLabel(keyToTs(day))) + '</span>' + (name ? '<span class="bd-time">' + tcyHTML(name) + '</span>' : '');
+}
+/* 大きい黒板・黒板の下の行・スピーカー：今の時間の頼みを出す（書いている途中は、その頼み） */
 function renderRoomBoard() {
   if (sweepUI) { renderSweepBoard(); return; }   // 掃除の時間は、黒板に1枚ずつ出す
-  if (lunchOn() && writePreview == null) { renderLunchBoard(); return; }   // 昼休みは、黒板に「昼休み」とだけ
-  $('room-board').classList.remove('is-sweeping', 'is-lunch');
-  $('room-lunch-end').hidden = true;
-  $('room-memos').hidden = true;
-  const b = currentBoard(), writing = writePreview != null, previewNew = writing && writeMode === 'new';
-  const ch = writing ? writeChannel : (b ? b.channel : 'board'), text = writing ? writePreview : (b ? b.text : '');
-  const per = E.periods(state.boards);
-  if (ch === 'board' || (!writing && !b)) setChalk($('room-chalk'), text);
-  else setChalkNote($('room-chalk'), ch, writing ? '' : ch === 'letter' ? 'プリントは教卓の前にあるよ' : 'スピーカーを押すと、もう一度流れる');
-  $('room-date').textContent = dateLabel(b && !previewNew ? b.createdAt : Date.now());
-  // 黒板の下の行は、書いている途中だけ（いつもの「いまの黒板・相手・直す・コピー」はなし。直すは時間割の選んでいる行から）
-  $('room-meta').hidden = !writing;
-  $('room-note').textContent = writing ? '書いている途中（まだ出していない）' : '';
-  /* お便り：教卓の前のプリント */
-  const print = $('room-print');
-  print.hidden = !(ch === 'letter' && text.trim());
-  if (!print.hidden) {
-    const p = writing ? writePeriodValue() : per[b.id];
-    $('room-print-meta').textContent = periodSubject({ subject: writing ? writeSubjectValue() : b.subject }, p) + (writing ? '（書いている途中）' : '');
-    $('room-print-text').textContent = text;
-  }
-  /* 放送：スピーカー（放送の頼みのときだけ押せる） */
-  const castNow = !writing && !!b && b.channel === 'broadcast';
-  $('room-speaker').disabled = !castNow;
-  $('room-speaker').setAttribute('aria-label', castNow ? '放送をもう一度流す（' + periodSubject(b, per[b.id]) + '）' : 'スピーカー（放送の頼みのとき、押すと流れる）');
-  if (writing) { if (ch === 'broadcast' && text.trim()) showSay(text, 'draft'); else stopSay(); }
-  else if (!castNow || sayBid !== b.id) stopSay();
-}
-/* スピーカーの吹き出し：draft＝書いている途中／play＝出て3秒ほどで薄れて消える／stay＝動きを減らす設定（出したまま） */
-/* 昼休みの黒板：「昼休み」とだけ。下に「昼休み中（12:10から）」と「授業にもどる」 */
-function renderLunchBoard() {
-  const chalk = $('room-chalk');
   $('room-board').classList.remove('is-sweeping');
-  $('room-board').classList.add('is-lunch');
-  chalk.classList.remove('is-empty', 'is-mid', 'is-long');
-  // 今日の昼休みの放送を選んでいれば、その放送を小さく出して、スピーカーで流せる
-  const b = currentBoard(), cast = isTodayLunchCast(b) ? b : null;
-  chalk.innerHTML = '昼休み' + (cast ? '<span class="chalk-hint">昼休みの放送：' + esc(cast.subject) + '（スピーカーを押すと、もう一度流れる）</span>' : '');
-  $('room-date').textContent = dateLabel(Date.now());
-  $('room-meta').hidden = false;
-  $('room-note').textContent = '昼休み中（' + hhmm(state.lunch.at) + 'から）';
-  $('room-lunch-end').hidden = false;
-  $('room-print').hidden = true;
-  $('room-speaker').disabled = !cast;
-  $('room-speaker').setAttribute('aria-label', cast ? '昼休みの放送をもう一度流す（' + cast.subject + '）' : 'スピーカー（放送の頼みのとき、押すと流れる）');
+  const writing = writePreview != null, w = roomWhen(), shown = roomBoards(), day = w.day, name = w.name;
+  const pick = (ch) => shown.find((x) => x.channel === ch) || null, bReq = pick('board'), cReq = pick('broadcast');
+  setChalk($('room-chalk'), writing && writeChannel === 'board' ? writePreview : bReq ? bReq.text : '', !writing && !state.boards.length);
+  setBoardDate(day, name);
+  /* 黒板の下の行：書いている途中と、昼休み（12:10から）のときだけ */
+  const t = liveTime(), lunch = !!t && t.slot === 'lunch';
+  $('room-meta').hidden = !(writing || lunch);
+  $('room-note').textContent = writing ? '書いている途中（まだ出していない）' : lunch ? '昼休み（' + hhmm(t.at) + 'から）' : '';
   $('room-memos').hidden = true;
-  if (!cast || sayBid !== cast.id) stopSay();
+  /* 放送：その時間の放送は、選んでいる間ずっと吹き出しに出す（スピーカーで消す・出す）。書いている途中は点線の吹き出し */
+  if (writing && writeChannel === 'broadcast' && writePreview.trim()) showSay(writePreview, null);
+  else if (cReq) showSay(cReq.text, cReq);
+  else stopSay();
+  const on = !!cReq && !writing, off = on && sayOffFor === cReq.id;
+  $('room-speaker').disabled = !on;
+  $('room-speaker').setAttribute('aria-label', on ? (off ? '放送の吹き出しを出す（' : '放送の吹き出しを消す（') + periodSubject(cReq, E.periods(state.boards)[cReq.id]) + '）'
+    : 'スピーカー（放送の頼みがある時間に押すと、吹き出しを消す・出す）');
+}
+/* スピーカーの吹き出し：放送の頼み b をずっと出す（sayOffFor＝スピーカーで消した放送。場所は空けたまま）。b が null なら書いている途中（点線） */
+let sayFor = '', sayOffFor = '';
+function showSay(text, b) {
+  const say = $('room-say'), id = b ? b.id : '#draft', fresh = say.hidden || sayFor !== id, off = !!b && sayOffFor === id;
+  sayFor = id;
+  $('room-say-text').textContent = text;
+  $('room-say-k').textContent = !b ? '書いている途中' : E.dayKey(b.createdAt) === todayKey() ? '放送中…' : '放送で伝えた';
+  say.hidden = false;
+  say.classList.toggle('is-draft', !b);
+  say.classList.toggle('is-off', off);
+  if (fresh && !off && motionOK()) { say.classList.remove('is-in'); void say.offsetWidth; say.classList.add('is-in'); }
+  $('room-pa').classList.toggle('is-playing', !!b && !off);
 }
 function stopSay() {
-  clearTimeout(sayTimer);
-  sayBid = '';
+  sayFor = '';
   $('room-say').hidden = true;
-  $('room-say').classList.remove('is-on', 'is-draft', 'is-stay');
-  $('room-pa').classList.remove('is-playing', 'is-stay');
+  $('room-say').classList.remove('is-off', 'is-draft', 'is-in');
+  $('room-pa').classList.remove('is-playing');
 }
-function showSay(text, mode) {
-  const say = $('room-say');
-  clearTimeout(sayTimer);
-  $('room-say-text').textContent = text;
-  $('room-say-k').textContent = mode === 'draft' ? '書いている途中' : mode === 'play' ? '放送中…' : '放送で伝えた';
-  say.classList.remove('is-on', 'is-draft', 'is-stay');
-  $('room-pa').classList.remove('is-playing', 'is-stay');
-  say.hidden = false;
-  if (mode === 'draft') { say.classList.add('is-draft'); sayBid = ''; return; }
-  void say.offsetWidth;   // 最初から流し直す
-  if (mode === 'play') {
-    say.classList.add('is-on');
-    $('room-pa').classList.add('is-playing');
-    sayTimer = setTimeout(() => { say.hidden = true; say.classList.remove('is-on'); $('room-pa').classList.remove('is-playing'); sayBid = ''; }, 3400);
-  } else { say.classList.add('is-stay'); $('room-pa').classList.add('is-stay'); }
-}
-function playBroadcast() {
+/* スピーカーを押す：吹き出しがふわっと消える。もう一度押すと、また出る（動きを減らす設定では、すぐ消える・出る） */
+$('room-speaker').addEventListener('click', () => {
+  if (!sayFor || sayFor === '#draft') return;
+  sayOffFor = sayOffFor === sayFor ? '' : sayFor;
+  $('room-say').classList.remove('is-in');
+  renderRoomBoard();
+  announce(sayOffFor ? '放送の吹き出しを消した' : '放送：' + $('room-say-text').textContent);
+});
+/* ===== 時間（時間割の行）：1〜4限・昼休み・5〜6限・掃除・放課後。どの行も押すと、その時間になる =====
+   選んだ時間は保存する（state.time = { day, slot, at }）。次の日（午前3時の区切り）には選び直し。
+   昼休みは生徒がとなりあう席に集まり（並びの種は選んだ時刻）、放課後は帰る（机は残る）。ほかの時間は自分の席 */
+const TT_SLOTS = [1, 2, 3, 4, 'lunch', 5, 6, 'sweep', 'after'];
+const isReqSlot = (s) => s === 'lunch' || E.validPeriod(s);
+const slotNum = (s) => (s === 'lunch' ? E.LUNCH_SLOT : s);           // 頼みの枠の番号（昼休みは 4.5）
+const slotOfNum = (p) => (p === E.LUNCH_SLOT ? 'lunch' : p);          // 頼みの枠の番号 → 時間割の行
+const slotOfKey = (k) => (k === 'lunch' || k === 'sweep' || k === 'after' ? k : Number(k));
+function liveTime() { const t = state.time; return t && E.dayKey(t.at) === todayKey() ? t : null; }
+const slotBoardsOn = (day, slot) => (isReqSlot(slot) ? E.slotBoards(state.boards, day, slotNum(slot)) : []);
+/* 教室に出している頼み：選んだ時間の頼み（時間を選んでいなければ、いまの黒板の頼み） */
+function shownBoards() { const t = liveTime(); if (t) return slotBoardsOn(t.day, t.slot); const b = currentBoard(); return b ? [b] : []; }
+/* 黒板の日付と、今の時間の名前 */
+function shownWhen() {
+  const t = liveTime();
+  if (t) return { day: t.day, name: E.timeName(t.slot) };
   const b = currentBoard();
-  if (!b || b.channel !== 'broadcast' || writePreview != null) return;
-  showSay(b.text, motionOK() ? 'play' : 'stay');
-  sayBid = b.id;
-  announce('放送：' + b.text);
+  return b ? { day: E.dayKey(b.createdAt), name: E.periodName(E.periods(state.boards)[b.id] || 0) } : { day: todayKey(), name: '' };
 }
-$('room-speaker').addEventListener('click', playBroadcast);
-/* 今日の時間割（小さい黒板）。行を押すと、大きい黒板がその頼みに切り替わる */
-/* 時間割の1行のボタン（noLabel＝時限の名前を出さない：昼休みの行の中の放送） */
-function ttRowBtn(b, p, off, noLabel) {
-  const now = b.id === state.currentId;
-  return '<button class="tt-row is-filled' + (now ? ' is-now' : '') + '" type="button" data-bid="' + esc(b.id) + '"' + (now ? ' aria-current="true"' : '') + '>' +
-    (noLabel ? '<span class="sr-only">昼休みの放送 </span>' : '<span class="tt-p">' + (p ? E.periodName(p) : 'ほか') + '</span>') +
+/* 教室に出す頼み：書いている途中は、書いている枠（シートで選んでいる時限）のほかの頼み（直している頼みはのぞく）。ふだんは、選んだ時間の頼み */
+function roomBoards() {
+  if (writePreview == null) return shownBoards();
+  const p = writePeriodValue(), editB = writeMode === 'edit' ? board(writeBid) : null, day = editB ? E.dayKey(editB.createdAt) : todayKey();
+  return p ? E.slotBoards(state.boards, day, p).filter((x) => !editB || x.id !== editB.id) : [];
+}
+function roomWhen() {
+  if (writePreview == null) return shownWhen();
+  const editB = writeMode === 'edit' ? board(writeBid) : null;
+  return { day: editB ? E.dayKey(editB.createdAt) : todayKey(), name: E.periodName(writePeriodValue()) };
+}
+const isLunchTime = () => { const t = liveTime(); return !!t && t.slot === 'lunch'; };
+const isAfterTime = () => { const t = liveTime(); return !!t && t.slot === 'after'; };
+/* 時間が変わったときの一言（昼休みの説明は、ふだんは出さず、昼休みを選んだときにここで1回） */
+const LUNCH_NOTE = '生徒はとなりあう席に集まっている。生徒を押すと「話を聞いた（雑談）」を記録できる。先生は教卓で休けい中';
+const TIME_NOTE = { lunch: (t) => '昼休み（' + hhmm(t.at) + 'から）。' + LUNCH_NOTE, after: () => '放課後。生徒は帰った（机は残っている）', back: () => '生徒は自分の席にもどった' };
+/* 時間を選ぶ。bid はその時間の中で選ぶ頼み。quiet ならお知らせを出さずに、生徒の動きの種類（lunch・after・back・''）を返す */
+function setTime(day, slot, bid, quiet) {
+  closeLetter();
+  const before = kidRects(), wasLunch = isLunchTime(), wasAfter = isAfterTime(), prev = liveTime();
+  // 同じ時間をもう一度押したときは、選んだ時刻（昼休みの並びの種）を変えない
+  const same = !!prev && prev.day === day && prev.slot === slot;
+  state.time = { day: day, slot: slot, at: same ? prev.at : Date.now() };
+  const ids = slotBoardsOn(day, slot).map((b) => b.id);
+  state.currentId = bid && ids.indexOf(bid) >= 0 ? bid : (ids[0] || '');
+  ttDay = day === todayKey() ? '' : day;
+  sayOffFor = '';   // 時間を選び直したら、放送の吹き出しはまた出す
+  commit();
+  const nowLunch = isLunchTime(), nowAfter = isAfterTime(), rows = $('room-rows'), fade = motionOK() && wasAfter !== nowAfter;
+  if (fade) rows.classList.toggle('is-after', wasAfter);   // 前のようすから、ふわっと変える
+  if (wasLunch !== nowLunch || wasAfter !== nowAfter) flipKids(before);
+  if (fade) { void rows.offsetWidth; rows.classList.toggle('is-after', nowAfter); }
+  const kind = nowLunch && !wasLunch ? 'lunch' : nowAfter && !wasAfter ? 'after' : (wasLunch || wasAfter) && !nowLunch && !nowAfter ? 'back' : '';
+  if (!quiet) {
+    const name = E.timeName(slot), cur = currentBoard();
+    if (kind) toast(kind === 'back' ? name + 'にしたよ。' + TIME_NOTE.back() : TIME_NOTE[kind](state.time), kind === 'lunch' ? 5600 : 0);
+    else announce(name + (cur ? '：' + E.lessonLabel(cur, slotNum(slot)) : ''));
+  }
+  return kind;
+}
+/* 頼みを1つ選ぶ（前の日からの続き・生徒の目線の小さな時間割・出したあと・直したあと）：その頼みの時間にする。
+   すでにその時間なら選び直さない（昼休みの並びも変えない）。時間割の外の頼みは、時間を選ばずに黒板へ */
+function showBoard(b, quiet) {
+  const p = E.periods(state.boards)[b.id], day = E.dayKey(b.createdAt), t = liveTime();
+  if (p && t && t.day === day && t.slot === slotOfNum(p)) { state.currentId = b.id; ttDay = day === todayKey() ? '' : day; commit(); return ''; }
+  if (p) return setTime(day, slotOfNum(p), b.id, quiet);
+  closeLetter();
+  const before = kidRects(), was = isLunchTime() || isAfterTime();
+  state.time = null;
+  state.currentId = b.id;
+  ttDay = day === todayKey() ? '' : day;
+  commit();
+  if (was) flipKids(before);
+  return was ? 'back' : '';
+}
+/* ===== 今日の時間割（小さい黒板） ===== */
+/* 掃除のあとの印：全員終わった＝✓、途中・まだが残る＝「続き」 */
+function ttMarkHTML(b) {
+  const m = E.sweepMark(b);
+  return m === 'done' ? '<span class="tt-mark is-done" aria-hidden="true">✓</span><span class="sr-only">（掃除：全員終わった）</span>'
+    : m === 'left' ? '<span class="tt-mark is-left" aria-hidden="true">続き</span><span class="sr-only">（掃除：途中・まだが残っている）</span>' : '';
+}
+/* 時間割の1行のボタン（now＝選んでいる行。extra.id＝行の id・extra.when＝昼休みを選んだ時刻・extra.mark＝掃除のあとの印を出す） */
+function ttRowBtn(b, p, off, now, extra) {
+  extra = extra || {};
+  const mk = extra.mark ? ttMarkHTML(b) : '';
+  return '<button class="tt-row is-filled' + (now ? ' is-now' : '') + (mk ? ' has-mark' : '') + '" type="button" data-bid="' + esc(b.id) + '" data-slot="' + esc(String(p ? slotOfNum(p) : 0)) + '"' +
+    (extra.id ? ' id="' + extra.id + '"' : '') + (now ? ' aria-current="true"' : '') + '>' +
+    '<span class="tt-p">' + (p ? E.periodName(p) : 'ほか') + (extra.when ? '<span class="tt-when">' + esc(extra.when) + '</span>' : '') + '</span>' +
     '<span class="tt-s">' + esc(b.subject) + (off ? '<span class="tt-off">（相手ではない）</span>' : '') + '</span>' +
-    '<span class="tt-ch">' + CH_ICON[b.channel] + '<span class="tt-ch-t">' + E.channelLabel(b.channel) + '</span></span>' + (now ? '<span class="sr-only">（いま見ている頼み）</span>' : '') + '</button>';
+    '<span class="tt-ch">' + mk + CH_ICON[b.channel] + '<span class="tt-ch-t">' + E.channelLabel(b.channel) + '</span></span>' +
+    (now ? '<span class="sr-only">（いま選んでいる時間）</span>' : '') + '</button>';
 }
 /* 選んでいる行の右端の「直す」（押すと、その頼みの「頼みごとを直す」を開く） */
 function ttEditBtn(b, p) { return '<button class="tt-edit" type="button" data-edit="' + esc(b.id) + '" aria-label="' + esc(E.lessonLabel(b, p)) + 'を直す">直す</button>'; }
-/* edit＝教室の時間割（選んでいる行を黄色い枠で囲んで「直す」を足す）。生徒の目線の小さな時間割には足さない */
-function ttRowHTML(b, p, off, edit) {
-  if (edit && b.id === state.currentId) return '<li class="tt-now">' + ttRowBtn(b, p, off) + ttEditBtn(b, p) + '</li>';
-  return '<li>' + ttRowBtn(b, p, off) + '</li>';
-}
-/* 枠の並び：1〜4限・昼休み・5〜6限・掃除 */
-const TT_SLOTS = [1, 2, 3, 4, 'lunch', 5, 6, 'sweep'];
-const FULL_MSG = '今日の時間割は6限までうまっているよ。明日に回すか、どれかを直してね';
-const freePeriodsOn = (day, exceptId) => E.freePeriods(state.boards, day, exceptId);
+/* 生徒の目線の小さな時間割の1行（いま見ている頼みを強調） */
+function ttRowHTML(b, p, off, now) { return '<li>' + ttRowBtn(b, p, off, now) + '</li>'; }
+const FULL_MSG = '今日の時間割は6限と昼休みまでうまっているよ。明日に回すか、どれかを直してね';
 function ttNeighbors(day) {
   let prev = '', next = '';
   E.dayKeys(state.boards, todayKey()).forEach((k) => { if (k < day) prev = k; else if (k > day && !next) next = k; });
   return { prev, next };
 }
-/* 時間割の枠（いつも8行）。空いている時限は、今日のときだけ押せて、その時限で「頼みごとを出す」を開く */
+/* 時間割の枠（いつも9行）。どの行も押すと、その時間になる（空いている時限は、その時限で「頼みごとを出す」も開く） */
 function renderTimetable() {
   const today = todayKey(), day = ttDay || today, isToday = day === today, nb = ttNeighbors(day), per = E.periods(state.boards), byP = {};
   let extra = 0;
   E.dayList(state.boards, day).forEach((b) => { const p = per[b.id]; if (p) byP[p] = b; else extra++; });
+  const t = liveTime(), cur = currentBoard();
+  // 選んでいる行：選んだ時間（その日を見ているとき）。時間を選んでいなければ、いまの黒板の頼みの行
+  const sel = t ? (t.day === day ? t.slot : null) : (cur && E.dayKey(cur.createdAt) === day && per[cur.id] ? slotOfNum(per[cur.id]) : null);
+  const when = t && t.slot === 'lunch' && t.day === day ? '（' + hhmm(t.at) + 'から）' : '';
   $('tt-title').textContent = isToday ? '今日の時間割' : 'この日の時間割';
   $('tt-date').textContent = dateLabel(keyToTs(day));
   $('tt-list').innerHTML = TT_SLOTS.map((slot) => {
+    const on = sel === slot, sr = on ? '・いま選んでいる時間' : '';
+    const li = (cls, inner) => { const c = [cls, on ? 'tt-now' : ''].filter(Boolean).join(' '); return '<li' + (c ? ' class="' + c + '"' : '') + '>' + inner + '</li>'; };
+    if (slot === 'sweep' || slot === 'after') {
+      const name = slot === 'sweep' ? (isToday ? '掃除の時間' : '掃除') : '放課後';
+      if (!isToday) return li('', '<div class="tt-row tt-break" data-slot="' + slot + '">' + name + '</div>');
+      const label = slot === 'sweep' ? '掃除の時間' + sr + '。押すと、今日の頼みを1つずつ見て、終わった・途中・まだを選ぶ' : '放課後' + sr + '。押すと、生徒が帰る（机は残る）';
+      return li('', '<button class="tt-row tt-break" type="button" id="tt-' + slot + '" data-slot="' + slot + '"' + (on ? ' aria-current="true"' : '') + ' aria-label="' + label + '">' + name + '</button>');
+    }
+    const b = byP[slotNum(slot)], wide = slot === 'lunch' ? 'tt-wide' : '';
+    if (b) return li(wide, ttRowBtn(b, slotNum(slot), false, on, { id: isToday && slot === 'lunch' ? 'tt-lunch' : '', when: on ? when : '', mark: true }) + (on ? ttEditBtn(b, slotNum(slot)) : ''));
     if (slot === 'lunch') {
-      // 昼休みの行＝昼休みの入口（今日だけ押せる。1日に何度でも）。昼休み中は「昼休み中（12:10から）」で、押すと授業にもどる。
-      // 昼休みの放送（1日1つ）があれば、右にその放送（押すと黒板に出してスピーカーが流れる・選んでいれば「直す」）
-      const cast = byP[E.LUNCH_SLOT];
-      let tog;
-      if (!isToday) tog = '<div class="tt-row tt-break" data-slot="lunch">昼休み</div>';
-      else {
-        const on = lunchOn(), from = on ? '（' + hhmm(state.lunch.at) + 'から）' : '';
-        tog = '<button class="tt-row tt-break tt-lunch' + (on ? ' is-on' : '') + '" type="button" id="tt-lunch" data-slot="lunch"' + (on ? ' aria-current="true"' : '') +
-          ' aria-label="' + (on ? '昼休み中' + from + '。押すと授業にもどる' : '昼休み。押すと昼休みにする') + '">' + (on ? '昼休み中<span class="tt-lunch-time">' + from + '</span>' : '昼休み') + '</button>';
-      }
-      if (!cast) return '<li class="tt-wide">' + tog + '</li>';
-      const castNow = cast.id === state.currentId;
-      return '<li class="tt-wide tt-lunch-cell">' + tog + (castNow ? '<div class="tt-now">' + ttRowBtn(cast, E.LUNCH_SLOT, false, true) + ttEditBtn(cast, E.LUNCH_SLOT) + '</div>'
-        : ttRowBtn(cast, E.LUNCH_SLOT, false, true)) + '</li>';
+      if (!isToday) return li(wide, '<div class="tt-row tt-break" data-slot="lunch">昼休み</div>');
+      return li(wide, '<button class="tt-row tt-break tt-lunch" type="button" id="tt-lunch" data-slot="lunch"' + (on ? ' aria-current="true"' : '') +
+        ' aria-label="' + (on ? '昼休み' + when + sr : '昼休み。押すと昼休みにする（生徒がとなりあう席に集まる）') + '">昼休み' + (on ? '<span class="tt-when">' + when + '</span>' : '') + '</button>');
     }
-    if (slot === 'sweep') {
-      // 掃除の行＝掃除の時間の入口（今日だけ。今日の頼みか前の日からの続きが1つ以上あるとき押せる）
-      if (!isToday) return '<li class="tt-wide"><div class="tt-row tt-break" data-slot="sweep">掃除</div></li>';
-      const can = E.sweepList(state.boards, today).length > 0;
-      return '<li class="tt-wide"><button class="tt-row tt-break tt-sweep" type="button" id="tt-sweep" data-slot="sweep"' + (can ? '' : ' disabled') +
-        ' aria-label="' + (can ? '掃除の時間（今日の頼みを1つずつ見て、終わった・途中・まだを選ぶ）' : '掃除の時間（今日は、掃除する頼みごとがまだない）') + '">' + (can ? '掃除の時間' : '掃除') + '</button></li>';
-    }
-    if (byP[slot]) return ttRowHTML(byP[slot], slot, false, true);
-    if (isToday) return '<li><button class="tt-row is-empty" type="button" data-period="' + slot + '" aria-label="' + slot + '限は空いている。押すと' + slot + '限に頼みごとを書く">' +
-      '<span class="tt-p">' + slot + '限</span><span class="tt-add" aria-hidden="true">＋ 頼みごとを書く</span></button></li>';
-    return '<li><div class="tt-row is-empty is-past"><span class="tt-p">' + slot + '限</span><span class="tt-add">―</span><span class="sr-only">（空いていた）</span></div></li>';
+    if (isToday) return li('', '<button class="tt-row is-empty" type="button" data-period="' + slot + '" data-slot="' + slot + '"' + (on ? ' aria-current="true"' : '') +
+      ' aria-label="' + slot + '限は空いている' + sr + '。押すと' + slot + '限にして、頼みごとを書く"><span class="tt-p">' + slot + '限</span><span class="tt-add" aria-hidden="true">＋ 頼みごとを書く</span></button>');
+    return li('', '<div class="tt-row is-empty is-past"><span class="tt-p">' + slot + '限</span><span class="tt-add">―</span><span class="sr-only">（空いていた）</span></div>');
   }).join('');
   $('tt-more').hidden = !extra;
   $('tt-more').textContent = 'この日はほかに ' + extra + ' 件（提出物で見られる）';
@@ -2740,13 +2852,11 @@ function renderCarry(list) {
 $('tt-carry').addEventListener('click', (e) => {
   const r = e.target.closest('.tt-carry-row'), b = r && board(r.dataset.bid);
   if (!b) return;
-  state.currentId = b.id;
-  ttDay = '';
-  commit();
+  showBoard(b, true);
+  ttDay = '';   // 時間割は今日のまま
+  renderTimetable();
   focusEl(document.querySelector('#tt-carry .tt-carry-row[data-bid="' + cssEsc(b.id) + '"]'));
-  if (lunchOn()) { toast('いまは昼休み。黒板で見るときは「授業にもどる」を押してね'); return; }
   announce('前の日からの続き：' + E.lessonLabel(b, E.periods(state.boards)[b.id]) + 'を黒板に出した');
-  if (b.channel === 'broadcast') playBroadcast();
 });
 function goDay(dir) {
   const nb = ttNeighbors(ttDay || todayKey()), k = dir < 0 ? nb.prev : nb.next;
@@ -2757,34 +2867,22 @@ function goDay(dir) {
 }
 $('tt-prev').addEventListener('click', () => goDay(-1));
 $('tt-next').addEventListener('click', () => goDay(1));
-/* 頼みを「いまの黒板」にする（時間割もその日に合わせる）。放送なら、スピーカーから流す */
-function selectLesson(bid, focusSel) {
-  const b = board(bid);
-  if (!b) return;
-  state.currentId = b.id;
-  ttDay = E.dayKey(b.createdAt) === todayKey() ? '' : E.dayKey(b.createdAt);
-  commit();
-  if (focusSel) focusEl(document.querySelector(focusSel + ' .tt-row[data-bid="' + cssEsc(b.id) + '"]'));
-  if (lunchOn()) {
-    // 昼休みの間、黒板は「昼休み」のまま。今日の昼休みの放送だけは、昼休みの教室のスピーカーから流れる
-    if (isTodayLunchCast(b)) playBroadcast(); else toast('いまは昼休み。黒板で見るときは「授業にもどる」を押してね');
-    return;
-  }
-  if (b.channel === 'broadcast') playBroadcast();
-}
-const isTodayLunchCast = (b) => !!b && E.isLunchCast(b) && E.dayKey(b.createdAt) === todayKey();
+/* 時間割の行を押す：その時間になる。空いている時限は、その時限で「頼みごとを出す」も開く。掃除は掃除の時間を始める */
 $('tt-list').addEventListener('click', (e) => {
   const ed = e.target.closest('.tt-edit');
-  if (ed) { openWrite('edit', ed); return; }   // 選んでいる行の「直す」
-  const r = e.target.closest('.tt-row');
+  if (ed) { openWrite('edit', ed, { bid: ed.dataset.edit }); return; }   // 選んでいる行の「直す」（その行の頼み）
+  const r = e.target.closest('button.tt-row');
   if (!r) return;
-  if (r.dataset.bid) selectLesson(r.dataset.bid, '#tt-list');
-  else if (r.dataset.period) openWrite('new', r, { period: Number(r.dataset.period) });
-  else if (r.id === 'tt-sweep' && !r.disabled) openSweep(r);
-  else if (r.id === 'tt-lunch') { setLunch(!lunchOn()); focusEl($('tt-lunch')); }
+  const day = ttDay || todayKey(), slot = slotOfKey(r.dataset.slot), period = r.dataset.period;
+  const again = () => document.querySelector('#tt-list button.tt-row[data-slot="' + slot + '"]');
+  if (slot === 'sweep') { setTime(day, 'sweep'); startSweep(again()); return; }
+  setTime(day, slot, r.dataset.bid || '');
+  if (period) { openWrite('new', again(), { period: slot }); return; }
+  focusEl(again());
 });
-function deskHTML(s, b, seat) {
-  const first = !!(b && b.firstTime[s.id]), off = !!(b && b.targets.indexOf(s.id) < 0);
+/* ===== 教室の机（席の前後は「慣れ」。机を押すと、その生徒の目線） ===== */
+function deskHTML(s, b, seat, paper) {
+  const first = !!(b && b.firstTime[s.id]), off = !!(b && b.targets.indexOf(s.id) < 0), away = isAfterTime();
   const review = E.needsReview(s, state.boards, Date.now());
   const badges = [];
   if (s.example) badges.push('<span class="badge">見本</span>');
@@ -2792,11 +2890,17 @@ function deskHTML(s, b, seat) {
   if (off) badges.push('<span class="badge">今回は対象外</span>');
   if (review) badges.push('<span class="badge badge-review">像の見直し？</span>');
   const label = 'あなたから見た' + (s.example ? '見本の' : '') + s.name + 'さん（' + E.SEAT_LABEL[seat] + (first ? '・この頼みは初めての作業' : '') +
-    (off ? '・この黒板の相手ではない' : '') + (review ? '・像の見直しどき' : '') + '）。押すと、この生徒の目線に切り替わる';
-  return '<button class="desk' + (off ? ' is-off' : '') + '" type="button" data-sid="' + esc(s.id) + '" style="--c: var(--k' + s.color + ')" aria-label="' + esc(label) + '">' +
+    (off ? '・この黒板の相手ではない' : '') + (review ? '・像の見直しどき' : '') + (away ? '・放課後でもう帰った' : '') + '）。押すと、この生徒の目線に切り替わる';
+  return '<button class="desk' + (off ? ' is-off' : '') + (paper ? ' has-paper' : '') + '" type="button" data-sid="' + esc(s.id) + '" style="--c: var(--k' + s.color + ')" aria-label="' + esc(label) + '">' +
     (badges.length ? '<span class="desk-badges" aria-hidden="true">' + badges.join('') + '</span>' : '') +
     '<span class="desk-top" aria-hidden="true"><span class="desk-tag"><span class="tag-k">あなたから見た</span><span class="tag-n">' + esc(s.name) + 'さん</span></span></span>' +
-    '<span class="kid" aria-hidden="true">' + kidSVG(s) + '</span></button>';
+    '<span class="kid-chair" aria-hidden="true">' + CHAIR_SVG + '</span><span class="kid" aria-hidden="true">' + kidSVG(s) + '</span></button>';
+}
+/* 配ったお便り：その生徒の机（授業の席）に置く小さな紙。机のボタンとは別のボタン（押す・パソコンはカーソルを合わせると、大きく読める） */
+function paperHTML(b, s) {
+  return '<button class="desk-paper" type="button" data-bid="' + esc(b.id) + '" data-sid="' + esc(s.id) + '" aria-expanded="false" aria-controls="letter-pop" aria-label="' +
+    esc(s.name + 'さんの机のお便り（' + periodSubject(b, E.periods(state.boards)[b.id]) + '）を大きく読む') + '">' +
+    '<span class="dp-sheet" aria-hidden="true"><span class="dp-head">おたより</span><span class="dp-line"></span><span class="dp-line"></span><span class="dp-line"></span><span class="dp-line"></span></span></button>';
 }
 /* 1段の机の数（CSS の .row-desks と同じ境目：760px 以上は5列、それより狭いと3列） */
 const wideMQ = window.matchMedia ? window.matchMedia('(min-width: 760px)') : { matches: false };
@@ -2811,51 +2915,49 @@ function placeRow(list, nc) {
   return slots;
 }
 function renderRoom() {
+  closeLetter();
   renderRoomBoard();
   renderTimetable();
-  const b = currentBoard(), groups = { front: [], middle: [], back: [] }, nc = deskCols(), lunch = lunchOn();
+  const b = currentBoard(), groups = { front: [], middle: [], back: [] }, nc = deskCols(), t = liveTime(), lunch = isLunchTime(), after = isAfterTime();
   state.students.forEach((s) => groups[E.seatOf(s.answers.q1)].push(s));
   /* 机の並び（段ごと）。授業の席を [段, 列] で覚えておく */
   const rows = ['front', 'middle', 'back'].map((seat) => ({ seat, slots: placeRow(groups[seat], nc) })), home = {};
   let lines = 0;
   rows.forEach((r) => { r.line0 = lines; r.slots.forEach((s, i) => { if (s) home[s.id] = { id: s.id, line: lines + Math.floor(i / nc), col: i % nc }; }); lines += r.slots.length / nc; });
-  /* 昼休み：今ある机のうち、となりあう席に移って、まとまりの真ん中を向く（昼休みを始めた時刻を種に、開き直しても同じ並び） */
+  /* 昼休み：今ある机のうち、となりあう席に移って、まとまりの真ん中を向く（昼休みを選んだ時刻を種に、開き直しても同じ並び） */
   const at = {};
   if (lunch) {
-    const lay = E.lunchSeats(lines, nc, state.students.map((s) => home[s.id]), state.lunch.at);
+    const lay = E.lunchSeats(lines, nc, state.students.map((s) => home[s.id]), t.at);
     Object.keys(lay.seats).forEach((id) => { const p = lay.seats[id]; at[p.line + ':' + p.col] = Object.assign({ s: student(id) }, p); });
   }
+  /* 配ったお便り：選んだ時間のお便りを、相手の生徒それぞれの机（授業の席。昼休みに移っても自分の机）に置く */
+  const letter = roomBoards().find((x) => x.channel === 'letter') || null, papers = {};
+  if (letter) letter.targets.forEach((sid) => { const h = home[sid], s = student(sid); if (h && s) papers[h.line + ':' + h.col] = s; });
   let html = '';
   rows.forEach((r) => {
-    html += '<div class="row" data-seat="' + r.seat + '"><p class="row-label">' + E.SEAT_LABEL[r.seat] + '</p><div class="row-desks">';
+    html += '<div class="row" data-seat="' + r.seat + '"><p class="row-label sr-only">' + E.SEAT_LABEL[r.seat] + '</p><div class="row-desks">';
     r.slots.forEach((s, i) => {
-      const here = lunch ? at[(r.line0 + Math.floor(i / nc)) + ':' + (i % nc)] : null;
-      html += lunch ? (here ? lunchDeskHTML(here.s, here) : EMPTY_DESK) : (s ? deskHTML(s, b, r.seat) : EMPTY_DESK);
+      const key = (r.line0 + Math.floor(i / nc)) + ':' + (i % nc), here = lunch ? at[key] : null, pp = papers[key];
+      const desk = lunch ? (here ? lunchDeskHTML(here.s, here, !!pp) : EMPTY_DESK) : (s ? deskHTML(s, b, r.seat, !!pp) : EMPTY_DESK);
+      html += '<div class="seat">' + desk + (pp ? paperHTML(letter, pp) : '') + '</div>';
     });
     html += '</div></div>';
   });
   $('room-rows').innerHTML = html;
+  $('room-rows').classList.toggle('is-after', after);
   $('room-ex').hidden = !hasExamples();
-  /* 先生は教卓で休む。昼休みの間は「放送を出す」（1日1つ。出したあとは押せない形） */
-  $('room-lunch-note').hidden = !lunch;
+  /* 昼休み：先生は教卓で休む（やわらかい顔と湯のみ） */
   $('room-teacher').innerHTML = teacherSVG(lunch ? 'soft' : 'normal', false);
   $('room-tea').hidden = !lunch;
-  const castDone = lunch && !!E.lunchCastOf(state.boards, todayKey());
-  $('btn-write').textContent = lunch ? '放送を出す' : '頼みごとを出す';
-  $('btn-write').classList.toggle('is-off', castDone);
-  if (castDone) $('btn-write').setAttribute('aria-disabled', 'true'); else $('btn-write').removeAttribute('aria-disabled');
 }
 const EMPTY_DESK = '<div class="desk is-empty" aria-hidden="true"><span class="desk-top"></span><span class="kid">' + CHAIR_SVG + '</span></div>';
-/* ===== 昼休み（保存する。次の日＝午前3時の区切りには授業に戻っている） ===== */
-const LUNCH_MSG = '昼休みのあとにしよう（昼休みに頼みごとをすると、休めなかったかも）';
-const lunchOn = () => !!(state.lunch && state.lunch.day === todayKey());
 function hhmm(ts) { const d = new Date(ts); return d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); }
 /* 昼休みの机：その机に移ってきた生徒（名札はこの机に）。まとまりの真ん中を向いて、少し真ん中に寄る。押すと「話を聞いた」の記録 */
-function lunchDeskHTML(s, p) {
+function lunchDeskHTML(s, p, paper) {
   const talked = !!E.talkOn(s, todayKey()), lx = Math.round(p.ux * 10), ly = Math.round(p.uy * 10), badges = [];
   if (s.example) badges.push('<span class="badge">見本</span>');
   if (talked) badges.push('<span class="badge badge-talk">話した</span>');
-  return '<button class="desk is-lunch" type="button" data-sid="' + esc(s.id) + '" data-group="' + p.group + '" style="--c: var(--k' + s.color + '); --rot: ' + p.rot + 'deg; --lx: ' + lx + 'px; --ly: ' + ly + 'px" ' +
+  return '<button class="desk is-lunch' + (paper ? ' has-paper' : '') + '" type="button" data-sid="' + esc(s.id) + '" data-group="' + p.group + '" style="--c: var(--k' + s.color + '); --rot: ' + p.rot + 'deg; --lx: ' + lx + 'px; --ly: ' + ly + 'px" ' +
     'aria-label="' + esc('あなたから見た' + (s.example ? '見本の' : '') + s.name + 'さん（昼休み）' + (talked ? '・今日は「話を聞いた」を記録した' : '') + '。押すと「話を聞いた」を記録する') + '">' +
     (badges.length ? '<span class="desk-badges" aria-hidden="true">' + badges.join('') + '</span>' : '') +
     '<span class="desk-top" aria-hidden="true"><span class="desk-tag"><span class="tag-k">あなたから見た</span><span class="tag-n">' + esc(s.name) + 'さん</span></span></span>' +
@@ -2877,20 +2979,11 @@ function flipKids(before) {
     k.style.transition = 'none';
     k.style.transform = 'translate(' + Math.round(dx) + 'px, ' + Math.round(dy) + 'px) rotate(' + o.rot + 'deg)';
     void k.offsetWidth;
-    k.style.transition = 'transform .7s cubic-bezier(.3, .7, .4, 1)';
+    k.style.transition = 'transform .7s cubic-bezier(.3, .7, .4, 1), opacity .6s ease, filter .6s ease';
     k.style.transform = '';
     setTimeout(() => { k.style.transition = ''; }, 750);
   });
 }
-function setLunch(on) {
-  const before = kidRects();
-  state.lunch = on ? { day: todayKey(), at: Date.now() } : null;
-  save();
-  renderRoom();
-  flipKids(before);
-  toast(on ? '昼休みにしたよ。生徒はとなりあう席に集まっている' : '授業にもどったよ。生徒は自分の席にもどった');
-}
-$('room-lunch-end').addEventListener('click', () => { setLunch(false); focusEl($('tt-lunch')); });
 try { if (wideMQ.addEventListener) wideMQ.addEventListener('change', () => { if (state) renderRoom(); }); else if (wideMQ.addListener) wideMQ.addListener(() => { if (state) renderRoom(); }); } catch (e) { /* 無くても動く */ }
 /* 新しく来た生徒の席：同じ段で空いている左右の席から、くじで選ぶ */
 function freeCol(seat) {
@@ -2898,8 +2991,10 @@ function freeCol(seat) {
   for (let c = 0; c < SEAT_COLS; c++) if (!used.has(c)) free.push(c);
   return free.length ? free[randInt(free.length)] : randInt(SEAT_COLS);
 }
-/* 席替え：前後（慣れ）はそのまま、同じ段の中で左右の席をくじで入れ替える */
+/* 席替え：前後（慣れ）はそのまま、同じ段の中で左右の席をくじで入れ替える。説明は、カーソルを合わせる（スマホは長押し）と出る */
+let shuffleHold = 0, shuffleTip = false, tipTimer = 0;
 $('room-shuffle').addEventListener('click', () => {
+  if (shuffleTip) { shuffleTip = false; return; }   // 長押しで説明を出したときは、席替えしない
   if (!state.students.length) { toast('まだ生徒がいないよ。「生徒を迎える」から始めよう'); return; }
   const rows = { front: [], middle: [], back: [] };
   state.students.forEach((s) => rows[E.seatOf(s.answers.q1)].push(s));
@@ -2909,19 +3004,78 @@ $('room-shuffle').addEventListener('click', () => {
     rows[k].forEach((s, i) => { s.col = i < cols.length ? cols[i] : randInt(SEAT_COLS); });
   });
   commit();
-  toast('席替えしたよ（前後は「慣れ」のまま、左右だけ入れ替えた）');
+  toast('左右の席をくじで入れ替えたよ（前後は「慣れ」のまま）');
 });
+$('room-shuffle').addEventListener('pointerdown', (e) => {
+  shuffleTip = false;
+  if (e.pointerType === 'mouse') return;
+  clearTimeout(shuffleHold);
+  shuffleHold = setTimeout(() => {
+    shuffleTip = true;
+    $('room-shuffle-tip').hidden = false;
+    clearTimeout(tipTimer);
+    tipTimer = setTimeout(() => { $('room-shuffle-tip').hidden = true; }, 2800);
+  }, 550);
+});
+['pointerup', 'pointercancel', 'pointerleave'].forEach((k) => $('room-shuffle').addEventListener(k, () => clearTimeout(shuffleHold)));
+$('room-shuffle').addEventListener('contextmenu', (e) => e.preventDefault());   // 長押しのメニューは出さない
+/* ===== 机の上のお便りを大きく読む（紙を押す。パソコンはカーソルを合わせても出る。外を押す・Esc・もう一度押すと閉じる） ===== */
+let letterFrom = null, letterPin = false;
+function openLetter(btn, pin) {
+  const b = board(btn.dataset.bid), pop = $('letter-pop');
+  if (!b) return;
+  const again = !pop.hidden && letterFrom === btn;
+  if (letterFrom && letterFrom !== btn) letterFrom.setAttribute('aria-expanded', 'false');
+  letterFrom = btn;
+  letterPin = pin || (again && letterPin);
+  $('letter-pop-meta').textContent = periodSubject(b, E.periods(state.boards)[b.id]);
+  $('letter-pop-text').textContent = b.text;
+  $('letter-pop-to').textContent = targetNames(b).replace(/^相手：/, '配った相手：');
+  $('letter-pop-close').hidden = !letterPin;
+  btn.setAttribute('aria-expanded', 'true');
+  pop.hidden = false;
+  if (!again) { pop.classList.remove('is-in'); void pop.offsetWidth; pop.classList.add('is-in'); }
+  placeLetter(btn);
+}
+/* 紙の下に出す（入らなければ上に）。横は画面からはみ出さない */
+function placeLetter(btn) {
+  const pop = $('letter-pop'), r = btn.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight, vw = document.documentElement.clientWidth;
+  const bar = $('bar').hidden ? 0 : $('bar').getBoundingClientRect().height;
+  const left = Math.max(16, Math.min(r.left + r.width / 2 - w / 2, vw - 16 - w));
+  let top = r.bottom + 12;
+  if (top + h > window.innerHeight - bar - 8 && r.top - 12 - h >= 8) top = r.top - 12 - h;
+  pop.style.left = Math.round(left + window.scrollX) + 'px';
+  pop.style.top = Math.round(top + window.scrollY) + 'px';
+}
+function closeLetter() {
+  const pop = $('letter-pop');
+  if (pop.hidden) return;
+  pop.hidden = true;
+  pop.classList.remove('is-in');
+  letterPin = false;
+  if (letterFrom) letterFrom.setAttribute('aria-expanded', 'false');
+  letterFrom = null;
+}
+$('room-rows').addEventListener('pointerover', (e) => {
+  if (e.pointerType !== 'mouse' || letterPin) return;
+  const pp = e.target.closest('.desk-paper');
+  if (pp && pp !== letterFrom) openLetter(pp, false);
+});
+$('room-rows').addEventListener('pointerout', (e) => {
+  if (e.pointerType !== 'mouse' || letterPin) return;
+  const pp = e.target.closest('.desk-paper');
+  if (pp && !(e.relatedTarget && pp.contains(e.relatedTarget))) closeLetter();
+});
+document.addEventListener('pointerdown', (e) => { if (!$('letter-pop').hidden && !e.target.closest('#letter-pop, .desk-paper')) closeLetter(); });
+$('letter-pop-close').addEventListener('click', () => { const f = letterFrom; closeLetter(); focusEl(f); });
+window.addEventListener('resize', () => { if (letterFrom && !$('letter-pop').hidden && document.contains(letterFrom)) placeLetter(letterFrom); });   // 画面の大きさが変わったら置き直す
 
 /* ===== 頼みごとを出す（伝え方・文・科目名・相手。書いている間も教室に映す） ===== */
 const WRITE_LABEL = { board: '頼みごと（書いた字が黒板に映る）', letter: '頼みごと（お便りに印刷される）', broadcast: '頼みごと（放送で言ったこと）' };
 $('write-subjects').innerHTML = E.SUBJECTS.map((s, i) => '<label class="res"><input type="radio" name="write-subj" id="write-subj-' + i + '" value="' + esc(s) + '"><span>' + esc(s) + '</span></label>').join('');
 function setWriteChannel(ch) {
-  writeChannel = writeLunch ? 'broadcast' : E.normChannel(ch);
+  writeChannel = E.normChannel(ch);
   $('write-ch-' + writeChannel).checked = true;
-  // 昼休みの放送は、黒板・お便りを選べない
-  $('write-ch-board').disabled = writeLunch;
-  $('write-ch-letter').disabled = writeLunch;
-  $('write-ch-note').hidden = !writeLunch;
   $('write-slate').dataset.ch = writeChannel;
   $('write-text-lbl').textContent = WRITE_LABEL[writeChannel];
   updateCastSrc();
@@ -2938,18 +3092,9 @@ function setWriteSubject(subj) {
   document.querySelectorAll('input[name="write-subj"]').forEach((x, j) => { x.checked = j === i; });
   $('write-subject').value = i >= 0 ? '' : subj;
 }
-/* 書いている頼みが映るところ（黒板・スピーカー・教卓の前のプリント）を見えるように。スマホは下からのシートで隠れるので、プリントを上に出す */
-function revealPreview() {
-  const pr = $('room-print');
-  if (writeChannel !== 'letter' || pr.hidden) { window.scrollTo(0, 0); return; }
-  const r = pr.getBoundingClientRect();
-  if (wideMQ.matches) {   // 広い画面は右からのシートなので、下の操作バーに隠れないところまでだけ動かす
-    const over = r.bottom - (window.innerHeight - ($('bar').hidden ? 0 : $('bar').offsetHeight) - 12);
-    if (over > 0) window.scrollBy(0, Math.max(0, Math.min(over, r.top - 12)));
-    return;
-  }
-  window.scrollTo(0, Math.max(0, r.top + window.scrollY - 12));
-}
+/* 書いている頼みが映るところ（黒板・スピーカーの吹き出し）が見えるように、上へ。
+   お便りは教室には出さない（シートの書く欄がお便りの紙の見た目。出すと、相手の机に紙が置かれる） */
+function revealPreview() { window.scrollTo(0, 0); }
 $('write-chs').addEventListener('change', (e) => {
   if (e.target.name !== 'write-ch') return;
   setWriteChannel(e.target.value);
@@ -2957,26 +3102,20 @@ $('write-chs').addEventListener('change', (e) => {
   revealPreview();
 });
 $('write-subjects').addEventListener('change', () => { $('write-subject').value = ''; renderRoomBoard(); });
-/* 時限のチップ（1〜6限）。その日に埋まっている時限は選べない（直すときは今の時限も選べる） */
+/* 枠のチップ（1〜4限・昼休み・5〜6限）。その日に埋まっている枠は選べない（直すときは今の枠も選べる） */
 function renderWritePeriods(free, sel) {
-  $('write-periods').innerHTML = Array.from({ length: E.PERIOD_MAX }, (_, i) => i + 1).map((p) => {
-    const off = free.indexOf(p) < 0;
-    return '<label class="res"><input type="radio" name="write-period" id="write-period-' + p + '" value="' + p + '"' + (p === sel ? ' checked' : '') + (off ? ' disabled' : '') + '>' +
-      '<span>' + p + '限' + (off ? '<span class="sr-only">（うまっている）</span>' : '') + '</span></label>';
+  $('write-periods').innerHTML = E.SLOTS.map((p) => {
+    const off = free.indexOf(p) < 0, id = p === E.LUNCH_SLOT ? 'lunch' : p;
+    return '<label class="res"><input type="radio" name="write-period" id="write-period-' + id + '" value="' + p + '"' + (p === sel ? ' checked' : '') + (off ? ' disabled' : '') + '>' +
+      '<span>' + E.periodName(p) + (off ? '<span class="sr-only">（うまっている）</span>' : '') + '</span></label>';
   }).join('');
   // 時限がない頼み（古いデータの7番目から）を直すとき：空きがあれば選べる、なければ時間割に入らないまま
   const note = $('write-period-note');
   note.hidden = !!sel;
-  note.textContent = !free.length ? 'この日は6限までうまっているので、この頼みは時間割に入らない（提出物で見られる）' : '時間割に入れるなら、空いている時限を選んでね';
+  note.textContent = !free.length ? 'この日は6限と昼休みまでうまっているので、この頼みは時間割に入らない（提出物で見られる）' : '時間割に入れるなら、空いている時限を選んでね';
 }
 function writePeriodValue() { const c = document.querySelector('input[name="write-period"]:checked'); return c ? Number(c.value) : 0; }
-/* 昼休みの放送：時限のかわりに「昼休み」（選べるのはこれだけ） */
-function renderLunchPeriod() {
-  $('write-periods').innerHTML = '<label class="res"><input type="radio" name="write-period" id="write-period-lunch" value="' + E.LUNCH_SLOT + '" checked><span>昼休み</span></label>';
-  $('write-period-note').hidden = false;
-  $('write-period-note').textContent = '昼休みの放送は、時間割の「昼休み」に入る（1日1つ）';
-}
-$('write-periods').addEventListener('change', () => { $('write-period-note').hidden = true; renderRoomBoard(); });
+$('write-periods').addEventListener('change', () => { $('write-period-note').hidden = true; renderRoom(); });   // 書いている枠の教室（机の紙も）
 $('write-subject').addEventListener('input', () => {
   const typed = !!$('write-subject').value.trim();
   if (typed) document.querySelectorAll('input[name="write-subj"]').forEach((x) => { x.checked = false; });
@@ -2999,26 +3138,27 @@ function renderWriteTargets() {
   }).join('');
 }
 function updateWriteCount() { $('write-count').textContent = $('write-text').value.length + '/' + MAX_TEXT; }
+/* 頼みごとを出す・直す。opts.period：押した空き時限。opts.bid：直す頼み（なければ、いまの黒板の頼み） */
 function openWrite(mode, opener, opts) {
   opts = opts || {};
-  const b = currentBoard(), editing = mode === 'edit' && !!b;
-  /* 昼休みの間：出せるのは放送だけ（時間割の「昼休み」に入る・1日1つ）。時間割の空きからは出さない */
-  const lunchNew = !editing && lunchOn();
-  if (lunchNew && opts.period) { toast(LUNCH_MSG); return false; }
-  if (lunchNew && E.lunchCastOf(state.boards, todayKey())) { toast(LUNCH_CAST_DONE); return false; }
-  writeLunch = lunchNew || (editing && E.isLunchCast(b));
-  // 時限：新しい頼みは今日の空き時限（押した時限 → 書きかけの時限 → いちばん早い空き）。6つ全部うまっていたら開かない（昼休みの放送は時限を使わない）
-  const free = freePeriodsOn(editing ? E.dayKey(b.createdAt) : todayKey(), editing ? b.id : null);
-  if (!editing && !writeLunch && !free.length) { toast(FULL_MSG); return false; }
-  const pick = (p) => (p && free.indexOf(p) >= 0 ? p : 0);
-  const period = editing ? (E.periods(state.boards)[b.id] || 0) : (pick(opts.period) || pick(writeDraftMeta && writeDraftMeta.period) || free[0]);
-  if (writeLunch) renderLunchPeriod(); else renderWritePeriods(free, period);
+  closeLetter();
+  const b = mode === 'edit' ? (opts.bid ? board(opts.bid) : currentBoard()) : null, editing = !!b;
+  const day = editing ? E.dayKey(b.createdAt) : todayKey();
+  // 枠：新しい頼みは今日の空き（押した時限 → 今の時間 → 書きかけの枠 → いちばん早い空き時限 → 昼休み）。全部うまっていたら開かない
+  const free = E.freeSlots(state.boards, day, editing ? b.id : null);
+  if (!editing && !free.length) { toast(FULL_MSG); return false; }
+  const pick = (p) => (p && free.indexOf(p) >= 0 ? p : 0), t = liveTime();
+  const cur = t && t.day === day && isReqSlot(t.slot) ? slotNum(t.slot) : 0;
+  const period = editing ? (E.periods(state.boards)[b.id] || 0)
+    : (pick(opts.period ? slotNum(opts.period) : 0) || pick(cur) || pick(writeDraftMeta && writeDraftMeta.period) || free.filter((p) => p !== E.LUNCH_SLOT)[0] || free[0]);
+  renderWritePeriods(free, period);
   writeMode = editing ? 'edit' : 'new';
+  writeBid = editing ? b.id : '';
   writeOpenerTT = !!(opener && opener.classList && opener.classList.contains('tt-edit'));
-  $('write-title').textContent = editing ? '頼みごとを直す' : writeLunch ? '昼休みの放送を出す' : '頼みごとを出す';
+  $('write-title').textContent = editing ? '頼みごとを直す' : '頼みごとを出す';
   $('write-submit').textContent = editing ? '直す' : '出す';
-  $('write-text').value = editing ? b.text : writeLunch ? lunchDraft : writeDraft;
-  const meta = editing ? b : writeLunch ? { channel: 'broadcast', subject: lunchSubject || '雑務' } : (writeDraftMeta || { channel: 'board', subject: '授業' });
+  $('write-text').value = editing ? b.text : writeDraft;
+  const meta = editing ? b : (writeDraftMeta || { channel: 'board', subject: '授業' });
   writeFromCast = editing ? (b.channel === 'letter' && b.fromCast) || null : meta.fromCast || null;
   setWriteChannel(meta.channel);
   setWriteSubject(meta.subject);
@@ -3032,39 +3172,31 @@ function openWrite(mode, opener, opts) {
   writePreview = $('write-text').value;
   if (state.ui.tab !== 'room') showTab('room');
   window.scrollTo(0, 0);
-  renderRoomBoard();
+  renderRoom();   // 書いている枠の教室を見せる（黒板・スピーカー・机の紙）
   openSheet('sheet-write', { clear: true, drawer: true, focus: 'write-text', opener: opener });
   revealPreview();
   return true;
 }
 function onWriteClosed() {
-  if (writeMode === 'new' && writePreview != null && writeLunch) {
-    lunchDraft = $('write-text').value.trim() ? $('write-text').value : '';
-    lunchSubject = writeSubjectValue();
-  } else if (writeMode === 'new' && writePreview != null) {
+  if (writeMode === 'new' && writePreview != null) {
     writeDraft = $('write-text').value;
     // 要点の下書きに手をつけずに閉じたら、書きかけは残さない（次の「要点をお便りでも送る」を止めないため）
     if (writeFromCast && writeDraft === POINT_DRAFT) writeDraft = '';
-    // 書きかけ：伝え方・科目名と、要点のお便りなら元の放送・相手・初めての作業も残す。文を消して閉じたら書きかけはなし
+    // 書きかけ：伝え方・科目名・枠と、要点のお便りなら元の放送・相手・初めての作業も残す。文を消して閉じたら書きかけはなし
     writeDraftMeta = !writeDraft.trim() ? null : Object.assign({ channel: writeChannel, subject: writeSubjectValue(), period: writePeriodValue() },
       writeFromCast ? { fromCast: writeFromCast, targets: [...writeTargets], firstTime: [...writeFirst] } : {});
     if (!writeDraft.trim()) writeDraft = '';
   }
   writeFromCast = null;
   writePreview = null;
-  writeLunch = false;
-  $('write-ch-board').disabled = false;
-  $('write-ch-letter').disabled = false;
-  $('write-ch-note').hidden = true;
-  renderRoomBoard();
+  writeBid = '';
+  renderRoom();
 }
 $('write-text').addEventListener('input', () => {
   $('write-err').hidden = true;
   writePreview = $('write-text').value;
   updateWriteCount();
-  const printWasHidden = $('room-print').hidden;
   renderRoomBoard();
-  if (printWasHidden && !$('room-print').hidden) revealPreview();   // お便りの1文字目で、プリントが見えるところへ
 });
 $('write-targets').addEventListener('change', (e) => {
   const t = e.target, sid = t.dataset && t.dataset.sid;
@@ -3082,6 +3214,8 @@ $('write-copy').addEventListener('click', () => {
   if (!v.trim()) { $('write-err').hidden = false; focusEl($('write-text')); return; }
   copyText(v, $('write-text'));
 });
+/* 生徒の動きのお知らせ（出した・直した頼みの時間に移ったとき、お知らせの最後に足す短い一言） */
+const MOVE_NOTE = { lunch: '昼休み：生徒はとなりあう席に集まっている', after: '放課後：生徒は帰った', back: '生徒は自分の席にもどった' };
 $('write-form').addEventListener('submit', (e) => {
   e.preventDefault();
   const text = $('write-text').value.replace(/\s+$/, '').slice(0, MAX_TEXT);
@@ -3089,48 +3223,58 @@ $('write-form').addEventListener('submit', (e) => {
   const targets = state.students.map((s) => s.id).filter((id) => writeTargets.has(id));
   const firstTime = {};
   targets.forEach((id) => { if (writeFirst.has(id)) firstTime[id] = true; });
-  const now = Date.now(), b = currentBoard(), channel = writeChannel, subject = writeSubjectValue();
-  // 時限：選んだ時限がその日に空いているときだけ（新しい頼みは今日。うまっていたら出さない）
-  const editing = writeMode === 'edit' && !!b, free = freePeriodsOn(editing ? E.dayKey(b.createdAt) : todayKey(), editing ? b.id : null);
-  const lunchCast = writeLunch;   // 昼休みの放送：時限は使わず、時間割の「昼休み」に入る（1日1つ）
-  if (lunchCast && !editing && E.lunchCastOf(state.boards, todayKey())) { toast(LUNCH_CAST_DONE); return; }
-  let period = lunchCast ? 0 : writePeriodValue();
-  if (!lunchCast && free.indexOf(period) < 0) period = editing ? 0 : (free[0] || 0);
-  if (!editing && !lunchCast && !period) { toast(FULL_MSG); return; }
+  const now = Date.now(), b = writeMode === 'edit' ? board(writeBid) : null, editing = !!b, channel = writeChannel, subject = writeSubjectValue();
+  // 枠：選んだ枠がその日に空いているときだけ（新しい頼みは今日。うまっていたら出さない）。昼休みの枠は lunch: true（時限は 0）
+  const free = E.freeSlots(state.boards, editing ? E.dayKey(b.createdAt) : todayKey(), editing ? b.id : null);
+  let period = writePeriodValue();
+  if (free.indexOf(period) < 0) period = editing ? 0 : (free.filter((p) => p !== E.LUNCH_SLOT)[0] || free[0] || 0);
+  if (!editing && !period) { toast(FULL_MSG); return; }
+  const lunch = period === E.LUNCH_SLOT;
   // 要点のお便り：元の放送の id を持たせる（お便りのときだけ）
   const fromCast = channel === 'letter' && writeFromCast && board(writeFromCast) ? writeFromCast : '';
-  let msg = '';
+  let msg = '', target = b;
   if (editing) {
-    b.text = text; b.channel = channel; b.subject = subject; b.period = period; b.targets = targets; b.firstTime = firstTime; b.updatedAt = now;
-    if (lunchCast) b.lunch = true; else delete b.lunch;
+    b.text = text; b.channel = channel; b.subject = subject; b.period = lunch ? 0 : period; b.targets = targets; b.firstTime = firstTime; b.updatedAt = now;
+    if (lunch) b.lunch = true; else delete b.lunch;
     if (fromCast) b.fromCast = fromCast; else delete b.fromCast;
     msg = '直したよ（' + periodSubject(b, E.periods(state.boards)[b.id]) + '・' + E.channelLabel(b.channel) + '）';
   } else {
-    const nb = { id: newId('b-'), text: text, channel: channel, subject: subject, period: period, example: false, createdAt: now, updatedAt: now, targets: targets, firstTime: firstTime, results: {} };
+    const nb = { id: newId('b-'), text: text, channel: channel, subject: subject, period: lunch ? 0 : period, example: false, createdAt: now, updatedAt: now, targets: targets, firstTime: firstTime, results: {} };
     if (fromCast) nb.fromCast = fromCast;
-    if (lunchCast) nb.lunch = true;
+    if (lunch) nb.lunch = true;
     state.boards.push(nb);
-    state.currentId = nb.id;
-    ttDay = '';
-    if (lunchCast) { lunchDraft = ''; lunchSubject = ''; } else { writeDraft = ''; writeDraftMeta = null; }
+    writeDraft = ''; writeDraftMeta = null;
+    target = nb;
     msg = E.lessonLabel(nb, E.periods(state.boards)[nb.id]) + 'を出したよ。机を押すと、その生徒の目線で見られる';
   }
   writePreview = null;
   const backTo = writeOpenerTT;
   closeSheet();
-  commit();
+  // 出した（直した）頼みの時間にする：その時間の黒板・相手の机・スピーカーに出る（放送はずっと吹き出しに）
+  const moved = showBoard(target, true);
   if (backTo) focusEl($('tt-list').querySelector('.tt-edit'));   // 時間割の「直す」から開いたときは、描き直した「直す」にもどる
-  toast(msg);
-  if (channel === 'broadcast') playBroadcast();   // 昼休みの放送も、昼休みの教室のスピーカーから流れる
+  toast(msg + (moved ? '（' + MOVE_NOTE[moved] + '）' : ''), moved === 'lunch' ? 4200 : 0);
 });
 
 /* ===== 掃除の時間（1日の終わりに、今日の頼みと前の日からの続きを、記録から1つずつ出す。黒板消しで1枚ずつ消していく） ===== */
 let sweepUI = null, sweepTimer = 0, sweepSaveTimer = 0;   // sweepUI: { day, items, idx, memos, done, busy }
 const sweepItem = () => (sweepUI && !sweepUI.done ? sweepUI.items[sweepUI.idx] || null : null);
 function sweepEntry(b, sid) { return (b.sweep && b.sweep[sid]) || null; }
+/* 掃除するものがないときの、わけ（今日の頼みがない／頼みの相手がいない／相手が全員提出済み） */
+const SWEEP_WHY = {
+  none: '今日はまだ頼みごとがないので、掃除するものはないよ',
+  noTargets: '今日の頼みには相手がいないので、掃除するものはないよ（「直す」で相手を選べる）',
+  allDone: '今日の頼みは、相手が全員提出済み（締めたものも）なので、掃除するものはないよ'
+};
+/* 掃除の行を押したとき（時間はもう「掃除」）：掃除するものがあれば掃除の時間を始め、なければわけを知らせる */
+function startSweep(opener) {
+  const why = E.sweepEmptyWhy(state.boards, todayKey());
+  if (why) { toast(SWEEP_WHY[why], 4200); return; }
+  openSweep(opener);
+}
 function openSweep(opener) {
   const day = todayKey(), items = E.sweepList(state.boards, day);
-  if (!items.length) { toast('今日は、掃除する頼みごとがまだないよ'); return; }
+  if (!items.length) { toast(SWEEP_WHY[E.sweepEmptyWhy(state.boards, day) || 'none'], 4200); return; }
   sweepUI = { day, items, idx: 0, memos: [], done: false, busy: false };
   if (state.ui.tab !== 'room') showTab('room');
   stopSay();
@@ -3158,8 +3302,6 @@ function onSweepClosed() {
 function renderSweepBoard() {
   const it = sweepItem(), chalk = $('room-chalk');
   $('room-board').classList.add('is-sweeping');
-  $('room-board').classList.remove('is-lunch');
-  $('room-lunch-end').hidden = true;
   $('room-meta').hidden = false;
   chalk.classList.remove('is-empty', 'is-mid', 'is-long');
   if (it) {
@@ -3167,16 +3309,15 @@ function renderSweepBoard() {
     chalk.innerHTML = '<span class="chalk-note">' + esc((it.carry ? E.mdDay(E.dayKey(b.createdAt)) + ' ' : '') + E.lessonLabel(b, it.period)) +
       (it.carry ? '<span class="sw-carry-mark">前の日からの続き</span>' : '') + '</span>' + esc(b.text);
     sizeClass(chalk, b.text);
-    $('room-date').textContent = dateLabel(b.createdAt);
+    setBoardDate(E.dayKey(b.createdAt), '掃除');
     $('room-note').innerHTML = '掃除の時間 <b class="sw-count">' + (sweepUI.idx + 1) + '/' + sweepUI.items.length + '</b>';
   } else {
     chalk.innerHTML = '<span class="chalk-note">今日の掃除、おしまい</span>';
-    $('room-date').textContent = dateLabel(Date.now());
+    setBoardDate(todayKey(), '掃除');
     $('room-note').innerHTML = '掃除の時間 <b class="sw-count">おしまい</b>';
   }
   $('room-memos').hidden = !sweepUI.memos.length;
   $('room-memos').innerHTML = sweepUI.memos.map((m) => '<span class="board-memo">' + esc(m) + '</span>').join('');
-  $('room-print').hidden = true;
   $('room-speaker').disabled = true;
   stopSay();
 }
@@ -3429,7 +3570,16 @@ $('card-del').addEventListener('click', () => {
 });
 
 /* ===== 生徒の目線（ふわっと切り替える。先生が席に座る絵は出さない） ===== */
-let viewSid = null, viewOpenerSid = null, viewTimer = 0;
+let viewSid = null, viewOpenerSid = null, viewTimer = 0, viewBid = '';   // viewBid：目線で見ている頼み
+const viewBoard = () => board(viewBid);
+/* 目線で見る頼み：今の時間の頼み。空いている時間（昼休み・放課後なども）なら、その日にこの生徒に降ってきたいちばん新しい頼み */
+function pickViewBoard(sid) {
+  const cur = currentBoard();
+  if (cur) return cur;
+  const t = liveTime(), all = E.dayList(state.boards, t ? t.day : todayKey()).slice().sort((a, b) => a.createdAt - b.createdAt);
+  const mine = all.filter((x) => x.targets.indexOf(sid) >= 0);
+  return mine[mine.length - 1] || all[all.length - 1] || latestBoard(state.boards) || null;
+}
 function viewChalkHTML(f, v) {
   return E.segments(f.text, f.marks).map((sg) => {
     const t = esc(sg.t);
@@ -3450,18 +3600,18 @@ function papersHTML(b, letters, f, v, p) {
     '<p class="paper-text">' + viewChalkHTML(f, v) + '</p></article>';
 }
 function renderView(entering) {
-  const s = student(viewSid), b = currentBoard();
+  const s = student(viewSid), b = viewBoard();
   if (!s || !b) return;
   const f = E.readBoard(b.text), first = !!b.firstTime[s.id], off = b.targets.indexOf(s.id) < 0, ch = b.channel;
   const per = E.periods(state.boards), day = E.dayKey(b.createdAt), dayAll = E.dayList(state.boards, day);
-  const v = E.studentView(f, s.answers, { firstTime: first, channel: ch, letterCopy: ch === 'broadcast' && E.hasLetterCopy(state.boards, b, off ? '' : s.id), lunch: E.isLunchCast(b) });
+  const v = E.studentView(f, s.answers, { firstTime: first, channel: ch, letterCopy: ch === 'broadcast' && E.hasLetterCopy(state.boards, b, off ? '' : s.id), lunch: E.isLunch(b) });
   $('view-title').textContent = s.name + 'さんの目線';
   $('view-pills').innerHTML = '<span class="pill">' + esc(E.lessonLabel(b, per[b.id])) + '</span><span class="pill">' + v.seatLabel + 'から</span>' + (s.example ? '<span class="pill">見本</span>' : '') +
     (first ? '<span class="pill pill-first">この頼みは初めての作業</span>' : '') + (off ? '<span class="pill pill-off">この頼みの相手ではない（見え方は参考）</span>' : '');
   /* 今日この生徒に降ってきた頼み（小さな時間割。いま見ている時限を強調。押すとその頼みの目線へ） */
   const mine = dayAll.filter((x) => x.targets.indexOf(s.id) >= 0 || x.id === b.id);
   $('view-tt-k').textContent = (day === todayKey() ? '今日' : dateLabel(b.createdAt) + 'に') + 'この生徒に降ってきた頼み';
-  $('view-tt-list').innerHTML = mine.map((x) => ttRowHTML(x, per[x.id], x.targets.indexOf(s.id) < 0)).join('');
+  $('view-tt-list').innerHTML = mine.map((x) => ttRowHTML(x, per[x.id], x.targets.indexOf(s.id) < 0, x.id === b.id)).join('');
   const scene = $('scene');
   scene.dataset.seat = v.seat;
   scene.dataset.ch = ch;
@@ -3470,7 +3620,7 @@ function renderView(entering) {
   chalk.style.setProperty('--scale', String(v.scale));
   if (ch === 'board') { chalk.innerHTML = viewChalkHTML(f, v); sizeClass(chalk, b.text); }
   else setChalkNote(chalk, ch, ch === 'letter' ? 'お便りは机の上にある' : '');
-  $('view-date').textContent = dateLabel(b.createdAt);
+  $('view-date').innerHTML = tcyHTML(dateLabel(b.createdAt));
   /* 放送：スピーカーの文字が薄れて消えたあと（文字はうすく、にじみは強め） */
   $('view-pa').hidden = ch !== 'broadcast';
   $('view-pa-text').innerHTML = ch === 'broadcast' ? viewChalkHTML(f, v) + '<span class="sr-only">（文字はうすく、消えかけている）</span>' : '';
@@ -3521,7 +3671,10 @@ function renderView(entering) {
   $('view-chips-note').hidden = !chips.length;
 }
 function openView(sid) {
-  if (!currentBoard()) { toast('先に頼みごとを出してね'); openWrite('new'); return; }
+  const vb = pickViewBoard(sid);
+  if (!vb) { toast('先に頼みごとを出してね'); openWrite('new'); return; }
+  closeLetter();
+  viewBid = vb.id;
   const v = $('view');
   clearTimeout(viewTimer);
   viewSid = sid;
@@ -3554,6 +3707,14 @@ function closeView(then) {
   focusEl(document.querySelector('.desk[data-sid="' + (window.CSS && CSS.escape ? CSS.escape(sid || '') : sid) + '"]'));
 }
 $('room-rows').addEventListener('click', (e) => {
+  // 机の上のお便り：押すと大きく読める（もう一度押すと閉じる）。机とは別のボタン
+  const pp = e.target.closest('.desk-paper');
+  if (pp) {
+    if (letterPin && letterFrom === pp) { closeLetter(); return; }
+    openLetter(pp, true);
+    announce('お便り（' + $('letter-pop-meta').textContent + '）：' + $('letter-pop-text').textContent);
+    return;
+  }
   const d = e.target.closest('button.desk');
   if (!d) return;
   if (d.classList.contains('is-lunch')) openTalk(d.dataset.sid, d);   // 昼休み：押すと「話を聞いた」の記録
@@ -3561,15 +3722,14 @@ $('room-rows').addEventListener('click', (e) => {
 });
 $('view-back').addEventListener('click', () => closeView());
 $('view-back-2').addEventListener('click', () => closeView());
-$('view-edit-board').addEventListener('click', () => closeView(() => openWrite('edit', $('btn-write'))));
+$('view-edit-board').addEventListener('click', () => { const bid = viewBid; closeView(() => openWrite('edit', $('btn-write'), { bid: bid })); });
 $('view-edit-card').addEventListener('click', () => { const sid = viewSid; closeView(() => openCard(sid, $('btn-add-student'))); });
 $('view-ask-copy').addEventListener('click', () => copyText($('view-ask').textContent, $('view-ask')));
 /* 要点をお便りでも送る：生徒の目線を閉じて、何を・いつまでの下書きで「頼みごとを出す」シートを開く。
    伝え方はお便り、科目名・相手・初めての作業は元の放送と同じ。書きかけの頼みがあるときは上書きしない */
 const POINT_DRAFT = '（さっきの放送の要点）\n何を：◯◯\nいつまで：◯◯';
 function openPointLetter(b) {
-  if (lunchOn()) { toast(LUNCH_MSG); return; }
-  if (!freePeriodsOn(todayKey()).length) { toast(FULL_MSG); return; }   // 今日の6限までうまっていたら、目線のまま知らせる
+  if (!E.freeSlots(state.boards, todayKey()).length) { toast(FULL_MSG); return; }   // 今日の6限と昼休みまでうまっていたら、目線のまま知らせる
   if (writeDraft.trim()) {
     closeView(() => { openWrite('new', $('btn-write')); toast('書きかけの頼みごとがあるよ。出すか消してから、もう一度押してね'); });
     return;
@@ -3579,7 +3739,7 @@ function openPointLetter(b) {
   closeView(() => openWrite('new', $('btn-write')));
 }
 $('view-chips').addEventListener('click', (e) => {
-  const b = currentBoard();
+  const b = viewBoard();
   if (!b) return;
   if (e.target.closest('[data-act="letter"]')) { openPointLetter(b); return; }
   const btn = e.target.closest('[data-tpl]');
@@ -3597,11 +3757,9 @@ $('view-chips').addEventListener('click', (e) => {
 /* 目線の上の小さな時間割：押すと、その頼みの目線に切り替える（教室のいまの黒板も同じ頼みにする） */
 $('view-tt-list').addEventListener('click', (e) => {
   const r = e.target.closest('.tt-row'), b = r && board(r.dataset.bid);
-  if (!b || b.id === state.currentId) return;
-  state.currentId = b.id;
-  ttDay = E.dayKey(b.createdAt) === todayKey() ? '' : E.dayKey(b.createdAt);
-  save();
-  renderRoom();
+  if (!b || b.id === viewBid) return;
+  viewBid = b.id;
+  showBoard(b, true);   // 教室も、その頼みの時間にする
   renderView(false);
   focusEl(document.querySelector('#view-tt-list .tt-row[data-bid="' + cssEsc(b.id) + '"]'));
   announce(E.lessonLabel(b, E.periods(state.boards)[b.id]) + 'の目線に切り替えた');
@@ -3806,12 +3964,15 @@ $('subs-list').addEventListener('click', (e) => {
   }
   if (act === 'reopen') { b.closedAt = 0; commit(); toast('開き直したよ。上の記録の途中に戻した'); return; }
   const dayOf = (x) => (E.dayKey(x.createdAt) === todayKey() ? '' : E.dayKey(x.createdAt));
-  if (act === 'show') { state.currentId = b.id; ttDay = dayOf(b); commit(); toast('この頼みごとを黒板に出したよ'); }
-  else if (act === 'edit') { state.currentId = b.id; ttDay = dayOf(b); save(); openWrite('edit', btn); }
+  // 黒板に出す：その頼みの時間にする（時間割の外の頼みは、時間を選ばずに黒板へ）。直す：その頼みを直す（今の時間は変えない）
+  if (act === 'show') { const mv = showBoard(b, true); ttDay = dayOf(b); renderTimetable(); toast('この頼みごとを黒板に出したよ' + (mv ? '（' + MOVE_NOTE[mv] + '）' : '')); }
+  else if (act === 'edit') openWrite('edit', btn, { bid: b.id });
   else if (act === 'del') {
     askConfirm('この頼みごとを消しますか？', '「' + b.text.slice(0, 40) + (b.text.length > 40 ? '…' : '') + '」と、その提出物の記録が消えます。元に戻せません。', '消す', () => {
       state.boards = state.boards.filter((x) => x.id !== b.id);
-      if (state.currentId === b.id) state.currentId = state.boards.length ? latestBoard(state.boards).id : '';
+      const t = liveTime();
+      // 選んでいる時間の頼みを消したら、その時間のほかの頼み（なければ空き）。時間を選んでいなければ、いちばん新しい頼み
+      if (state.currentId === b.id) state.currentId = t ? (slotBoardsOn(t.day, t.slot)[0] || { id: '' }).id : (state.boards.length ? latestBoard(state.boards).id : '');
       commit();
       focusEl($('tab-subs'));
       toast('消したよ');
@@ -3894,7 +4055,9 @@ function clearExamples() {
   state.students = state.students.filter((s) => !s.example);
   state.boards = state.boards.filter((b) => !b.example);
   state.boards.forEach((b) => { b.targets = b.targets.filter((id) => !ex.has(id)); ex.forEach((id) => { delete b.firstTime[id]; delete b.results[id]; if (b.sweep) delete b.sweep[id]; }); });
-  if (!currentBoard()) state.currentId = state.boards.length ? latestBoard(state.boards).id : '';
+  const t = liveTime();
+  if (t) state.currentId = (slotBoardsOn(t.day, t.slot)[0] || { id: '' }).id;   // 選んでいる時間の頼み（見本だったなら空き）
+  else if (!currentBoard()) state.currentId = state.boards.length ? latestBoard(state.boards).id : '';
   ttDay = '';
   commit();
   toast('見本を消したよ');
@@ -3908,7 +4071,7 @@ $('export-ex-clear').addEventListener('click', askClearExamples);
 $('export-copy').addEventListener('click', () => { renderExport(); copyText($('export-text').value, $('export-text')); });
 $('export-wipe').addEventListener('click', () => {
   askConfirm('すべて消しますか？', '生徒・黒板・提出物の記録が、この端末から全部消えます。元に戻せません。', 'すべて消す', () => {
-    state = { v: 1, students: [], boards: [], currentId: '', ui: { tab: state.ui.tab } };
+    state = { v: 1, students: [], boards: [], currentId: '', time: null, ui: { tab: state.ui.tab } };
     ttDay = '';
     writeDraft = '';
     commit();
@@ -3935,6 +4098,7 @@ TABS.forEach((t, i) => {
 });
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
+  if (!$('letter-pop').hidden) { const f = letterFrom; closeLetter(); focusEl(f); return; }
   if (!$('confirm').hidden) closeConfirm(false);
   else if (sheetEl) closeSheet();
   else if (!$('view').hidden && $('view').classList.contains('is-in')) closeView();
