@@ -24,6 +24,9 @@
   --skin: #f2d4b9; --skin-2: #e6bd9b; --hair: #3a2e28; --shirt: #5d7c96; --shirt-2: #4b6780; --face-ink: #2b2420;
   --mouth: #8a3e35; --cheek: rgba(236, 120, 108, .4); --sweat: #78b4e6; --anger: #d0453a; --paper: #ffffff; --paper-line: #c9d2cc;
   --q-hands: #ebe9e3; --q-kind: #e3eef6; --q-strict: #f6e6e1; --q-warm: #e2f0e5; --dot: #2e5c4b;
+  --print: #fffef8; --print-ink: #2b2723; --print-muted: #6a6257; --print-line: #ddd4c2; --print-edge: #c7bca7; --print-head: #2e5c4b; --print-red: #b3261e; --print-hl: #fbe5a0;
+  --speaker: #eee3cb; --speaker-edge: #b09a72; --speaker-grille: #7d6c4e;
+  --font-print: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "BIZ UDPMincho", "Noto Serif JP", serif;
   --k1: #e8806f; --k2: #4fa3a5; --k3: #d9a93f; --k4: #9b86c9; --k5: #5b9bd5; --k6: #d97aa0; --k7: #8aa05a; --k8: #e39a4f;
   --font-chalk: "Klee One", "UD Digi Kyokasho N-R", "UD デジタル 教科書体 N-R", "YuKyokasho", "Hiragino Mincho ProN", "Yu Mincho", serif;
   --font-round: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", system-ui, sans-serif;
@@ -49,6 +52,8 @@
     --skin: #e9c8aa; --skin-2: #d7ad8a; --hair: #2a201b; --shirt: #4c6a84; --shirt-2: #3d566c; --face-ink: #241d19;
     --mouth: #7d362e; --cheek: rgba(236, 120, 108, .38); --sweat: #8cc2ee; --anger: #ff7b6e; --paper: #e9e6dc; --paper-line: #a9aea8;
     --q-hands: #24282a; --q-kind: #1c2a33; --q-strict: #33241f; --q-warm: #1c3326; --dot: #8fd1b0;
+    --print: #e7e2d5; --print-ink: #23201c; --print-muted: #5e574d; --print-line: #c3baa6; --print-edge: #8e8573; --print-head: #2a5242; --print-red: #9f261d; --print-hl: #efd585;
+    --speaker: #4b4235; --speaker-edge: #29231b; --speaker-grille: #bba984;
     --k1: #e98c7c; --k2: #5fb3b4; --k3: #ddb04e; --k4: #a894d3; --k5: #6aa8de; --k6: #de88ab; --k7: #98ae68; --k8: #e8a65e;
     color-scheme: dark;
   }
@@ -72,6 +77,8 @@
   --skin: #e9c8aa; --skin-2: #d7ad8a; --hair: #2a201b; --shirt: #4c6a84; --shirt-2: #3d566c; --face-ink: #241d19;
   --mouth: #7d362e; --cheek: rgba(236, 120, 108, .38); --sweat: #8cc2ee; --anger: #ff7b6e; --paper: #e9e6dc; --paper-line: #a9aea8;
   --q-hands: #24282a; --q-kind: #1c2a33; --q-strict: #33241f; --q-warm: #1c3326; --dot: #8fd1b0;
+  --print: #e7e2d5; --print-ink: #23201c; --print-muted: #5e574d; --print-line: #c3baa6; --print-edge: #8e8573; --print-head: #2a5242; --print-red: #9f261d; --print-hl: #efd585;
+  --speaker: #4b4235; --speaker-edge: #29231b; --speaker-grille: #bba984;
   --k1: #e98c7c; --k2: #5fb3b4; --k3: #ddb04e; --k4: #a894d3; --k5: #6aa8de; --k6: #de88ab; --k7: #98ae68; --k8: #e8a65e;
   color-scheme: dark;
 }
@@ -91,7 +98,7 @@ button { cursor: pointer; touch-action: manipulation; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 h1, h2, h3 { text-wrap: balance; }
-@supports (word-break: auto-phrase) { h1, h2, h3, .tag-n, .q-text, .voice, .ask-q { word-break: auto-phrase; } }
+@supports (word-break: auto-phrase) { h1, h2, h3, .tag-n, .q-text, .voice, .ask-q, .ch-opt small, .pa-k, .tt-empty, .cast-hint, .cast-src-tip { word-break: auto-phrase; } }
 /* 左右の余白は、帯ごとの内側の .wrap 1か所で取る（教室の壁と床は画面の端まで塗る） */
 .wrap {
   max-width: 1080px; margin-inline: auto;
@@ -184,6 +191,105 @@ h1, h2, h3 { text-wrap: balance; }
 .board-links { display: flex; gap: 6px; }
 .tag { display: inline-block; padding: 0 7px; border-radius: 999px; font: 700 11px/1.7 var(--font-round); background: var(--chip); color: var(--muted); vertical-align: 1px; }
 .tag-now { background: var(--good-bg); color: var(--good-fg); }
+/* 黒板に書かなかった頼み（お便り・放送）は、黒板には小さな注記だけ */
+.chalk-note { display: block; font: 600 17px/1.6 var(--font-chalk); color: var(--chalk-dim); letter-spacing: .06em; }
+.chalk-hint { display: block; margin-top: 2px; font: 400 12.5px/1.6 var(--font-chalk); color: var(--chalk-dim); }
+
+/* ---- 黒板の列：左に大きい黒板、右に「今日の時間割」の小さい黒板（スマホは大きい黒板の下に横長で）。黒板の上の壁にスピーカー ---- */
+.board-row { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "pa" "board" "meta" "tt" "lectern"; max-width: 820px; margin: 0 auto; }
+.board-row > .pa { grid-area: pa; }
+.board-row > .lectern { grid-area: lectern; }   /* 先生と教卓は、大きい黒板の真ん中の下 */
+/* 床の前（教卓の前のプリント）も同じ列に合わせる */
+.front-row { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 820px; margin: 0 auto; }
+.board-row > .board { grid-area: board; width: 100%; max-width: none; display: flex; flex-direction: column; }
+.board-row > .board > .board-face { flex: 1 1 auto; }
+.board-row > .board-meta { grid-area: meta; max-width: none; margin: 10px 0 0; }
+.board-row > .tt { grid-area: tt; margin-top: 16px; }
+@media (min-width: 760px) {
+  .board-row { max-width: 1048px; grid-template-columns: minmax(0, 820px) 214px; grid-template-areas: "pa ." "board tt" "meta ." "lectern ."; column-gap: 18px; justify-content: center; }
+  .board-row > .tt { margin-top: 0; }
+  .front-row { max-width: 1048px; grid-template-columns: minmax(0, 820px) 214px; column-gap: 18px; justify-content: center; }
+}
+/* スピーカー（壁に掛けた箱。放送の頼みのときだけ押せる。押すと沈む） */
+.pa { position: relative; z-index: 6; display: flex; justify-content: center; align-items: flex-start; height: 48px; }
+.speaker {
+  --edge: var(--speaker-edge); --lift: 3px; position: relative; flex: none; width: 60px; height: 38px; padding: 0; border: 0; border-radius: 7px;
+  background: var(--speaker); color: var(--speaker-grille);
+  transform: translateY(calc(var(--lift) * -1)); box-shadow: 0 var(--lift) 0 var(--edge), 0 calc(var(--lift) + 2px) 8px var(--btn-drop);
+  transition: transform .6s cubic-bezier(.3, .7, .4, 1), box-shadow .6s cubic-bezier(.3, .7, .4, 1);
+}
+.speaker svg { display: block; width: 100%; height: 100%; }
+.spk-ring { fill: none; stroke: currentColor; stroke-width: 1.6; }
+.spk-dot { fill: currentColor; }
+.spk-plate { fill: var(--speaker-edge); opacity: .5; }
+@media (hover: hover) {
+  .speaker:not(:disabled):hover { transform: translateY(calc(var(--lift) * -1.5)); box-shadow: 0 calc(var(--lift) * 1.5) 0 var(--edge), 0 calc(var(--lift) * 1.5 + 3px) 12px var(--btn-drop); transition-duration: .25s; }
+}
+.speaker:not(:disabled):active { transform: translateY(calc(var(--lift) * -.4)); box-shadow: 0 calc(var(--lift) * .4) 0 var(--edge), 0 3px 4px var(--btn-drop); transition-duration: .034s; }
+.speaker:disabled { cursor: default; opacity: .6; transform: translateY(-2px); box-shadow: 0 2px 0 var(--edge); }
+.waves { position: absolute; left: calc(50% + 35px); top: 4px; width: 18px; height: 26px; overflow: visible; opacity: 0; pointer-events: none; }
+.waves path { fill: none; stroke: var(--muted); stroke-width: 2.2; stroke-linecap: round; }
+.pa.is-playing .waves { opacity: 1; animation: waves .7s ease-in-out infinite alternate; }
+@keyframes waves { from { opacity: .35; } to { opacity: 1; } }
+/* スピーカーから出る文字（吹き出し）。3秒ほどで薄れて消える。動きを減らす設定では薄れずに出したまま */
+.pa-say {
+  position: absolute; top: 50px; left: 50%; width: max-content; max-width: min(520px, 92%); transform: translateX(-50%);
+  padding: 8px 16px 11px; border-radius: 18px; background: var(--surface); color: var(--fg); border: 2px solid var(--fg); box-shadow: 0 4px 0 var(--shadow);
+}
+.pa-say::before { content: ""; position: absolute; top: -8px; left: 50%; width: 13px; height: 13px; margin-left: -7px; background: var(--surface); border-left: 2px solid var(--fg); border-top: 2px solid var(--fg); transform: rotate(45deg); }
+.pa-k { margin: 0; font: 700 11.5px/1.6 var(--font-round); letter-spacing: .08em; color: var(--muted); }
+.pa-text { margin: 0; font: 700 16px/1.65 var(--font-round); white-space: pre-wrap; overflow-wrap: anywhere; }
+.pa-say.is-on { animation: say 3.4s ease forwards; }
+@keyframes say {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(.94); }
+  9% { opacity: 1; transform: translateX(-50%); filter: blur(0); }
+  48% { opacity: 1; filter: blur(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(6px); filter: blur(5px); }
+}
+.pa-say.is-draft { border-style: dashed; }
+/* 動きを減らす設定：吹き出しは黒板に重ねず、スピーカーの下に置いたまま */
+.pa.is-stay { height: auto; flex-direction: column; align-items: center; padding-bottom: 12px; }
+.pa.is-stay .pa-say { position: relative; top: auto; left: auto; transform: none; margin-top: 10px; }
+/* 今日の時間割（小さい黒板）。行を押すと、大きい黒板がその頼みに切り替わる */
+.tt { display: flex; flex-direction: column; min-width: 0; padding: 8px; border-radius: 7px; background: linear-gradient(to bottom, var(--board-frame), var(--board-frame-2)); box-shadow: 0 4px 0 var(--board-frame-2), 0 12px 22px var(--shadow); }
+.tt-face {
+  flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; padding: 10px 10px 6px; border-radius: 3px;
+  background: radial-gradient(ellipse 70% 45% at 40% 25%, var(--board-hi), transparent 70%), var(--board); box-shadow: inset 0 0 22px var(--shadow); color: var(--chalk);
+}
+.tt-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 8px; margin-bottom: 6px; padding-bottom: 5px; border-bottom: 1.5px dashed var(--chalk-dim); }
+.tt-title { margin: 0; font: 600 15.5px/1.4 var(--font-chalk); letter-spacing: .08em; }
+.tt-date { margin: 0; font: 400 12px/1.4 var(--font-chalk); color: var(--chalk-dim); }
+.tt-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.tt-row {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0 7px; width: 100%; min-height: 40px; padding: 4px 6px;
+  border: 1.5px solid transparent; border-radius: 6px; background: none; color: var(--chalk); font: 600 15px/1.35 var(--font-chalk); text-align: left;
+}
+@media (hover: hover) { .tt-row:hover { background: var(--board-hi); } }
+.tt-row.is-now { border-color: var(--chalk-yellow); background: var(--board-hi); }
+.tt-p { color: var(--chalk-yellow); font-size: 13.5px; white-space: nowrap; }
+.tt-s { min-width: 0; overflow-wrap: anywhere; }
+.tt-ch { display: inline-flex; align-items: center; gap: 3px; color: var(--chalk-dim); font: 600 11px/1.2 var(--font-chalk); white-space: nowrap; }
+.tt-empty { margin: 4px 2px 6px; font: 400 13.5px/1.7 var(--font-chalk); color: var(--chalk-dim); }
+.tt-nav { display: flex; justify-content: space-between; gap: 6px; margin-top: auto; padding-top: 6px; }
+.tt-nav button { min-height: 34px; padding: 4px 6px; border: 0; border-radius: 6px; background: none; color: var(--chalk); font: 600 12.5px/1.2 var(--font-chalk); }
+.tt-nav button:disabled { color: var(--chalk-dim); opacity: .55; cursor: default; }
+.tt-row:focus-visible, .tt-nav button:focus-visible { outline: 3px solid var(--chalk); outline-offset: 2px; }
+@media (max-width: 759.98px) { .tt-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* 伝え方の印（黒板・お便り・放送） */
+.ch-ico { display: inline-block; flex: none; width: 20px; height: 14px; overflow: visible; vertical-align: -2px; }
+.i-board { fill: var(--board); stroke: var(--board-frame); stroke-width: 1.6; }
+.i-chalk { fill: none; stroke: var(--chalk); stroke-width: 1.4; stroke-linecap: round; }
+.i-paper { fill: var(--print); stroke: var(--print-edge); stroke-width: 1.2; stroke-linejoin: round; }
+.i-ink { fill: none; stroke: var(--print-muted); stroke-width: 1.2; stroke-linecap: round; }
+.i-spk { fill: var(--speaker); stroke: var(--speaker-grille); stroke-width: 1.2; }
+.i-grille { fill: var(--speaker-grille); }
+.i-wave { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+/* お便り：教卓の前あたりに置いた白いプリント（上に「おたより」、本文は印刷の字） */
+.print { position: relative; width: min(100%, 360px); margin: -4px auto 26px; padding: 12px 16px 16px; border-radius: 2px; background: var(--print); color: var(--print-ink); box-shadow: 0 1px 0 var(--print-edge), 0 8px 18px var(--shadow); transform: rotate(-1.2deg); }
+.print-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 3px double var(--print-line); }
+.print-title { font: 700 17px/1.3 var(--font-round); letter-spacing: .3em; color: var(--print-head); }
+.print-meta { font: 500 11.5px/1.4 var(--font-body); color: var(--print-muted); }
+.print-text { margin: 0; font: 500 14.5px/1.85 var(--font-print); white-space: pre-wrap; overflow-wrap: anywhere; }
 
 /* 先生と教卓（教室では、いつもの顔） */
 .lectern { position: relative; display: grid; justify-items: center; height: 118px; margin-top: 4px; }
@@ -308,6 +414,30 @@ textarea.field { resize: vertical; }
 }
 .slate textarea::placeholder { color: var(--chalk-dim); opacity: 1; font-weight: 400; }
 .slate textarea:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+/* 書く欄の見た目も伝え方に合わせる（お便り＝白い紙と印刷の字／放送＝吹き出し） */
+.slate[data-ch="letter"] { padding: 6px; background: var(--print-line); }
+.slate[data-ch="letter"] textarea { background: var(--print); color: var(--print-ink); font: 500 16.5px/1.8 var(--font-print); caret-color: var(--print-head); }
+.slate[data-ch="letter"] textarea::placeholder { color: var(--print-muted); }
+.slate[data-ch="broadcast"] { padding: 0; background: none; }
+.slate[data-ch="broadcast"] textarea { border: 2px solid var(--fg); border-radius: 18px; background: var(--surface); color: var(--fg); font: 700 16.5px/1.7 var(--font-round); caret-color: var(--primary); }
+.slate[data-ch="broadcast"] textarea::placeholder { color: var(--muted); }
+/* 伝え方（3つから選ぶ。選択肢なので平ら） */
+.chs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0 0 16px; padding: 0; border: 0; min-width: 0; }
+.chs legend { padding: 0; }
+.ch-opt { position: relative; display: block; min-width: 0; }
+.ch-opt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.ch-opt > span { display: grid; justify-items: center; align-content: start; gap: 2px; height: 100%; padding: 9px 4px 8px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); text-align: center; color: var(--fg); }
+.ch-opt .ch-ico { width: 32px; height: 22px; margin-bottom: 2px; }
+.ch-opt b { font: 700 15px/1.3 var(--font-round); }
+.ch-opt small { font-size: 11.5px; line-height: 1.35; color: var(--muted); overflow-wrap: anywhere; }
+.ch-opt input:checked + span { border-color: var(--primary); background: var(--sel-bg); box-shadow: inset 0 0 0 1.5px var(--primary); }
+.ch-opt input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
+/* 要点のお便り：書く欄の下に、元の放送の文を小さく */
+.cast-src { margin: 4px 0 0; padding: 8px 12px; border-radius: 12px; border: 1.5px dashed var(--muted); background: var(--surface-2); color: var(--muted); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.cast-src-tip { display: block; margin-top: 2px; font: 700 13px/1.5 var(--font-round); color: var(--fg); }
+/* 科目名（5つのチップか、自分で書く） */
+.subj { margin: 18px 0 0; padding: 0; border: 0; min-width: 0; }
+.subj .res-opts { margin-bottom: 10px; }
 /* スイッチ（平ら） */
 .switch {
   -webkit-appearance: none; appearance: none; flex: none; position: relative; margin: 0;
@@ -374,7 +504,7 @@ textarea.field { resize: vertical; }
 .scene[data-seat="back"] { --bw: 82%; --tw: 90px; }
 .scene-grid { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "a a" "board board" "teacher b"; align-items: start; gap: 10px 10px; padding-block: 16px 0; }
 @media (min-width: 860px) {
-  .scene-grid { grid-template-columns: minmax(150px, 1fr) minmax(0, 620px) minmax(150px, 1fr); grid-template-areas: "a board b" ". teacher ."; gap: 10px 20px; padding-block: 26px 0; }
+  .scene-grid { grid-template-columns: minmax(150px, 1fr) minmax(0, 620px) minmax(150px, 1fr); grid-template-areas: "a board b" ". teacher ."; gap: 10px 20px; padding-block: 34px 0; }
 }
 .bub-a { grid-area: a; } .bub-b { grid-area: b; }
 .scene-board { grid-area: board; position: relative; }
@@ -404,6 +534,8 @@ textarea.field { resize: vertical; }
 .wall-clock svg { display: block; width: 100%; height: auto; }
 .clock-face { fill: var(--paper); stroke: var(--board-frame-2); stroke-width: 3; }
 .wall-clock[data-size="2"] .clock-face { stroke: var(--anger); }
+/* 大きい時計は黒板の右上にかかるので、黒板の日付はその下から書く（重ならないように） */
+.wall-clock[data-size="2"]:not([hidden]) ~ .board .board-date { top: 36px; }
 .clock-tick { stroke: var(--paper-line); stroke-width: 2; stroke-linecap: round; }
 .clock-hand { stroke: var(--face-ink); stroke-width: 2.4; stroke-linecap: round; }
 .wall-clock[data-size="2"] .clock-min { transform-origin: 20px 20px; animation: tick 6s steps(12) infinite; }
@@ -433,6 +565,40 @@ textarea.field { resize: vertical; }
 .m-push { text-decoration: underline wavy var(--chalk-pink) 1.5px; text-underline-offset: 6px; }
 .m-soft { opacity: .45; }
 .m-thanks { color: var(--chalk-yellow); }
+/* 生徒の目線の上：今日この生徒に降ってきた頼み（小さな時間割。いま見ている時限を強調） */
+.vtt { width: 100%; margin: 0; padding: 6px 8px 8px; border-radius: 6px; background: var(--board); color: var(--chalk); box-shadow: inset 0 0 0 3px var(--board-frame), 0 2px 6px var(--btn-drop); }
+.vtt-k { margin: 0 2px 4px; font: 600 12.5px/1.5 var(--font-chalk); color: var(--chalk-dim); }
+.vtt-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.vtt .tt-row { width: auto; min-height: 36px; padding: 3px 9px; font-size: 14px; }
+.vtt .tt-p { font-size: 12.5px; }
+.tt-off { font: 600 10.5px/1.2 var(--font-chalk); color: var(--chalk-pink); }
+/* 放送の目線：スピーカーの文字が薄れて消えたあと（文字はうすく、にじみは強め） */
+.scene-pa { position: relative; display: flex; align-items: flex-start; gap: 12px; width: var(--bw); margin: 0 auto 34px; }   /* 下は時計（黒板の右上にかかる）の分あける */
+.speaker-art { flex: none; width: 52px; height: 34px; margin-top: 2px; border-radius: 6px; background: var(--speaker); color: var(--speaker-grille); box-shadow: 0 3px 0 var(--speaker-edge); }
+.speaker-art svg { display: block; width: 100%; height: 100%; }
+.scene-pa .pa-say { position: relative; top: auto; left: auto; flex: 1 1 auto; min-width: 0; max-width: none; transform: none; border-style: dashed; border-color: var(--muted); box-shadow: none; }
+.scene-pa .pa-say::before { top: 12px; left: -8px; margin-left: 0; border: 0; border-left: 2px dashed var(--muted); border-bottom: 2px dashed var(--muted); }
+.pa-say.is-faded .pa-text { opacity: .42; }
+.pa-say.is-faded.is-fainter .pa-text { opacity: .3; }
+/* お便りの目線：自分の机の上の紙（その日のお便りが2枚以上なら重なって、下の紙は端しか見えない） */
+.scene-desk { position: relative; z-index: 4; background: linear-gradient(to bottom, var(--desk-edge) 0 5px, var(--desk) 5px); }
+.desk-grid { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "a" "paper" "b"; gap: 12px; padding-block: 18px 20px; }
+.desk-grid .bub { justify-content: center; padding-top: 0; }
+@media (min-width: 860px) {
+  .desk-grid { grid-template-columns: minmax(150px, 1fr) minmax(0, 560px) minmax(150px, 1fr); grid-template-areas: "a paper b"; gap: 10px 20px; padding-block: 28px 30px; }
+}
+.papers { grid-area: paper; display: grid; min-width: 0; padding: 14px 6px 2px 14px; }
+.paper { grid-area: 1 / 1; position: relative; min-width: 0; margin: 0; padding: 12px 16px 18px; border-radius: 2px; background: var(--print); color: var(--print-ink); box-shadow: 0 1px 0 var(--print-edge), 0 6px 14px var(--shadow); }
+.paper.is-top { transform: rotate(-.8deg); }
+.paper.is-under { transform: translate(calc(var(--k) * -9px), calc(var(--k) * -11px)) rotate(calc(var(--k) * -2.8deg)); }
+.paper-text { margin: 0; font: 500 16px/1.9 var(--font-print); white-space: pre-wrap; overflow-wrap: anywhere; }
+.paper .m-blur { text-shadow: 0 0 7px var(--print-ink); }
+.paper .m-blame { color: var(--print-red); }
+.paper .m-blame.is-big { text-shadow: none; }
+.paper .m-push { text-decoration-color: var(--print-red); }
+.paper .m-thanks { color: inherit; background: var(--print-hl); }
+.desk-cap { display: table; max-width: calc(100% - 32px); margin: -4px auto 18px; padding: 2px 10px; border-radius: 4px; background: var(--tag-bg); color: var(--tag-fg); box-shadow: 0 1px 0 var(--desk-edge); font: 700 12px/1.6 var(--font-round); text-align: center; }
+.board-hold { position: relative; }
 /* 先生（SVG。顔は data-face で切り替える） */
 .teacher .f, .teacher .anger { display: none; }
 .teacher[data-face="normal"] .f-normal, .teacher[data-face="stiff"] .f-stiff, .teacher[data-face="soft"] .f-soft, .teacher[data-face="busy"] .f-busy, .teacher[data-strong="1"] .anger { display: inline; }
@@ -461,6 +627,10 @@ textarea.field { resize: vertical; }
 .voice.is-strong, .voice.is-strong::before, .voice.is-strong::after { border-color: var(--err); border-width: 2px; }
 .voice.is-pos, .voice.is-pos::before, .voice.is-pos::after { background: var(--good-bg); border-color: var(--good-bg); }
 .voice.is-pos { color: var(--good-fg); }
+/* その日の頼みの数と伝え方の重なりから足す心の声 */
+.voices-day { margin-top: 12px; }
+.voice.is-day, .voice.is-day::before, .voice.is-day::after { border-style: dashed; background: var(--surface-2); }
+.voice-k { display: inline-block; margin-right: 6px; padding: 0 8px; border-radius: 999px; background: var(--board); color: var(--chalk); font: 600 11px/1.75 var(--font-chalk); vertical-align: 1px; }
 .ask { padding: 14px 16px; border-radius: 16px; background: var(--ask-bg); color: var(--ask-fg); }
 .ask .lbl { color: var(--ask-fg); }
 .ask-q { margin: 0; font: 700 18px/1.6 var(--font-round); }
@@ -492,6 +662,14 @@ textarea.field { resize: vertical; }
 .mini-board { padding: 7px; border-radius: 6px; background: linear-gradient(to bottom, var(--board-frame), var(--board-frame-2)); }
 .mini-board .chalk-text { --fs: 17px; padding: 10px 12px; border-radius: 3px; background: var(--board); color: var(--chalk); font-family: var(--font-chalk); text-shadow: none; }
 .sub-links { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 6px; }
+/* 時限・科目・伝え方（「2限 手伝い（お便り）」） */
+.lesson { display: inline-flex; align-items: center; gap: 5px; padding: 0 9px; border-radius: 999px; background: var(--chip); color: var(--fg); font: 700 12.5px/1.8 var(--font-round); }
+.mini-print { padding: 10px 14px 12px; border-radius: 2px; background: var(--print); color: var(--print-ink); box-shadow: 0 1px 0 var(--print-edge), 0 4px 10px var(--shadow); }
+.mini-say { padding: 9px 14px 11px; border-radius: 16px; border: 2px dashed var(--muted); background: var(--surface-2); color: var(--fg); }
+.mini-k { margin: 0 0 2px; font: 700 11px/1.5 var(--font-round); letter-spacing: .1em; color: var(--print-head); }
+.mini-say .mini-k { color: var(--muted); }
+.mini-text { margin: 0; font: 500 15px/1.75 var(--font-print); white-space: pre-wrap; overflow-wrap: anywhere; }
+.mini-say .mini-text { font: 700 15px/1.65 var(--font-round); }
 .crowd { margin: 14px 0 0; padding: 12px 14px; border-radius: 12px; background: var(--warn-bg); color: var(--warn-fg); font-size: 14.5px; line-height: 1.7; }
 .crowd b { display: block; font: 700 16px/1.5 var(--font-round); }
 .sub-row { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
@@ -557,13 +735,20 @@ textarea.field { resize: vertical; }
 .words { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .word { padding: 4px 12px; border-radius: 999px; background: var(--board); color: var(--chalk); font: 600 15px/1.5 var(--font-chalk); }
 .word b { margin-left: 6px; font: 700 12px var(--font-round); color: var(--chalk-yellow); }
+/* 伝え方の内訳 */
+.ch-sum { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 0; padding: 0; list-style: none; }
+.ch-sum li { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: var(--chip); color: var(--fg); font: 700 14px/1.4 var(--font-round); }
+.ch-sum b, .cast-only b { font-variant-numeric: tabular-nums; }
+.cast-only { margin: 10px 0 0; font-size: 14px; line-height: 1.7; }
+.cast-only b { font: 700 16px var(--font-round); }
+.cast-hint { margin: 6px 0 0; padding: 8px 12px; border-radius: 12px; background: var(--ask-bg); color: var(--ask-fg); font: 700 14px/1.6 var(--font-round); }
 
 /* ---- 書き出す ---- */
 .export-text { min-height: 300px; font: 13.5px/1.65 ui-monospace, "Cascadia Mono", Consolas, "BIZ UDGothic", monospace; white-space: pre-wrap; }
 .data-btns { display: flex; flex-wrap: wrap; gap: 14px 12px; margin-top: 14px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; }
-  .btn, .icon-btn, .chip-btn, .desk-top, .switch, .switch::after, .toast { transition: none !important; }
+  .btn, .icon-btn, .chip-btn, .desk-top, .switch, .switch::after, .toast, .speaker { transition: none !important; }
   .app, .view { transition: opacity .15s linear !important; filter: none !important; transform: none !important; }
 }
 </style>
@@ -591,32 +776,48 @@ textarea.field { resize: vertical; }
     <section class="pane pane-room" id="pane-room" role="tabpanel" aria-labelledby="tab-room">
       <div class="wall">
         <div class="wrap">
-          <div class="board" id="room-board">
-            <div class="board-face">
-              <p class="chalk-text" id="room-chalk"></p>
-              <p class="board-date" id="room-date"></p>
+          <div class="board-row">
+            <div class="pa" id="room-pa">
+              <button class="speaker" type="button" id="room-speaker" aria-label="スピーカー（放送の頼みのとき、押すと流れる）" disabled><svg viewBox="0 0 60 38" aria-hidden="true" focusable="false"><circle class="spk-ring" cx="30" cy="18" r="11"/><circle class="spk-ring" cx="30" cy="18" r="6.5"/><circle class="spk-dot" cx="30" cy="18" r="2.4"/><circle class="spk-dot" cx="6" cy="6" r="1.3"/><circle class="spk-dot" cx="54" cy="6" r="1.3"/><circle class="spk-dot" cx="6" cy="32" r="1.3"/><circle class="spk-dot" cx="54" cy="32" r="1.3"/></svg></button>
+              <svg class="waves" viewBox="0 0 18 26" aria-hidden="true" focusable="false"><path d="M3 8 Q7 13 3 18"/><path d="M8 3 Q15 13 8 23"/></svg>
+              <div class="pa-say" id="room-say" hidden><p class="pa-k" id="room-say-k">放送中…</p><p class="pa-text" id="room-say-text"></p></div>
             </div>
-            <div class="tray" aria-hidden="true"><i class="ch-w"></i><i class="ch-y"></i><i class="ch-p"></i><i class="eraser"></i></div>
-          </div>
-          <div class="board-meta">
-            <p class="board-note" id="room-note"></p>
-            <div class="board-links">
-              <button class="link-btn" type="button" id="room-edit">直す</button>
-              <button class="link-btn" type="button" id="room-copy">コピー</button>
+            <div class="board" id="room-board">
+              <div class="board-face">
+                <p class="chalk-text" id="room-chalk"></p>
+                <p class="board-date" id="room-date"></p>
+              </div>
+              <div class="tray" aria-hidden="true"><i class="ch-w"></i><i class="ch-y"></i><i class="ch-p"></i><i class="eraser"></i></div>
             </div>
-          </div>
-          <div class="lectern" aria-hidden="true">
-            <div class="teacher-slot" id="room-teacher"></div>
-            <div class="podium"></div>
+            <div class="board-meta">
+              <p class="board-note" id="room-note"></p>
+              <div class="board-links">
+                <button class="link-btn" type="button" id="room-edit">直す</button>
+                <button class="link-btn" type="button" id="room-copy">コピー</button>
+              </div>
+            </div>
+            <aside class="tt" id="room-tt" aria-labelledby="tt-title">
+              <div class="tt-face">
+                <div class="tt-head"><h2 class="tt-title" id="tt-title">今日の時間割</h2><p class="tt-date" id="tt-date"></p></div>
+                <ol class="tt-list" id="tt-list"></ol>
+                <p class="tt-empty" id="tt-empty" hidden>今日の時間割は、まだ空いています</p>
+                <div class="tt-nav"><button type="button" id="tt-prev">← 前の日</button><button type="button" id="tt-next">次の日 →</button></div>
+              </div>
+            </aside>
+            <div class="lectern" aria-hidden="true">
+              <div class="teacher-slot" id="room-teacher"></div>
+              <div class="podium"></div>
+            </div>
           </div>
         </div>
       </div>
       <div class="floor">
         <div class="wrap">
+          <div class="front-row"><div class="print" id="room-print" hidden><p class="print-head"><span class="print-title">おたより</span><span class="print-meta" id="room-print-meta"></span></p><p class="print-text" id="room-print-text"></p></div></div>
           <div class="rows" id="room-rows" role="group" aria-label="生徒の席"></div>
           <div class="seat-tools"><button class="btn btn-small" type="button" id="room-shuffle">席替え</button><span>前後は「慣れ」のまま、左右の席だけくじで入れ替えます</span></div>
           <p class="seat-note">席の前後は、その人に言葉が届くのに必要なはっきりさ（カードの Q1「慣れ」）。出来の良し悪しではありません。机を押すと、その生徒の目線に切り替わります。</p>
-          <p class="ex-note" id="room-ex" hidden><span>見本の生徒と黒板が入っています。</span><button class="link-btn" type="button" id="room-ex-clear">見本をまとめて消す</button></p>
+          <p class="ex-note" id="room-ex" hidden><span>見本の生徒と頼みごと（時間割の3つ）が入っています。</span><button class="link-btn" type="button" id="room-ex-clear">見本をまとめて消す</button></p>
         </div>
       </div>
     </section>
@@ -651,7 +852,7 @@ textarea.field { resize: vertical; }
 <nav class="bar" id="bar" aria-label="操作">
   <div class="bar-in">
     <button class="btn" type="button" id="btn-add-student">生徒を迎える</button>
-    <button class="btn btn-primary" type="button" id="btn-write">黒板に書く</button>
+    <button class="btn btn-primary" type="button" id="btn-write">頼みごとを出す</button>
   </div>
 </nav>
 
@@ -659,21 +860,34 @@ textarea.field { resize: vertical; }
 <section class="sheet is-low" id="sheet-write" role="dialog" aria-modal="true" aria-labelledby="write-title" hidden>
   <div class="grabber" aria-hidden="true"></div>
   <div class="sheet-head">
-    <h2 id="write-title" tabindex="-1">黒板に書く</h2>
+    <h2 id="write-title" tabindex="-1">頼みごとを出す</h2>
     <button class="icon-btn" type="button" data-close aria-label="閉じる">×</button>
   </div>
   <form id="write-form" novalidate>
-    <label class="lbl" for="write-text">頼みごと（書いた字が黒板に映る）</label>
-    <div class="slate"><textarea id="write-text" name="write-text" maxlength="400" rows="4" autocomplete="off" placeholder="例：明日10時のゼミで使う図を、A4 1枚にまとめて。30分くらいで。途中で一度見せてね"></textarea></div>
+    <fieldset class="chs" id="write-chs">
+      <legend class="lbl">伝え方（どうやって伝えた？）</legend>
+      <label class="ch-opt"><input type="radio" name="write-ch" id="write-ch-board" value="board" checked><span><svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><rect class="i-board" x="1" y="1" width="18" height="12" rx="1.5"/><path class="i-chalk" d="M4.5 5 H11 M4.5 8.5 H14"/></svg><b>黒板</b><small>その場で説明</small></span></label>
+      <label class="ch-opt"><input type="radio" name="write-ch" id="write-ch-letter" value="letter"><span><svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><path class="i-paper" d="M4.5 .8 H12.5 L15.5 3.8 V13.2 H4.5 Z"/><path class="i-ink" d="M6.8 5.5 H13.2 M6.8 8 H13.2 M6.8 10.5 H11"/></svg><b>お便り</b><small>文字で配る</small></span></label>
+      <label class="ch-opt"><input type="radio" name="write-ch" id="write-ch-broadcast" value="broadcast"><span><svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><rect class="i-spk" x="1" y="2.5" width="10" height="9" rx="1.6"/><circle class="i-grille" cx="6" cy="7" r="2.3"/><path class="i-wave" d="M13.5 4.5 Q15.5 7 13.5 9.5 M16 2.5 Q19.5 7 16 11.5"/></svg><b>放送</b><small>口や Zoom で伝えた</small></span></label>
+    </fieldset>
+    <label class="lbl" for="write-text" id="write-text-lbl">頼みごと（書いた字が黒板に映る）</label>
+    <div class="slate" id="write-slate" data-ch="board"><textarea id="write-text" name="write-text" maxlength="400" rows="4" autocomplete="off" placeholder="例：明日10時のゼミで使う図を、A4 1枚にまとめて。30分くらいで。途中で一度見せてね"></textarea></div>
     <p class="count" id="write-count">0/400</p>
     <p class="err" id="write-err" hidden>頼みごとを書いてね</p>
+    <p class="cast-src" id="write-cast" hidden><span>さっきの放送：「<span id="write-cast-text"></span>」</span><b class="cast-src-tip">要点だけ書くと残りやすい</b></p>
+    <fieldset class="subj">
+      <legend class="lbl">科目名（時間割に出る名前）</legend>
+      <div class="res-opts" id="write-subjects"></div>
+      <label class="sr-only" for="write-subject">科目名を自分で書く（10字まで）</label>
+      <input class="field" id="write-subject" name="write-subject" type="text" maxlength="10" autocomplete="off" placeholder="自分で書く（10字まで）">
+    </fieldset>
     <fieldset class="targets">
       <legend class="lbl">だれに向けた頼み？</legend>
       <div id="write-targets"></div>
     </fieldset>
     <div class="row-btns">
       <button class="btn" type="button" id="write-copy">コピー</button>
-      <button class="btn btn-primary" type="submit" id="write-submit">黒板に書く</button>
+      <button class="btn btn-primary" type="submit" id="write-submit">頼みごとを出す</button>
     </div>
   </form>
 </section>
@@ -714,6 +928,7 @@ textarea.field { resize: vertical; }
     <p>頼んだ自分には、頼みごとがはっきり見えている。でも、相手の席からは違って見えるかもしれない。マネジメント教室は、その見え方を確かめる鏡です。</p>
     <p><b>生徒は「あなたから見たその人」の仮の像</b>で、本人の評価ではありません。いつでも書き直せます。</p>
     <p><b>席の前後</b>は、その人に言葉が届くのに必要なはっきりさ。出来の良し悪しではありません。</p>
+    <p><b>時間割</b>は、その日に出した頼みごとを、出した順に並べたものです（1限から）。伝え方は3つ。<b>黒板</b>（その場で説明）・<b>お便り</b>（文字で配る）・<b>放送</b>（口や Zoom で伝えた。紙に残らない）。同じ日に頼みが重なると、生徒の目線に「今日の頼みから」の心の声が足されます。放送（口だけ）は、黒板やお便りより残りにくいとされます。要点（何を・いつまで）を文字でも送ると残りやすくなります。1日の頼みが多いときや、前の頼みの途中で次を頼むときは、迷ったり続きを忘れたりしやすくなります。</p>
     <p><b>心の声は「〜かも」の仮説</b>です。相手の立場を想像するより、本人に聞いたほうが当たります。「本人に聞くなら」の一言で確かめよう。</p>
     <p><b>通知表</b>は、黒板の文を言葉の一覧で機械的に数えた目安です。ずれたときは、まず黒板を疑う（何人もずれたら、なおさら）。</p>
     <p>データはこの端末のブラウザにだけ保存されます。</p>
@@ -727,27 +942,43 @@ textarea.field { resize: vertical; }
       <h2 id="view-title" tabindex="-1"></h2>
     </div>
     <p class="view-pills" id="view-pills"></p>
+    <nav class="vtt" id="view-tt" aria-labelledby="view-tt-k"><p class="vtt-k" id="view-tt-k">今日この生徒に降ってきた頼み</p><ol class="vtt-list" id="view-tt-list"></ol></nav>
   </div>
-  <div class="scene" id="scene" data-seat="middle">
+  <div class="scene" id="scene" data-seat="middle" data-ch="board">
     <div class="wrap scene-grid">
       <div class="bub bub-a" id="bub-a"></div>
       <div class="scene-board">
-        <div class="wall-clock" id="view-clock" data-size="1" aria-hidden="true"></div>
-        <div class="board">
-          <div class="board-face"><p class="chalk-text" id="view-chalk"></p><p class="board-date" id="view-date"></p></div>
-          <div class="tray" aria-hidden="true"><i class="ch-w"></i><i class="ch-y"></i><i class="ch-p"></i><i class="eraser"></i></div>
+        <div class="scene-pa" id="view-pa" hidden>
+          <div class="speaker-art" aria-hidden="true"><svg viewBox="0 0 60 38" focusable="false"><circle class="spk-ring" cx="30" cy="18" r="11"/><circle class="spk-ring" cx="30" cy="18" r="6.5"/><circle class="spk-dot" cx="30" cy="18" r="2.4"/><circle class="spk-dot" cx="6" cy="6" r="1.3"/><circle class="spk-dot" cx="54" cy="6" r="1.3"/><circle class="spk-dot" cx="6" cy="32" r="1.3"/><circle class="spk-dot" cx="54" cy="32" r="1.3"/></svg></div>
+          <div class="pa-say is-faded"><p class="pa-k">さっきの放送（消えかけている）</p><p class="pa-text" id="view-pa-text"></p></div>
+        </div>
+        <div class="board-hold">
+          <div class="wall-clock" id="view-clock" data-size="1" aria-hidden="true"></div>
+          <div class="board">
+            <div class="board-face"><p class="chalk-text" id="view-chalk"></p><p class="board-date" id="view-date"></p></div>
+            <div class="tray" aria-hidden="true"><i class="ch-w"></i><i class="ch-y"></i><i class="ch-p"></i><i class="eraser"></i></div>
+          </div>
         </div>
       </div>
       <div class="scene-teacher" id="view-teacher" aria-hidden="true"></div>
       <div class="bub bub-b" id="bub-b"></div>
     </div>
     <div class="scene-floor" id="view-floor" aria-hidden="true"></div>
+    <div class="scene-desk" id="view-desk" hidden>
+      <div class="wrap desk-grid">
+        <div class="bub bub-a" id="bub-c"></div>
+        <div class="papers" id="view-papers"></div>
+        <div class="bub bub-b" id="bub-d"></div>
+      </div>
+      <p class="desk-cap" id="view-desk-cap" hidden></p>
+    </div>
   </div>
   <div class="wrap view-body">
     <p class="face-why span2" id="view-face"></p>
     <section aria-labelledby="voices-h">
       <h3 class="lbl" id="voices-h">心の声（〜かも。仮説です）</h3>
       <ul class="voices" id="view-voices"></ul>
+      <ul class="voices voices-day" id="view-day-voices" hidden></ul>
     </section>
     <div class="view-side">
       <section class="ask" aria-labelledby="ask-h">
@@ -764,7 +995,7 @@ textarea.field { resize: vertical; }
     <p class="view-note span2">見え方は、あなたが答えたカードから作った仮の像です。当たっているかは、本人に聞いて確かめよう。</p>
     <div class="view-actions span2">
       <button class="btn" type="button" id="view-back-2">先生にもどる</button>
-      <button class="link-btn" type="button" id="view-edit-board">黒板を直す</button>
+      <button class="link-btn" type="button" id="view-edit-board">頼みごとを直す</button>
       <button class="link-btn" type="button" id="view-edit-card">この生徒のカードを直す</button>
     </div>
   </div>
@@ -1009,11 +1240,139 @@ var SekigaeEngine = (function () {
   }
   function quote(w) { return '「' + (w === 'かも' || w === 'かな' ? '〜' + w : w) + '」'; }
 
+  /* ===== 時間割と3つの伝え方 ===== */
+  var CHANNELS = [
+    { key: 'board', label: '黒板', desc: 'その場で説明' },
+    { key: 'letter', label: 'お便り', desc: '文字で配る' },
+    { key: 'broadcast', label: '放送', desc: '口や Zoom で伝えた' }
+  ];
+  var CHANNEL_BY = {};
+  CHANNELS.forEach(function (c) { CHANNEL_BY[c.key] = c; });
+  var SUBJECTS = ['ゼミ', '授業', '雑務', '手伝い', 'その他'];
+  var SUBJECT_MAX = 10;
+  function normChannel(c) { return CHANNEL_BY[c] ? c : 'board'; }
+  /* 科目名：空白をつめて10字まで。空なら「授業」 */
+  function normSubject(s) {
+    var t = Array.from(String(s == null ? '' : s).replace(/\s+/g, ' ').trim()).slice(0, SUBJECT_MAX).join('').trim();
+    return t || '授業';
+  }
+  /* 古いデータ（channel と subject がない黒板）は、黒板・授業として読む */
+  function lessonMeta(b) { b = b || {}; return { channel: normChannel(b.channel), subject: normSubject(b.subject) }; }
+  function channelLabel(c) { return CHANNEL_BY[normChannel(c)].label; }
+  /* 「2限 手伝い（お便り）」 */
+  function lessonLabel(b, period) { return (period ? period + '限 ' : '') + normSubject(b.subject) + '（' + channelLabel(b.channel) + '）'; }
+  function byTime(x, y) { return (x.b.createdAt - y.b.createdAt) || (x.i - y.i); }
+  /* その日の頼み（出した順）。時限＝その日の中で出した順（1限から。日は端末の時刻） */
+  function dayList(boards, key) {
+    return (boards || []).map(function (b, i) { return { b: b, i: i }; })
+      .filter(function (x) { return ymd(x.b.createdAt) === key; }).sort(byTime).map(function (x) { return x.b; });
+  }
+  function periods(boards) {
+    var out = {}, n = {};
+    (boards || []).map(function (b, i) { return { b: b, i: i }; }).sort(byTime).forEach(function (x) {
+      var k = ymd(x.b.createdAt);
+      n[k] = (n[k] || 0) + 1;
+      out[x.b.id] = n[k];
+    });
+    return out;
+  }
+  /* 時間割で行き来できる日：頼みのある日と今日（古い順） */
+  function dayKeys(boards, today) {
+    var seen = {}, out = [];
+    (boards || []).forEach(function (b) { var k = ymd(b.createdAt); if (!seen[k]) { seen[k] = true; out.push(k); } });
+    if (today && !seen[today]) out.push(today);
+    return out.sort();
+  }
+  function sameText(a, b) { var n = function (t) { return String(t == null ? '' : t).replace(/\s+/g, ' ').trim(); }; return n(a) === n(b); }
+  /* 放送のあとにお便りがあるか：「fromCast がその放送」か「同じ文」（前の版で作った書き写し）のお便り。
+     sid を渡すと、その生徒に向けたものだけ。日はまたいでよい */
+  function hasLetterCopy(boards, cast, sid) {
+    return (boards || []).some(function (x) {
+      return normChannel(x.channel) === 'letter' && ((cast.id != null && x.fromCast === cast.id) || sameText(x.text, cast.text)) &&
+        (!sid || (x.targets || []).indexOf(sid) >= 0);
+    });
+  }
+  /* 用事の数（放送の多さ）＝1＋文の途中の足し言葉＋（文の数−1）。文の頭の足し言葉と、挨拶・お礼だけの文は数えない */
+  var ERRAND_JOIN = /ついでに|それと|それから|あと、|あとは|あわせて|併せて|加えて|もうひとつ|もう一つ|ほかに|他に/g;
+  var COURTESY_ONLY = /^(?:いつも|本当に|ほんとに|どうも|よろしく|お願い|いたします|します|ありがとう|ございます|助か(?:ります|る|ってる|っています|った)|です|ね|な|よ)+$/;
+  function errandCount(text) {
+    var n = 0, joins = 0;
+    String(text == null ? '' : text).split(/[。！？!?\r\n]+/).forEach(function (raw) {
+      var s = raw.trim(), core = s.replace(/[\s、，,．.・…ー〜~♪☆★「」『』（）()]/g, '');
+      if (!core || COURTESY_ONLY.test(core)) return;
+      n++;
+      var m;
+      ERRAND_JOIN.lastIndex = 0;
+      while ((m = ERRAND_JOIN.exec(s))) if (m.index > 0) joins++;
+    });
+    return n ? n + joins : 0;
+  }
+  function sameBoard(a, b) { return a === b || !!(a && b && a.id != null && a.id === b.id); }
+  /* 割り込み：見ている頼みより前の時限に、同じ生徒への頼みがあって、見ている頼みを出す前に「締め」も「提出」もしていない */
+  function interrupted(list, cur, sid) {
+    var idx = -1;
+    (list || []).forEach(function (b, i) { if (sameBoard(b, cur)) idx = i; });
+    if (idx < 0) return false;
+    return list.slice(0, idx).some(function (p) {
+      if ((p.targets || []).indexOf(sid) < 0) return false;
+      var r = (p.results || {})[sid], t = cur.createdAt || 0;
+      var doneBefore = (r && r.submitted && (r.at || 0) <= t) || (p.closedAt && p.closedAt <= t);
+      return !doneBefore;
+    });
+  }
+  /* その日この生徒に降ってきた頼み（ほかの時限も含む）から足す心の声と、その足すとよいもの。
+     並びは 放送だけ → 3本以上 → 割り込み → 黒板とお便り で、3つまで。list はその日の頼み（出した順）、cur は見ている頼み */
+  var DAY_CHIP = { many: '今日の順番：先に◯◯、◯◯は明日でいいよ', interrupt: 'いまの作業は、区切りのいいところまででいいよ', boardLetter: 'お便りも見てね（何を・いつまでが書いてある）' };
+  function dayView(list, cur, sid, all) {
+    var mine = (list || []).filter(function (b) { return (b.targets || []).indexOf(sid) >= 0; });
+    var has = { board: 0, letter: 0, broadcast: 0 }, curText = cur ? String(cur.text || '') : '';
+    mine.forEach(function (b) { has[normChannel(b.channel)]++; });
+    var v = [];
+    /* 見ている頼みそのものが放送なら、その放送は数えない（放送の心の声と重なるため） */
+    if (mine.some(function (b) { return !sameBoard(b, cur) && normChannel(b.channel) === 'broadcast' && !hasLetterCopy(all || list, b, sid); })) {
+      v.push({ key: 'castOnly', text: '放送で聞いたことは、忘れるかも' });
+    }
+    if (mine.length >= 3) v.push({ key: 'many', text: '今日は頼みごとが多くて、どれから手をつけるか迷うかも', chip: !/今日の順番|明日でいい/.test(curText) });
+    if (cur && (cur.targets || []).indexOf(sid) >= 0 && interrupted(list, cur, sid)) {
+      v.push({ key: 'interrupt', text: 'さっきの続き、どこまでやったっけ…ってなるかも', chip: !/区切り/.test(curText) });
+    }
+    if (has.board && has.letter) v.push({ key: 'boardLetter', text: '黒板のほうに気を取られて、お便りを見返すのを忘れるかも',
+      chip: !!cur && normChannel(cur.channel) === 'board' && !/お便りも見て/.test(curText) });
+    v = v.slice(0, 3);
+    return {
+      voices: v.map(function (x) { return { key: x.key, text: x.text }; }),
+      chips: v.filter(function (x) { return x.chip; }).map(function (x) { return { key: x.key, text: DAY_CHIP[x.key], act: 'add' }; })
+    };
+  }
+  /* 1日の頼み：いちばん多い日（同じ数なら新しい日） */
+  function busiestDay(boards) {
+    var n = {}, best = null;
+    (boards || []).forEach(function (b) { var k = ymd(b.createdAt); n[k] = (n[k] || 0) + 1; });
+    Object.keys(n).sort().forEach(function (k) { if (!best || n[k] >= best.n) best = { key: k, n: n[k] }; });
+    return best;
+  }
+  /* 伝え方の内訳と、放送だけで終わった頼み（同じ文のお便りがない放送） */
+  function channelCounts(use, all) {
+    var c = { board: 0, letter: 0, broadcast: 0, castOnly: 0 };
+    (use || []).forEach(function (b) {
+      var ch = normChannel(b.channel);
+      c[ch]++;
+      if (ch === 'broadcast' && !hasLetterCopy(all || use, b)) c.castOnly++;
+    });
+    return c;
+  }
+
   /* ===== 生徒の目線 ===== */
   function studentView(f, answers, opt) {
     opt = opt || {};
     var a = normAnswers(answers);
+    /* 伝え方: 黒板・お便りは同じ決まり。放送は紙に残らない（にじみは強め・「さっき何て言ってた？」） */
+    var ch = normChannel(opt.channel), cast = ch === 'broadcast';
     var fam = effectiveFam(a, opt.firstTime), far = FAR[fam], seat = seatOf(fam);
+    /* 放送の用事が多い（3つ以上）・長い（60字以上）・慣れていない生徒（Q1 A か初めての作業）に放送 */
+    var errands = cast ? errandCount(f.text) : 0;
+    var castMany = cast && errands >= 3, castLong = cast && !castMany && Array.from(String(f.text).replace(/\s+/g, '')).length >= 60;
+    var castNovice = cast && fam === 'A';
     var issues = [];
     function add(key, w, o) { o.key = key; o.w = Math.round(w * 100) / 100; issues.push(o); }
     function firstOf(type) { for (var i = 0; i < f.vague.length; i++) if (f.vague[i].type === type) return f.vague[i].word; return ''; }
@@ -1081,10 +1440,19 @@ var SekigaeEngine = (function () {
       ask: quote(f.push[0]) + 'って書いたけど、きつく聞こえた？' });
     /* ⑥ 報いる（足りないときの提案だけ） */
     if (!f.thanks.length) add('thanks', 1, { chip: 'いつも助かってるよ、ありがとう' });
+    /* 放送：いちばん上に置く（心の声・本人に聞くなら・「要点をお便りでも送る」）。お便りがもうあれば送るチップは出さない */
+    if (cast) add('broadcast', 10, { voice: 'さっき何て言ってた…？ メモしてないと忘れるかも',
+      ask: 'さっき放送で言ったこと、何をいつまでにって受け取った？', chip: opt.letterCopy ? '' : '要点をお便りでも送る', act: 'letter' });
+    if (castMany) add('castMany', 6, { voice: 'いくつ頼まれたっけ…どれか抜けてるかも', ask: '放送で頼んだこと、いくつあったか覚えてる？' });
+    else if (castLong) add('castLong', 5, { voice: '長くて、途中から覚えきれないかも' });
+    if (castNovice) add('castNovice', 6.5, { voice: '聞いたけど、やり方が分からないままかも', ask: 'やり方で、分からないところある？' });
+    /* お便りの急ぎ・気持ちの言葉（文字では調子が伝わらない。ほかの声が少ないときだけ出る重み） */
+    if (ch === 'letter' && /なるはや|至急|急ぎで|急いで|今すぐ|さすがに|いい加減/.test(f.text)) add('letterTone', 3.5, {
+      voice: 'これ、どのくらい急ぎ？ 怒ってる…？って迷うかも', ask: 'お便りの書き方、きつく読めなかった？' });
 
     issues.sort(function (x, y) { return y.w - x.w; });
     var voices = issues.filter(function (x) { return x.voice && x.w >= 3.5; }).slice(0, 4)
-      .map(function (x) { return { key: x.key, text: x.voice, tone: 'neg', strong: x.key === 'handsOff' || x.w >= 7 }; });
+      .map(function (x) { return { key: x.key, text: x.voice, tone: 'neg', strong: (x.key === 'handsOff' || x.w >= 7) && x.key !== 'broadcast' }; });
     if (voices.length < 2) {
       var pos = [];
       if (f.thanks.length) pos.push(['thanks', 'お礼があって、少し気持ちが軽くなるかも']);
@@ -1100,18 +1468,24 @@ var SekigaeEngine = (function () {
       if (voices.length < 2) voices.push({ key: 'ok', text: 'これなら、すぐ始められるかも', tone: 'pos', strong: false });
     }
     var top = issues.filter(function (x) { return x.ask; })[0];
+    /* 放送の聞く一言は、慣れていない生徒 → 用事が多い → 放送のいつもの一言 の順に選ぶ */
+    if (cast) top = issues.filter(function (x) { return x.key === 'castNovice'; })[0] || issues.filter(function (x) { return x.key === 'castMany'; })[0] ||
+      issues.filter(function (x) { return x.key === 'broadcast'; })[0];
     var face = 'normal', faceWhy = 'いつもの顔に見えるかも';
     if (f.blame.length) { face = 'stiff'; faceWhy = '責める言葉があるので、かたい顔に見えるかも'; }
     else if (f.push.length) { face = 'stiff'; faceWhy = '押しつけの言葉があるので、かたい顔に見えるかも'; }
     else if (q2hi && !f.askOk) { face = 'busy'; faceWhy = '聞いていい目安がないので、忙しそうに見えるかも'; }
     else if (f.thanks.length) { face = 'soft'; faceWhy = 'お礼があるので、やわらかい顔に見えるかも'; }
     return {
-      answers: a, fam: fam, seat: seat, seatLabel: SEAT_LABEL[seat], far: far, blur: blurPx(fam), scale: SCALE[seat], firstTime: !!opt.firstTime,
+      answers: a, fam: fam, seat: seat, seatLabel: SEAT_LABEL[seat], far: far, scale: SCALE[seat], firstTime: !!opt.firstTime,
+      /* 放送のにじみ：×1.5、用事が多い・長いと＋0.3、慣れていない生徒にも＋0.3（重なると ×2.1） */
+      channel: ch, faded: cast, fadeMore: castMany || castLong, errands: errands,
+      blur: cast ? Math.round(blurPx(fam) * (15 + (castMany || castLong ? 3 : 0) + (castNovice ? 3 : 0))) / 10 : blurPx(fam),
       issues: issues,
       bubbles: issues.filter(function (x) { return x.bubble; }).map(function (x) { return { key: x.key, text: x.bubble, size: x.w >= 6 ? 3 : x.w >= 4 ? 2 : 1 }; }),
       voices: voices,
       ask: top ? { key: top.key, text: top.ask } : { key: 'open', text: 'この頼み方で、分かりにくいところはあった？' },
-      chips: issues.filter(function (x) { return x.chip; }).slice(0, 5).map(function (x) { return { key: x.key, text: x.chip }; }),
+      chips: issues.filter(function (x) { return x.chip; }).slice(0, 5).map(function (x) { return { key: x.key, text: x.chip, act: x.act || 'add' }; }),
       face: face, faceWhy: faceWhy, faceStrong: f.blame.length > 0 && q3hi, blameBig: q3hi,
       clock: clockBig ? 2 : (!f.timebox ? 1 : 0)
     };
@@ -1208,23 +1582,26 @@ var SekigaeEngine = (function () {
     var students = (data && data.students) || [], boards = (data && data.boards) || [];
     var byId = {};
     students.forEach(function (s) { byId[s.id] = s; });
-    var own = boards.filter(function (b) { return !b.example; }), use = own.length ? own : boards;
+    var own = boards.filter(function (b) { return !b.example; }), use = own.length ? own : boards, per = periods(boards);
     var L = [];
     L.push('# マネジメント教室の書き出し（' + ymd(now) + '）', '');
     L.push('- 生徒は「あなたから見たその人」の仮の像。本人の評価ではない');
-    L.push('- 数字は、黒板の文を言葉の一覧で機械的に数えた目安', '');
+    L.push('- 数字は、頼みごとの文を言葉の一覧で機械的に数えた目安', '');
     L.push('## 自分の癖' + (!own.length && boards.length ? '（見本の黒板から）' : ''));
     if (!use.length) L.push('- まだ黒板がない');
     else {
       var fs = use.map(function (b) { return readBoard(b.text); });
       var rc = reportCard(use.map(function (b) { return scoreSaved(b, byId); }));
-      var mc = missingCounts(fs), tv = topVague(use.map(function (b) { return b.text; }), 5), n = use.length;
-      L.push('- 黒板: ' + n + ' 枚');
+      var mc = missingCounts(fs), tv = topVague(use.map(function (b) { return b.text; }), 5), n = use.length, cc = channelCounts(use, boards);
+      L.push('- 頼みごと: ' + n + ' 件');
+      L.push('- 伝え方の内訳: 黒板 ' + cc.board + '・お便り ' + cc.letter + '・放送 ' + cc.broadcast + '（放送だけで終わった頼み ' + cc.castOnly + '）');
+      var bd = busiestDay(use);
+      L.push('- 1日の頼み: いちばん多い日 ' + bd.n + ' 本（' + bd.key + '）');
       L.push('- 通知表の位置: ' + rc.quad.label + '（求める ' + fmt(rc.demand) + '・支える ' + fmt(rc.support) + '）');
       L.push('- よく使うあいまいな言葉: ' + (tv.length ? tv.map(function (x) { return x.word + '（' + x.n + '回）'; }).join('、') : 'なし'));
-      L.push('- 足りなかったもの（' + n + ' 枚のうち）: 目的 ' + mc.purpose + '・完成の目安 ' + mc.goal + '・期限かかける時間 ' + mc.when +
+      L.push('- 足りなかったもの（' + n + ' 件のうち）: 目的 ' + mc.purpose + '・完成の目安 ' + mc.goal + '・期限かかける時間 ' + mc.when +
         '・見せる日・来る日・声をかける日 ' + mc.checkpoint + '・聞いていい目安 ' + mc.askOk + '・決めていい範囲 ' + mc.decide);
-      L.push('- 入っていた言葉（' + n + ' 枚のうち）: やわらげすぎ ' + mc.soft + '・責める言葉 ' + mc.blame + '・押しつけ ' + mc.push + '・お礼 ' + mc.thanks);
+      L.push('- 入っていた言葉（' + n + ' 件のうち）: やわらげすぎ ' + mc.soft + '・責める言葉 ' + mc.blame + '・押しつけ ' + mc.push + '・お礼 ' + mc.thanks);
       var rcount = {}, acks = 0, unsent = 0;
       use.forEach(function (b) {
         Object.keys(b.results || {}).forEach(function (id) { var r = b.results[id]; if (r && r.kind) rcount[r.kind] = (rcount[r.kind] || 0) + 1; if (r && r.ack) acks++; });
@@ -1254,7 +1631,7 @@ var SekigaeEngine = (function () {
       L.push('- 頼みごとと提出物:' + (mine.length ? '' : '（まだない）'));
       mine.forEach(function (b) {
         var r = (b.results || {})[s.id] || {};
-        L.push('  - ' + ymd(b.createdAt) + (b.example ? '（見本）' : '') + '「' + oneLine(b.text) + '」' + (b.firstTime && b.firstTime[s.id] ? '（初めての作業）' : '') +
+        L.push('  - ' + ymd(b.createdAt) + ' ' + lessonLabel(b, per[b.id]) + (b.example ? '（見本）' : '') + '「' + oneLine(b.text) + '」' + (b.firstTime && b.firstTime[s.id] ? '（初めての作業）' : '') +
           ' → ' + (r.submitted && r.kind && RESULT_BY[r.kind] ? '提出: ' + RESULT_BY[r.kind].label
             : b.closedAt ? '未提出のまま締めた' + (r.kind && RESULT_BY[r.kind] ? '（選んでいた記録: ' + RESULT_BY[r.kind].label + '）' : '')
             : r.kind && RESULT_BY[r.kind] ? RESULT_BY[r.kind].label + '（提出の前）' : 'まだ記録なし') +
@@ -1270,7 +1647,11 @@ var SekigaeEngine = (function () {
     scoreBoard: scoreBoard, scoreSaved: scoreSaved, boardFams: boardFams, quadrant: quadrant, reportCard: reportCard,
     topVague: topVague, missingCounts: missingCounts, suspects: suspects, presentFeatures: presentFeatures,
     crowd: crowd, needsReview: needsReview, exportMarkdown: exportMarkdown, ymd: ymd, studentName: studentName,
-    QUESTIONS: QUESTIONS, RESULTS: RESULTS, RESULT_BY: RESULT_BY, SEAT_LABEL: SEAT_LABEL, DAY: DAY
+    normChannel: normChannel, normSubject: normSubject, lessonMeta: lessonMeta, channelLabel: channelLabel, lessonLabel: lessonLabel,
+    dayList: dayList, periods: periods, dayKeys: dayKeys, sameText: sameText, hasLetterCopy: hasLetterCopy, channelCounts: channelCounts,
+    errandCount: errandCount, interrupted: interrupted, dayView: dayView, busiestDay: busiestDay,
+    QUESTIONS: QUESTIONS, RESULTS: RESULTS, RESULT_BY: RESULT_BY, SEAT_LABEL: SEAT_LABEL, DAY: DAY,
+    CHANNELS: CHANNELS, CHANNEL_BY: CHANNEL_BY, SUBJECTS: SUBJECTS, SUBJECT_MAX: SUBJECT_MAX
   };
 })();
 // ENGINE END
@@ -1334,8 +1715,11 @@ function defaultState() {
       { id: 'ex-s1', name: 'はじめての生徒', example: true, color: 1, col: 2, answers: { q1: 'A', q2: 'C', q3: 'B', q4: 'C', q5: 'C' }, notes: { heard: '', noticed: '' }, history: [], createdAt: t, updatedAt: t },
       { id: 'ex-s2', name: '慣れた生徒', example: true, color: 2, col: 1, answers: { q1: 'C', q2: 'A', q3: 'A', q4: 'A', q5: 'A' }, notes: { heard: '', noticed: '' }, history: [], createdAt: t, updatedAt: t }
     ],
+    /* 見本の時間割：1限 授業（黒板）・2限 手伝い（お便り）・3限 雑務（放送）。出した順が時限になるので、時刻を1ミリ秒ずつずらす */
     boards: [
-      { id: 'ex-b1', text: 'これ、簡単にまとめておいて。なるはやで！', example: true, createdAt: t, updatedAt: t, targets: ['ex-s1', 'ex-s2'], firstTime: {}, results: {} }
+      { id: 'ex-b1', text: 'これ、簡単にまとめておいて。なるはやで！', channel: 'board', subject: '授業', example: true, createdAt: t, updatedAt: t, targets: ['ex-s1', 'ex-s2'], firstTime: {}, results: {} },
+      { id: 'ex-b2', text: '来週の準備で、資料の印刷を手伝ってもらえると助かります', channel: 'letter', subject: '手伝い', example: true, createdAt: t + 1, updatedAt: t + 1, targets: ['ex-s1', 'ex-s2'], firstTime: {}, results: {} },
+      { id: 'ex-b3', text: 'あとで部屋の片づけ、お願いね', channel: 'broadcast', subject: '雑務', example: true, createdAt: t + 2, updatedAt: t + 2, targets: ['ex-s1', 'ex-s2'], firstTime: {}, results: {} }
     ],
     currentId: 'ex-b1',
     ui: { tab: 'room' }
@@ -1372,8 +1756,13 @@ function normalize(raw) {
       results[id] = { kind: E.RESULT_BY[r.kind] ? r.kind : '', memo: String(r.memo || '').slice(0, 80), ack: !!r.ack, at: Number(r.at) || 0,
         submitted: !!(r.submitted && E.RESULT_BY[r.kind]) };
     });
-    out.boards.push({ id: String(b.id), text: b.text.slice(0, MAX_TEXT), example: !!b.example, createdAt: Number(b.createdAt) || Date.now(), updatedAt: Number(b.updatedAt) || Date.now(),
-      closedAt: Number(b.closedAt) || 0, targets, firstTime, results });
+    // 伝え方と科目名（v0.3）。古いデータには無いので、黒板・授業として読む
+    const meta = E.lessonMeta(b);
+    const nb = { id: String(b.id), text: b.text.slice(0, MAX_TEXT), channel: meta.channel, subject: meta.subject, example: !!b.example,
+      createdAt: Number(b.createdAt) || Date.now(), updatedAt: Number(b.updatedAt) || Date.now(), closedAt: Number(b.closedAt) || 0, targets, firstTime, results };
+    // 要点のお便り：元の放送の id（お便りのときだけ・40字まで）
+    if (meta.channel === 'letter' && typeof b.fromCast === 'string' && b.fromCast) nb.fromCast = b.fromCast.slice(0, 40);
+    out.boards.push(nb);
   });
   out.currentId = out.boards.some((b) => b.id === raw.currentId) ? String(raw.currentId) : (out.boards.length ? latestBoard(out.boards).id : '');
   if (raw.ui && TABS.indexOf(raw.ui.tab) >= 0) out.ui.tab = raw.ui.tab;
@@ -1554,6 +1943,21 @@ function renderActivePane() {
 
 /* ===== 教室 ===== */
 let writeMode = 'new', writeDraft = '', writePreview = null, writeTargets = new Set(), writeFirst = new Set();
+let writeChannel = 'board', writeDraftMeta = null, writeFromCast = null;   // writeFromCast：要点のお便りの元の放送の id
+let ttDay = '';                 // 時間割で見ている日（'' は今日）
+let sayBid = '', sayTimer = 0;  // スピーカーから流している頼み
+/* 伝え方の印（黒板・お便り・放送） */
+const CH_ICON = {
+  board: '<svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><rect class="i-board" x="1" y="1" width="18" height="12" rx="1.5"/><path class="i-chalk" d="M4.5 5 H11 M4.5 8.5 H14"/></svg>',
+  letter: '<svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><path class="i-paper" d="M4.5 .8 H12.5 L15.5 3.8 V13.2 H4.5 Z"/><path class="i-ink" d="M6.8 5.5 H13.2 M6.8 8 H13.2 M6.8 10.5 H11"/></svg>',
+  broadcast: '<svg class="ch-ico" viewBox="0 0 20 14" aria-hidden="true" focusable="false"><rect class="i-spk" x="1" y="2.5" width="10" height="9" rx="1.6"/><circle class="i-grille" cx="6" cy="7" r="2.3"/><path class="i-wave" d="M13.5 4.5 Q15.5 7 13.5 9.5 M16 2.5 Q19.5 7 16 11.5"/></svg>'
+};
+const todayKey = () => E.ymd(Date.now());
+function keyToTs(k) { const p = String(k).split('-').map(Number); return new Date(p[0], p[1] - 1, p[2], 12).getTime(); }
+const cssEsc = (s) => (window.CSS && CSS.escape ? CSS.escape(String(s)) : String(s).replace(/["\\]/g, '\\$&'));
+/* 「2限 手伝い」（時限と科目）と「2限 手伝い（お便り）」 */
+function periodSubject(b, p) { return (p ? p + '限 ' : '') + b.subject; }
+function lessonHTML(b, p) { return '<span class="lesson">' + CH_ICON[b.channel] + esc(E.lessonLabel(b, p)) + '</span>'; }
 function sizeClass(el, text) {
   const n = text.length;
   el.classList.toggle('is-mid', n > 40 && n <= 90);
@@ -1562,24 +1966,128 @@ function sizeClass(el, text) {
 function setChalk(el, text) {
   const empty = !text.trim();
   el.classList.toggle('is-empty', empty);
-  el.textContent = empty ? 'まだ何も書いていない黒板。「黒板に書く」から頼みごとを書いてみよう' : text;
+  el.textContent = empty ? 'まだ頼みごとがない黒板。「頼みごとを出す」から始めよう' : text;
   sizeClass(el, empty ? '' : text);
+}
+/* お便り・放送で伝えた頼みは、黒板には小さな注記だけ */
+function setChalkNote(el, ch, hint) {
+  el.classList.remove('is-empty', 'is-mid', 'is-long');
+  el.innerHTML = '<span class="chalk-note">' + (ch === 'letter' ? '（お便りで配った）' : '（放送で伝えた）') + '</span>' + (hint ? '<span class="chalk-hint">' + esc(hint) + '</span>' : '');
 }
 function targetNames(b) {
   const names = b.targets.map((id) => student(id)).filter(Boolean).map((s) => s.name + 'さん');
   if (!names.length) return '相手：まだいない';
   return '相手：' + (names.length > 3 ? names.slice(0, 3).join('、') + ' ほか' + (names.length - 3) + '人' : names.join('、'));
 }
+/* シートで選んでいる科目名（自分で書いた名前が先） */
+function writeSubjectValue() {
+  const free = $('write-subject').value.trim();
+  if (free) return E.normSubject(free);
+  const c = document.querySelector('input[name="write-subj"]:checked');
+  return c ? c.value : '授業';
+}
 function renderRoomBoard() {
-  const b = currentBoard(), previewNew = writePreview != null && writeMode === 'new';
-  setChalk($('room-chalk'), writePreview != null ? writePreview : (b ? b.text : ''));
+  const b = currentBoard(), writing = writePreview != null, previewNew = writing && writeMode === 'new';
+  const ch = writing ? writeChannel : (b ? b.channel : 'board'), text = writing ? writePreview : (b ? b.text : '');
+  const per = E.periods(state.boards);
+  if (ch === 'board' || (!writing && !b)) setChalk($('room-chalk'), text);
+  else setChalkNote($('room-chalk'), ch, writing ? '' : ch === 'letter' ? 'プリントは教卓の前にあるよ' : 'スピーカーを押すと、もう一度流れる');
   $('room-date').textContent = dateLabel(b && !previewNew ? b.createdAt : Date.now());
-  if (writePreview != null) $('room-note').textContent = '書いている途中（まだ黒板に書いていない）';
-  else if (b) $('room-note').innerHTML = 'いまの黒板' + (b.example ? ' <span class="tag">見本</span>' : '') + '・' + esc(targetNames(b));
+  if (writing) $('room-note').textContent = '書いている途中（まだ出していない）';
+  else if (b) $('room-note').innerHTML = 'いまの黒板 ' + lessonHTML(b, per[b.id]) + (b.example ? ' <span class="tag">見本</span>' : '') + '・' + esc(targetNames(b));
   else $('room-note').textContent = '';
   $('room-edit').hidden = !b;
   $('room-copy').hidden = !b;
+  /* お便り：教卓の前のプリント */
+  const print = $('room-print');
+  print.hidden = !(ch === 'letter' && text.trim());
+  if (!print.hidden) {
+    const p = previewNew ? E.dayList(state.boards, todayKey()).length + 1 : per[b.id];
+    $('room-print-meta').textContent = periodSubject({ subject: writing ? writeSubjectValue() : b.subject }, p) + (writing ? '（書いている途中）' : '');
+    $('room-print-text').textContent = text;
+  }
+  /* 放送：スピーカー（放送の頼みのときだけ押せる） */
+  const castNow = !writing && !!b && b.channel === 'broadcast';
+  $('room-speaker').disabled = !castNow;
+  $('room-speaker').setAttribute('aria-label', castNow ? '放送をもう一度流す（' + periodSubject(b, per[b.id]) + '）' : 'スピーカー（放送の頼みのとき、押すと流れる）');
+  if (writing) { if (ch === 'broadcast' && text.trim()) showSay(text, 'draft'); else stopSay(); }
+  else if (!castNow || sayBid !== b.id) stopSay();
 }
+/* スピーカーの吹き出し：draft＝書いている途中／play＝出て3秒ほどで薄れて消える／stay＝動きを減らす設定（出したまま） */
+function stopSay() {
+  clearTimeout(sayTimer);
+  sayBid = '';
+  $('room-say').hidden = true;
+  $('room-say').classList.remove('is-on', 'is-draft', 'is-stay');
+  $('room-pa').classList.remove('is-playing', 'is-stay');
+}
+function showSay(text, mode) {
+  const say = $('room-say');
+  clearTimeout(sayTimer);
+  $('room-say-text').textContent = text;
+  $('room-say-k').textContent = mode === 'draft' ? '書いている途中' : mode === 'play' ? '放送中…' : '放送で伝えた';
+  say.classList.remove('is-on', 'is-draft', 'is-stay');
+  $('room-pa').classList.remove('is-playing', 'is-stay');
+  say.hidden = false;
+  if (mode === 'draft') { say.classList.add('is-draft'); sayBid = ''; return; }
+  void say.offsetWidth;   // 最初から流し直す
+  if (mode === 'play') {
+    say.classList.add('is-on');
+    $('room-pa').classList.add('is-playing');
+    sayTimer = setTimeout(() => { say.hidden = true; say.classList.remove('is-on'); $('room-pa').classList.remove('is-playing'); sayBid = ''; }, 3400);
+  } else { say.classList.add('is-stay'); $('room-pa').classList.add('is-stay'); }
+}
+function playBroadcast() {
+  const b = currentBoard();
+  if (!b || b.channel !== 'broadcast' || writePreview != null) return;
+  showSay(b.text, motionOK() ? 'play' : 'stay');
+  sayBid = b.id;
+  announce('放送：' + b.text);
+}
+$('room-speaker').addEventListener('click', playBroadcast);
+/* 今日の時間割（小さい黒板）。行を押すと、大きい黒板がその頼みに切り替わる */
+function ttRowHTML(b, p, off) {
+  const now = b.id === state.currentId;
+  return '<li><button class="tt-row' + (now ? ' is-now' : '') + '" type="button" data-bid="' + esc(b.id) + '"' + (now ? ' aria-current="true"' : '') + '>' +
+    '<span class="tt-p">' + p + '限</span><span class="tt-s">' + esc(b.subject) + (off ? '<span class="tt-off">（相手ではない）</span>' : '') + '</span>' +
+    '<span class="tt-ch">' + CH_ICON[b.channel] + E.channelLabel(b.channel) + '</span>' + (now ? '<span class="sr-only">（いま見ている頼み）</span>' : '') + '</button></li>';
+}
+function ttNeighbors(day) {
+  let prev = '', next = '';
+  E.dayKeys(state.boards, todayKey()).forEach((k) => { if (k < day) prev = k; else if (k > day && !next) next = k; });
+  return { prev, next };
+}
+function renderTimetable() {
+  const today = todayKey(), day = ttDay || today, list = E.dayList(state.boards, day), nb = ttNeighbors(day);
+  $('tt-title').textContent = day === today ? '今日の時間割' : 'この日の時間割';
+  $('tt-date').textContent = dateLabel(keyToTs(day));
+  $('tt-list').innerHTML = list.map((b, i) => ttRowHTML(b, i + 1, false)).join('');
+  $('tt-list').hidden = !list.length;
+  $('tt-empty').hidden = !!list.length;
+  $('tt-empty').textContent = day === today ? '今日の時間割は、まだ空いています' : 'この日の時間割は、空いています';
+  $('tt-prev').disabled = !nb.prev;
+  $('tt-next').disabled = !nb.next;
+}
+function goDay(dir) {
+  const nb = ttNeighbors(ttDay || todayKey()), k = dir < 0 ? nb.prev : nb.next;
+  if (!k) return;
+  ttDay = k === todayKey() ? '' : k;
+  renderTimetable();
+  announce($('tt-title').textContent + '：' + $('tt-date').textContent);
+}
+$('tt-prev').addEventListener('click', () => goDay(-1));
+$('tt-next').addEventListener('click', () => goDay(1));
+/* 頼みを「いまの黒板」にする（時間割もその日に合わせる）。放送なら、スピーカーから流す */
+function selectLesson(bid, focusSel) {
+  const b = board(bid);
+  if (!b) return;
+  state.currentId = b.id;
+  ttDay = E.ymd(b.createdAt) === todayKey() ? '' : E.ymd(b.createdAt);
+  commit();
+  if (focusSel) focusEl(document.querySelector(focusSel + ' .tt-row[data-bid="' + cssEsc(b.id) + '"]'));
+  if (b.channel === 'broadcast') playBroadcast();
+}
+$('tt-list').addEventListener('click', (e) => { const r = e.target.closest('.tt-row'); if (r) selectLesson(r.dataset.bid, '#tt-list'); });
 function deskHTML(s, b, seat) {
   const first = !!(b && b.firstTime[s.id]), off = !!(b && b.targets.indexOf(s.id) < 0);
   const review = E.needsReview(s, state.boards, Date.now());
@@ -1609,6 +2117,7 @@ function placeRow(list, nc) {
 }
 function renderRoom() {
   renderRoomBoard();
+  renderTimetable();
   const b = currentBoard(), groups = { front: [], middle: [], back: [] }, nc = deskCols();
   state.students.forEach((s) => groups[E.seatOf(s.answers.q1)].push(s));
   let html = '';
@@ -1643,7 +2152,57 @@ $('room-shuffle').addEventListener('click', () => {
   toast('席替えしたよ（前後は「慣れ」のまま、左右だけ入れ替えた）');
 });
 
-/* ===== 黒板に書く（書いている間も教室の黒板に映す） ===== */
+/* ===== 頼みごとを出す（伝え方・文・科目名・相手。書いている間も教室に映す） ===== */
+const WRITE_LABEL = { board: '頼みごと（書いた字が黒板に映る）', letter: '頼みごと（お便りに印刷される）', broadcast: '頼みごと（放送で言ったこと）' };
+$('write-subjects').innerHTML = E.SUBJECTS.map((s, i) => '<label class="res"><input type="radio" name="write-subj" id="write-subj-' + i + '" value="' + esc(s) + '"><span>' + esc(s) + '</span></label>').join('');
+function setWriteChannel(ch) {
+  writeChannel = E.normChannel(ch);
+  $('write-ch-' + writeChannel).checked = true;
+  $('write-slate').dataset.ch = writeChannel;
+  $('write-text-lbl').textContent = WRITE_LABEL[writeChannel];
+  updateCastSrc();
+}
+/* 要点のお便り：書く欄の下に元の放送の文を出す（伝え方をお便り以外にしたら隠す） */
+function updateCastSrc() {
+  const src = writeFromCast ? board(writeFromCast) : null, on = !!src && writeChannel === 'letter';
+  $('write-cast').hidden = !on;
+  $('write-cast-text').textContent = on ? src.text : '';
+}
+/* 5つの科目名ならチップを選ぶ。ほかの名前なら「自分で書く」の欄に入れる */
+function setWriteSubject(subj) {
+  const i = E.SUBJECTS.indexOf(subj);
+  document.querySelectorAll('input[name="write-subj"]').forEach((x, j) => { x.checked = j === i; });
+  $('write-subject').value = i >= 0 ? '' : subj;
+}
+/* 書いている頼みが映るところ（黒板・スピーカー・教卓の前のプリント）を見えるように。スマホは下からのシートで隠れるので、プリントを上に出す */
+function revealPreview() {
+  const pr = $('room-print');
+  if (writeChannel !== 'letter' || pr.hidden) { window.scrollTo(0, 0); return; }
+  const r = pr.getBoundingClientRect();
+  if (wideMQ.matches) {   // 広い画面は右からのシートなので、下の操作バーに隠れないところまでだけ動かす
+    const over = r.bottom - (window.innerHeight - ($('bar').hidden ? 0 : $('bar').offsetHeight) - 12);
+    if (over > 0) window.scrollBy(0, Math.max(0, Math.min(over, r.top - 12)));
+    return;
+  }
+  window.scrollTo(0, Math.max(0, r.top + window.scrollY - 12));
+}
+$('write-chs').addEventListener('change', (e) => {
+  if (e.target.name !== 'write-ch') return;
+  setWriteChannel(e.target.value);
+  renderRoomBoard();
+  revealPreview();
+});
+$('write-subjects').addEventListener('change', () => { $('write-subject').value = ''; renderRoomBoard(); });
+$('write-subject').addEventListener('input', () => {
+  const typed = !!$('write-subject').value.trim();
+  if (typed) document.querySelectorAll('input[name="write-subj"]').forEach((x) => { x.checked = false; });
+  else if (!document.querySelector('input[name="write-subj"]:checked')) setWriteSubject('授業');
+  renderRoomBoard();
+});
+$('write-form').addEventListener('keydown', (e) => {
+  // 1行の欄で Enter を押しても出さない（日本語の変換の確定で出さないように）
+  if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type === 'text') e.preventDefault();
+});
 function renderWriteTargets() {
   const box = $('write-targets');
   if (!state.students.length) { box.innerHTML = '<p class="small">まだ生徒がいません。「生徒を迎える」から席に着いてもらうと、ここで選べます。</p>'; return; }
@@ -1659,11 +2218,17 @@ function updateWriteCount() { $('write-count').textContent = $('write-text').val
 function openWrite(mode, opener) {
   const b = currentBoard(), editing = mode === 'edit' && !!b;
   writeMode = editing ? 'edit' : 'new';
-  $('write-title').textContent = editing ? '黒板を直す' : '黒板に書く';
-  $('write-submit').textContent = editing ? '直して書く' : '黒板に書く';
+  $('write-title').textContent = editing ? '頼みごとを直す' : '頼みごとを出す';
+  $('write-submit').textContent = editing ? '直す' : '出す';
   $('write-text').value = editing ? b.text : writeDraft;
-  writeTargets = new Set(editing ? b.targets : state.students.map((s) => s.id));
-  writeFirst = new Set(editing ? Object.keys(b.firstTime) : []);
+  const meta = editing ? b : (writeDraftMeta || { channel: 'board', subject: '授業' });
+  writeFromCast = editing ? (b.channel === 'letter' && b.fromCast) || null : meta.fromCast || null;
+  setWriteChannel(meta.channel);
+  setWriteSubject(meta.subject);
+  // 相手と「初めての作業」：直すときはその頼みのまま。要点のお便りの書きかけは元の放送と同じ。ふだんの新しい頼みは全員
+  const alive = (ids) => (ids || []).filter((id) => student(id));
+  writeTargets = new Set(editing ? b.targets : meta.targets ? alive(meta.targets) : state.students.map((s) => s.id));
+  writeFirst = new Set(editing ? Object.keys(b.firstTime) : alive(meta.firstTime));
   renderWriteTargets();
   updateWriteCount();
   $('write-err').hidden = true;
@@ -1672,9 +2237,19 @@ function openWrite(mode, opener) {
   window.scrollTo(0, 0);
   renderRoomBoard();
   openSheet('sheet-write', { clear: true, drawer: true, focus: 'write-text', opener: opener });
+  revealPreview();
 }
 function onWriteClosed() {
-  if (writeMode === 'new' && writePreview != null) writeDraft = $('write-text').value;
+  if (writeMode === 'new' && writePreview != null) {
+    writeDraft = $('write-text').value;
+    // 要点の下書きに手をつけずに閉じたら、書きかけは残さない（次の「要点をお便りでも送る」を止めないため）
+    if (writeFromCast && writeDraft === POINT_DRAFT) writeDraft = '';
+    // 書きかけ：伝え方・科目名と、要点のお便りなら元の放送・相手・初めての作業も残す。文を消して閉じたら書きかけはなし
+    writeDraftMeta = !writeDraft.trim() ? null : Object.assign({ channel: writeChannel, subject: writeSubjectValue() },
+      writeFromCast ? { fromCast: writeFromCast, targets: [...writeTargets], firstTime: [...writeFirst] } : {});
+    if (!writeDraft.trim()) writeDraft = '';
+  }
+  writeFromCast = null;
   writePreview = null;
   renderRoomBoard();
 }
@@ -1682,7 +2257,9 @@ $('write-text').addEventListener('input', () => {
   $('write-err').hidden = true;
   writePreview = $('write-text').value;
   updateWriteCount();
+  const printWasHidden = $('room-print').hidden;
   renderRoomBoard();
+  if (printWasHidden && !$('room-print').hidden) revealPreview();   // お便りの1文字目で、プリントが見えるところへ
 });
 $('write-targets').addEventListener('change', (e) => {
   const t = e.target, sid = t.dataset && t.dataset.sid;
@@ -1707,20 +2284,29 @@ $('write-form').addEventListener('submit', (e) => {
   const targets = state.students.map((s) => s.id).filter((id) => writeTargets.has(id));
   const firstTime = {};
   targets.forEach((id) => { if (writeFirst.has(id)) firstTime[id] = true; });
-  const now = Date.now(), b = currentBoard();
+  const now = Date.now(), b = currentBoard(), channel = writeChannel, subject = writeSubjectValue();
+  // 要点のお便り：元の放送の id を持たせる（お便りのときだけ）
+  const fromCast = channel === 'letter' && writeFromCast && board(writeFromCast) ? writeFromCast : '';
+  let msg = '';
   if (writeMode === 'edit' && b) {
-    b.text = text; b.targets = targets; b.firstTime = firstTime; b.updatedAt = now;
-    toast('黒板を直したよ');
+    b.text = text; b.channel = channel; b.subject = subject; b.targets = targets; b.firstTime = firstTime; b.updatedAt = now;
+    if (fromCast) b.fromCast = fromCast; else delete b.fromCast;
+    msg = '直したよ（' + periodSubject(b, E.periods(state.boards)[b.id]) + '・' + E.channelLabel(b.channel) + '）';
   } else {
-    const nb = { id: newId('b-'), text: text, example: false, createdAt: now, updatedAt: now, targets: targets, firstTime: firstTime, results: {} };
+    const nb = { id: newId('b-'), text: text, channel: channel, subject: subject, example: false, createdAt: now, updatedAt: now, targets: targets, firstTime: firstTime, results: {} };
+    if (fromCast) nb.fromCast = fromCast;
     state.boards.push(nb);
     state.currentId = nb.id;
+    ttDay = '';
     writeDraft = '';
-    toast('黒板に書いたよ。机を押すと、その生徒の目線で見られる');
+    writeDraftMeta = null;
+    msg = E.lessonLabel(nb, E.periods(state.boards)[nb.id]) + 'を出したよ。机を押すと、その生徒の目線で見られる';
   }
   writePreview = null;
   closeSheet();
   commit();
+  toast(msg);
+  if (channel === 'broadcast') playBroadcast();
 });
 
 /* ===== 生徒カード（迎える・直す。直すと前の答えは履歴に残る） ===== */
@@ -1818,22 +2404,45 @@ function viewChalkHTML(f, v) {
     return t;
   }).join('');
 }
+/* お便り：机の上の紙。その日この生徒に配ったお便りが2枚以上なら重ねる（下の紙は端しか見えない） */
+function papersHTML(b, letters, f, v, p) {
+  const under = letters.filter((x) => x.id !== b.id).slice(-3);
+  return under.map((x, i) => '<div class="paper is-under" style="--k:' + (under.length - i) + '" aria-hidden="true"><p class="print-head"><span class="print-title">おたより</span></p></div>').join('') +
+    '<article class="paper is-top" aria-label="机の上のお便り"><p class="print-head"><span class="print-title">おたより</span><span class="print-meta">' + esc(periodSubject(b, p)) + '</span></p>' +
+    '<p class="paper-text">' + viewChalkHTML(f, v) + '</p></article>';
+}
 function renderView(entering) {
   const s = student(viewSid), b = currentBoard();
   if (!s || !b) return;
-  const f = E.readBoard(b.text), first = !!b.firstTime[s.id], off = b.targets.indexOf(s.id) < 0;
-  const v = E.studentView(f, s.answers, { firstTime: first });
+  const f = E.readBoard(b.text), first = !!b.firstTime[s.id], off = b.targets.indexOf(s.id) < 0, ch = b.channel;
+  const per = E.periods(state.boards), day = E.ymd(b.createdAt), dayAll = E.dayList(state.boards, day);
+  const v = E.studentView(f, s.answers, { firstTime: first, channel: ch, letterCopy: ch === 'broadcast' && E.hasLetterCopy(state.boards, b, off ? '' : s.id) });
   $('view-title').textContent = s.name + 'さんの目線';
-  $('view-pills').innerHTML = '<span class="pill">' + v.seatLabel + 'から</span>' + (s.example ? '<span class="pill">見本</span>' : '') +
-    (first ? '<span class="pill pill-first">この頼みは初めての作業</span>' : '') + (off ? '<span class="pill pill-off">この黒板の相手ではない（見え方は参考）</span>' : '');
+  $('view-pills').innerHTML = '<span class="pill">' + esc(E.lessonLabel(b, per[b.id])) + '</span><span class="pill">' + v.seatLabel + 'から</span>' + (s.example ? '<span class="pill">見本</span>' : '') +
+    (first ? '<span class="pill pill-first">この頼みは初めての作業</span>' : '') + (off ? '<span class="pill pill-off">この頼みの相手ではない（見え方は参考）</span>' : '');
+  /* 今日この生徒に降ってきた頼み（小さな時間割。いま見ている時限を強調。押すとその頼みの目線へ） */
+  const mine = dayAll.filter((x) => x.targets.indexOf(s.id) >= 0 || x.id === b.id);
+  $('view-tt-k').textContent = (day === todayKey() ? '今日' : dateLabel(b.createdAt) + 'に') + 'この生徒に降ってきた頼み';
+  $('view-tt-list').innerHTML = mine.map((x) => ttRowHTML(x, per[x.id], x.targets.indexOf(s.id) < 0)).join('');
   const scene = $('scene');
   scene.dataset.seat = v.seat;
+  scene.dataset.ch = ch;
   scene.classList.toggle('is-entering', !!entering && motionOK());
   const chalk = $('view-chalk');
   chalk.style.setProperty('--scale', String(v.scale));
-  chalk.innerHTML = viewChalkHTML(f, v);
-  sizeClass(chalk, b.text);
+  if (ch === 'board') { chalk.innerHTML = viewChalkHTML(f, v); sizeClass(chalk, b.text); }
+  else setChalkNote(chalk, ch, ch === 'letter' ? 'お便りは机の上にある' : '');
   $('view-date').textContent = dateLabel(b.createdAt);
+  /* 放送：スピーカーの文字が薄れて消えたあと（文字はうすく、にじみは強め） */
+  $('view-pa').hidden = ch !== 'broadcast';
+  $('view-pa-text').innerHTML = ch === 'broadcast' ? viewChalkHTML(f, v) + '<span class="sr-only">（文字はうすく、消えかけている）</span>' : '';
+  $('view-pa').querySelector('.pa-say').classList.toggle('is-fainter', !!v.fadeMore);   // 用事が多い・長い放送は、さらにうすく
+  /* お便り：机の上の紙 */
+  const letters = dayAll.filter((x) => x.channel === 'letter' && (x.targets.indexOf(s.id) >= 0 || x.id === b.id));
+  $('view-desk').hidden = ch !== 'letter';
+  $('view-papers').innerHTML = ch === 'letter' ? papersHTML(b, letters, f, v, per[b.id]) : '';
+  $('view-desk-cap').hidden = !(ch === 'letter' && letters.length >= 2);
+  $('view-desk-cap').textContent = 'この日のお便り ' + letters.length + ' 枚（下の紙は端しか見えない）';
   const clock = $('view-clock');
   if (!clock.firstChild) clock.innerHTML = clockSVG();
   clock.hidden = v.clock === 0;
@@ -1845,18 +2454,33 @@ function renderView(entering) {
     const html = '<span class="q-bubble s' + q.size + '" style="--r:' + rot[i % rot.length] + 'deg;--i:' + i + '">' + esc(q.text) + '</span>';
     if (i % 2 === 0) a += html; else c += html;
   });
-  $('bub-a').innerHTML = a;
-  $('bub-b').innerHTML = c;
-  $('view-floor').innerHTML = headsHTML(v.seat) + '<div class="my-desk"></div>';
+  /* 「？」の吹き出しは、お便りなら机の紙のまわりに、ほかは黒板のまわりに */
+  const onDesk = ch === 'letter';
+  $('bub-a').innerHTML = onDesk ? '' : a;
+  $('bub-b').innerHTML = onDesk ? '' : c;
+  $('bub-c').innerHTML = onDesk ? a : '';
+  $('bub-d').innerHTML = onDesk ? c : '';
+  $('view-floor').innerHTML = headsHTML(v.seat) + (onDesk ? '' : '<div class="my-desk"></div>');
   $('view-face').innerHTML = '先生の顔：<b>' + FACE_LABEL[v.face] + '</b>（' + esc(v.faceWhy) + '）';
   $('view-voices').innerHTML = v.voices.map((x) => '<li class="voice' + (x.strong ? ' is-strong' : '') + (x.tone === 'pos' ? ' is-pos' : '') + '">' + esc(x.text) + '</li>').join('');
+  /* その日この生徒に降ってきた頼み（ほかの時限も含む）から足す心の声（放送だけ → 3本以上 → 割り込み → 黒板とお便り。3つまで） */
+  const dv = E.dayView(dayAll, b, s.id, state.boards);
+  $('view-day-voices').hidden = !dv.voices.length;
+  $('view-day-voices').innerHTML = dv.voices.map((x) => '<li class="voice is-day" data-key="' + x.key + '"><span class="voice-k">今日の頼みから</span>' + esc(x.text) + '</li>').join('');
   $('view-ask').textContent = v.ask.text;
-  $('view-chips').innerHTML = v.chips.length ? v.chips.map((x) => '<button class="chip-btn" type="button" data-tpl="' + esc(x.text) + '">＋ ' + esc(x.text) + '</button>').join('')
+  /* 足すとよいもの：頼みごとのもの（5つまで）の後ろに、その日の心の声のものを足す（全部で6つまで） */
+  const chips = v.chips.concat(dv.chips).slice(0, 6);
+  $('view-chips').innerHTML = chips.length ? chips.map((x) => x.act === 'letter'
+    ? '<button class="chip-btn" type="button" data-act="letter">' + CH_ICON.letter + ' ' + esc(x.text) + '</button>'
+    : '<button class="chip-btn" type="button" data-tpl="' + esc(x.text) + '">＋ ' + esc(x.text) + '</button>').join('')
     : '<p class="small">足りないものは見つからなかった。あとは本人に聞いて確かめよう。</p>';
-  $('view-chips-note').hidden = !v.chips.length;
+  $('adds-h').textContent = ch === 'letter' ? 'お便りに足すとよいもの' : ch === 'broadcast' ? '足すとよいもの' : '黒板に足すとよいもの';
+  $('view-chips-note').textContent = chips.some((x) => x.act === 'letter') ? '「要点をお便りでも送る」は、何を・いつまでの下書きでシートを開く。ほかは、放送で言ったことの最後にひな形が入る。◯ はあとで書きかえてね'
+    : '押すと、' + (ch === 'letter' ? 'お便り' : ch === 'broadcast' ? '放送で言ったこと' : '黒板') + 'の最後にひな形が入る。◯ はあとで書きかえてね';
+  $('view-chips-note').hidden = !chips.length;
 }
 function openView(sid) {
-  if (!currentBoard()) { toast('先に黒板に頼みごとを書いてね'); openWrite('new'); return; }
+  if (!currentBoard()) { toast('先に頼みごとを出してね'); openWrite('new'); return; }
   const v = $('view');
   clearTimeout(viewTimer);
   viewSid = sid;
@@ -1897,18 +2521,45 @@ $('view-back-2').addEventListener('click', () => closeView());
 $('view-edit-board').addEventListener('click', () => closeView(() => openWrite('edit', $('btn-write'))));
 $('view-edit-card').addEventListener('click', () => { const sid = viewSid; closeView(() => openCard(sid, $('btn-add-student'))); });
 $('view-ask-copy').addEventListener('click', () => copyText($('view-ask').textContent, $('view-ask')));
+/* 要点をお便りでも送る：生徒の目線を閉じて、何を・いつまでの下書きで「頼みごとを出す」シートを開く。
+   伝え方はお便り、科目名・相手・初めての作業は元の放送と同じ。書きかけの頼みがあるときは上書きしない */
+const POINT_DRAFT = '（さっきの放送の要点）\n何を：◯◯\nいつまで：◯◯';
+function openPointLetter(b) {
+  if (writeDraft.trim()) {
+    closeView(() => { openWrite('new', $('btn-write')); toast('書きかけの頼みごとがあるよ。出すか消してから、もう一度押してね'); });
+    return;
+  }
+  writeDraft = POINT_DRAFT;
+  writeDraftMeta = { channel: 'letter', subject: b.subject, fromCast: b.id, targets: b.targets.slice(), firstTime: Object.keys(b.firstTime) };
+  closeView(() => openWrite('new', $('btn-write')));
+}
 $('view-chips').addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-tpl]'), b = currentBoard();
-  if (!btn || !b) return;
-  const tpl = btn.dataset.tpl, next = b.text.replace(/\s+$/, '') + '\n' + tpl;
-  if (next.length > MAX_TEXT) { toast('黒板がいっぱい（' + MAX_TEXT + '字まで）。「黒板を直す」で短くしてね'); return; }
+  const b = currentBoard();
+  if (!b) return;
+  if (e.target.closest('[data-act="letter"]')) { openPointLetter(b); return; }
+  const btn = e.target.closest('[data-tpl]');
+  if (!btn) return;
+  const tpl = btn.dataset.tpl, next = b.text.replace(/\s+$/, '') + '\n' + tpl, where = b.channel === 'letter' ? 'お便り' : b.channel === 'broadcast' ? '放送の文' : '黒板';
+  if (next.length > MAX_TEXT) { toast(where + 'がいっぱい（' + MAX_TEXT + '字まで）。「頼みごとを直す」で短くしてね'); return; }
   b.text = next;
   b.updatedAt = Date.now();
   save();
   renderRoom();
   renderView(false);
   focusEl($('view-chips').querySelector('button') || $('view-title'));
-  toast('黒板の最後に「' + tpl + '」を足したよ。◯ はあとで書きかえてね');
+  toast(where + 'の最後に「' + tpl + '」を足したよ。◯ はあとで書きかえてね');
+});
+/* 目線の上の小さな時間割：押すと、その頼みの目線に切り替える（教室のいまの黒板も同じ頼みにする） */
+$('view-tt-list').addEventListener('click', (e) => {
+  const r = e.target.closest('.tt-row'), b = r && board(r.dataset.bid);
+  if (!b || b.id === state.currentId) return;
+  state.currentId = b.id;
+  ttDay = E.ymd(b.createdAt) === todayKey() ? '' : E.ymd(b.createdAt);
+  save();
+  renderRoom();
+  renderView(false);
+  focusEl(document.querySelector('#view-tt-list .tt-row[data-bid="' + cssEsc(b.id) + '"]'));
+  announce(E.lessonLabel(b, E.periods(state.boards)[b.id]) + 'の目線に切り替えた');
 });
 
 /* ===== 提出物（返ってきたものの記録） ===== */
@@ -1972,14 +2623,21 @@ function subRowHTML(b, s, f) {
     (r.kind ? '<button class="link-btn" type="button" data-act="clear-res">選んだ記録を消す</button>' : '<span class="small">返ってきたものを選ぶと、提出できます</span>') + '</div>' +
     '</div></section>';
 }
-function subCardHTML(b, ids) {
-  const f = E.readBoard(b.text), tg = b.targets.filter((id) => ids[id]);
+/* 頼みごとの小さな見本（黒板＝黒板の字／お便り＝プリント／放送＝点線の吹き出し） */
+function miniHTML(b) {
+  if (b.channel === 'letter') return '<div class="mini-print"><p class="mini-k">おたより</p><p class="mini-text">' + esc(b.text) + '</p></div>';
+  if (b.channel === 'broadcast') return '<div class="mini-say"><p class="mini-k">放送で伝えた（紙には残っていない）</p><p class="mini-text">' + esc(b.text) + '</p></div>';
+  return '<div class="mini-board"><p class="chalk-text">' + esc(b.text) + '</p></div>';
+}
+function subCardHTML(b, ids, per) {
+  per = per || E.periods(state.boards);
+  const f = E.readBoard(b.text), tg = b.targets.filter((id) => ids[id]), lesson = E.lessonLabel(b, per[b.id]);
   const done = tg.filter((id) => b.results[id] && b.results[id].submitted).length;
   const rows = tg.map((id) => subRowHTML(b, ids[id], f)).join('');
-  return '<article class="sub-card" data-bid="' + esc(b.id) + '" aria-label="' + esc(dateLabel(b.createdAt)) + 'の黒板">' +
-    '<p class="sub-date">' + esc(dateLabel(b.createdAt)) + (b.example ? '<span class="tag">見本</span>' : '') + (b.id === state.currentId ? '<span class="tag tag-now">いまの黒板</span>' : '') +
+  return '<article class="sub-card" data-bid="' + esc(b.id) + '" aria-label="' + esc(dateLabel(b.createdAt) + ' ' + lesson) + 'の頼みごと">' +
+    '<p class="sub-date">' + esc(dateLabel(b.createdAt)) + lessonHTML(b, per[b.id]) + (b.example ? '<span class="tag">見本</span>' : '') + (b.id === state.currentId ? '<span class="tag tag-now">いまの黒板</span>' : '') +
     (tg.length ? '<span class="tag">提出 ' + done + '/' + tg.length + '</span>' : '') + '</p>' +
-    '<div class="mini-board"><p class="chalk-text">' + esc(b.text) + '</p></div>' +
+    miniHTML(b) +
     '<div class="sub-links">' + (b.id !== state.currentId ? '<button class="link-btn" type="button" data-act="show">黒板に出す</button>' : '') +
     '<button class="link-btn" type="button" data-act="edit">直す</button>' +
     (tg.length ? '<button class="link-btn" type="button" data-act="close">締める（未提出のまま残す）</button>' : '') +
@@ -1987,8 +2645,9 @@ function subCardHTML(b, ids) {
     crowdHTML(b, f) + (rows || '<p class="small sub-none">この黒板には相手がいません。「直す」で選べます。</p>') + '</article>';
 }
 /* 締めた黒板（これまでの提出物）：完結した形で残して、あとで見直せるようにする */
-function arcCardHTML(b, ids) {
-  const f = E.readBoard(b.text), tg = b.targets.filter((id) => ids[id]);
+function arcCardHTML(b, ids, per) {
+  per = per || E.periods(state.boards);
+  const f = E.readBoard(b.text), tg = b.targets.filter((id) => ids[id]), lesson = E.lessonLabel(b, per[b.id]);
   const lines = tg.map((id) => {
     const s = ids[id], r = b.results[id] || {};
     return '<li><span class="dot" style="--c: var(--k' + s.color + ')"></span><b>' + esc(s.name) + 'さん</b>' +
@@ -2000,10 +2659,10 @@ function arcCardHTML(b, ids) {
     return r.submitted && r.kind ? '<div class="arc-hint" data-sid="' + esc(id) + '"><p class="arc-hint-n">' + esc(s.name) + 'さん</p>' +
       hypoHTML(r.kind, f, E.effectiveFam(s.answers, !!b.firstTime[id])) + '</div>' : '';
   }).join('');
-  return '<article class="sub-card arc-card" data-bid="' + esc(b.id) + '" aria-label="' + esc(dateLabel(b.createdAt)) + 'の黒板（締めた）">' +
-    '<p class="sub-date">' + esc(dateLabel(b.createdAt)) + (b.example ? '<span class="tag">見本</span>' : '') +
+  return '<article class="sub-card arc-card" data-bid="' + esc(b.id) + '" aria-label="' + esc(dateLabel(b.createdAt) + ' ' + lesson) + 'の頼みごと（締めた）">' +
+    '<p class="sub-date">' + esc(dateLabel(b.createdAt)) + lessonHTML(b, per[b.id]) + (b.example ? '<span class="tag">見本</span>' : '') +
     '<span class="tag tag-done">' + esc(dateLabel(b.closedAt)) + 'に締めた</span></p>' +
-    '<div class="mini-board"><p class="chalk-text">' + esc(b.text) + '</p></div>' +
+    miniHTML(b) +
     (lines ? '<ul class="arc-list">' + lines + '</ul>' : '') + crowdHTML(b, f) +
     (hints ? '<details class="arc-more"><summary>見直しのヒント</summary>' + hints + '</details>' : '') +
     '<div class="sub-links"><button class="link-btn" type="button" data-act="reopen">開き直す</button>' +
@@ -2011,13 +2670,13 @@ function arcCardHTML(b, ids) {
     '<button class="link-btn danger" type="button" data-act="del">消す</button></div></article>';
 }
 function renderSubs() {
-  const ids = byId(), all = state.boards.slice().sort((a, b) => b.createdAt - a.createdAt);
+  const ids = byId(), per = E.periods(state.boards), all = state.boards.slice().sort((a, b) => b.createdAt - a.createdAt);
   const open = all.filter((b) => !b.closedAt), closed = all.filter((b) => b.closedAt).sort((a, b) => b.closedAt - a.closedAt);
   $('subs-list').innerHTML =
-    (open.length ? open.map((b) => subCardHTML(b, ids)).join('')
-      : '<p class="empty-state">' + (all.length ? '記録の途中の黒板はありません。' : 'まだ黒板がありません。教室の「黒板に書く」から始めよう。') + '</p>') +
-    '<section class="arc" aria-labelledby="arc-title"><h3 class="arc-title" id="arc-title">これまでの提出物' + (closed.length ? '（' + closed.length + '枚）' : '') + '</h3>' +
-    (closed.length ? closed.map((b) => arcCardHTML(b, ids)).join('')
+    (open.length ? open.map((b) => subCardHTML(b, ids, per)).join('')
+      : '<p class="empty-state">' + (all.length ? '記録の途中の頼みごとはありません。' : 'まだ頼みごとがありません。教室の「頼みごとを出す」から始めよう。') + '</p>') +
+    '<section class="arc" aria-labelledby="arc-title"><h3 class="arc-title" id="arc-title">これまでの提出物' + (closed.length ? '（' + closed.length + '件）' : '') + '</h3>' +
+    (closed.length ? closed.map((b) => arcCardHTML(b, ids, per)).join('')
       : '<p class="small arc-empty">相手全員の「提出」がそろうか、「締める」を押すと、ここに完結した形で残ります。あとで見直せます。</p>') +
     '</section>';
 }
@@ -2083,7 +2742,7 @@ $('subs-list').addEventListener('click', (e) => {
     return;
   }
   if (act === 'close') {
-    askConfirm('この黒板を締めますか？', 'まだ提出していない人は「未提出のまま締めた」と残ります。「これまでの提出物」から開き直せます。', '締める', () => {
+    askConfirm('この頼みごとを締めますか？', 'まだ提出していない人は「未提出のまま締めた」と残ります。「これまでの提出物」から開き直せます。', '締める', () => {
       b.closedAt = Date.now();
       commit();
       focusEl($('tab-subs'));
@@ -2092,10 +2751,11 @@ $('subs-list').addEventListener('click', (e) => {
     return;
   }
   if (act === 'reopen') { b.closedAt = 0; commit(); toast('開き直したよ。上の記録の途中に戻した'); return; }
-  if (act === 'show') { state.currentId = b.id; commit(); toast('この頼みごとを黒板に出したよ'); }
-  else if (act === 'edit') { state.currentId = b.id; save(); openWrite('edit', btn); }
+  const dayOf = (x) => (E.ymd(x.createdAt) === todayKey() ? '' : E.ymd(x.createdAt));
+  if (act === 'show') { state.currentId = b.id; ttDay = dayOf(b); commit(); toast('この頼みごとを黒板に出したよ'); }
+  else if (act === 'edit') { state.currentId = b.id; ttDay = dayOf(b); save(); openWrite('edit', btn); }
   else if (act === 'del') {
-    askConfirm('この黒板を消しますか？', '「' + b.text.slice(0, 40) + (b.text.length > 40 ? '…' : '') + '」と、その提出物の記録が消えます。元に戻せません。', '消す', () => {
+    askConfirm('この頼みごとを消しますか？', '「' + b.text.slice(0, 40) + (b.text.length > 40 ? '…' : '') + '」と、その提出物の記録が消えます。元に戻せません。', '消す', () => {
       state.boards = state.boards.filter((x) => x.id !== b.id);
       if (state.currentId === b.id) state.currentId = state.boards.length ? latestBoard(state.boards).id : '';
       commit();
@@ -2149,15 +2809,22 @@ function itemsHTML(title, defs, items) {
 function renderReport() {
   const own = state.boards.filter((b) => !b.example), use = own.length ? own : state.boards, ids = byId();
   let html = '<h2 class="pane-title">先生の通知表</h2><p class="machine">黒板の文から機械で数えた目安です（言葉の一覧で数えています。AI は使っていません）。点は黒板1枚ごと、顔の印はその平均です。目標の割合は出しません。</p>';
-  if (!use.length) { $('report-body').innerHTML = html + '<p class="empty-state">まだ黒板がありません。黒板に書くと、ここに点が出ます。</p>'; return; }
+  if (!use.length) { $('report-body').innerHTML = html + '<p class="empty-state">まだ頼みごとがありません。頼みごとを出すと、ここに点が出ます。</p>'; return; }
   const items = use.map((b) => ({ b: b, sc: E.scoreSaved(b, ids) })), rc = E.reportCard(items.map((it) => it.sc));
-  const top = E.topVague(use.map((b) => b.text), 5);
+  const top = E.topVague(use.map((b) => b.text), 5), cc = E.channelCounts(use, state.boards), bd = E.busiestDay(use);
   html += '<div class="report-grid"><div>' + mapSVG(items, rc) + '</div><div>' +
     '<p class="pos">いまの位置' + (!own.length ? '（見本の黒板から）' : '') + '<b>' + esc(rc.quad.label) + '</b>求める ' + rc.demand.toFixed(2) + '・支える ' + rc.support.toFixed(2) + '（黒板 ' + rc.n + ' 枚の平均）</p>' +
     itemsHTML('求める（厳しさ）：そろっていた黒板の数', [['目的', 'purpose', 'd'], ['完成の目安', 'goal', 'd'], ['期限かかける時間', 'when', 'd'], ['言い切る（やわらげすぎがない）', 'firm', 'd'], ['見せる日・来る日・声をかける日', 'checkpoint', 'd']], items) +
     itemsHTML('支える（優しさ）：そろっていた黒板の数', [['慣れに合った手厚さ', 'fit', 's'], ['聞いていい目安', 'askOk', 's'], ['責める言葉・押しつけがない', 'noBlame', 's'], ['お礼か「認める一言」', 'reward', 's']], items) +
     '<h3 class="sub-title">よく使うあいまいな言葉</h3>' +
     (top.length ? '<div class="words">' + top.map((w) => '<span class="word">' + esc(w.word) + '<b>' + w.n + '回</b></span>').join('') + '</div>' : '<p class="small">あいまいな言葉は見つからなかった。</p>') +
+    /* 伝え方の内訳（点数の式には入れない） */
+    '<h3 class="sub-title">伝え方の内訳</h3><ul class="ch-sum" id="report-ch">' +
+    E.CHANNELS.map((c) => '<li data-ch="' + c.key + '">' + CH_ICON[c.key] + esc(c.label) + ' <b>' + cc[c.key] + '</b></li>').join('') + '</ul>' +
+    '<p class="cast-only" id="report-cast">放送だけで終わった頼み <b>' + cc.castOnly + '</b></p>' +
+    (cc.castOnly ? '<p class="cast-hint" id="report-cast-hint">要点（何を・いつまで）をお便りでも送ると、残りやすい</p>' : '') +
+    '<p class="small">あとからお便りを送っていない放送の数。口で言っただけの頼みは紙に残らないので、忘れられやすいかも。</p>' +
+    (bd ? '<p class="cast-only" id="report-day">1日の頼み（いちばん多い日）<b>' + bd.n + '</b> 本（' + esc(dateLabel(keyToTs(bd.key)).replace(/（.）$/, '')) + '）</p>' : '') +
     '</div></div>';
   $('report-body').innerHTML = html;
 }
@@ -2170,12 +2837,13 @@ function clearExamples() {
   state.boards = state.boards.filter((b) => !b.example);
   state.boards.forEach((b) => { b.targets = b.targets.filter((id) => !ex.has(id)); ex.forEach((id) => { delete b.firstTime[id]; delete b.results[id]; }); });
   if (!currentBoard()) state.currentId = state.boards.length ? latestBoard(state.boards).id : '';
+  ttDay = '';
   commit();
   toast('見本を消したよ');
 }
 function askClearExamples() {
   if (!hasExamples()) { toast('見本はもうありません'); return; }
-  askConfirm('見本の生徒と黒板を消しますか？', '「はじめての生徒」「慣れた生徒」と見本の黒板が消えます。あなたが作ったものは残ります。', '消す', clearExamples);
+  askConfirm('見本の生徒と頼みごとを消しますか？', '「はじめての生徒」「慣れた生徒」と見本の頼みごとが消えます。あなたが作ったものは残ります。', '消す', clearExamples);
 }
 $('room-ex-clear').addEventListener('click', askClearExamples);
 $('export-ex-clear').addEventListener('click', askClearExamples);
@@ -2183,6 +2851,7 @@ $('export-copy').addEventListener('click', () => { renderExport(); copyText($('e
 $('export-wipe').addEventListener('click', () => {
   askConfirm('すべて消しますか？', '生徒・黒板・提出物の記録が、この端末から全部消えます。元に戻せません。', 'すべて消す', () => {
     state = { v: 1, students: [], boards: [], currentId: '', ui: { tab: state.ui.tab } };
+    ttDay = '';
     writeDraft = '';
     commit();
     toast('すべて消したよ');

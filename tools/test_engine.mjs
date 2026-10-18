@@ -261,5 +261,186 @@ section('G. いちばん強い段（E）と、新しく読む言葉');
   ok('書き出し: 締めた黒板で提出がない人は「未提出のまま締めた」と書き、数にも入れる', md2.indexOf('→ 未提出のまま締めた') >= 0 && md2.indexOf('未提出のまま締めた 1') >= 0, md2);
 }
 
+/* ================= H. 時間割と3つの伝え方（v0.3 第1段） ================= */
+section('H. 時間割と3つの伝え方（黒板・お便り・放送）');
+const at = (d, h, m) => new Date(2026, 9, d, h, m || 0).getTime();   // 端末の時刻（その日の区切りも端末の時刻）
+{
+  // 古いデータ（channel と subject がない黒板）は、黒板・授業として読む
+  eq('古いデータの黒板（伝え方・科目名なし）→ 黒板・授業', E.lessonMeta({ id: 'old', text: '資料を作って' }), { channel: 'board', subject: '授業' });
+  eq('伝え方と科目名があれば、そのまま読む（前後の空白はつめる）', E.lessonMeta({ channel: 'letter', subject: '  手伝い ' }), { channel: 'letter', subject: '手伝い' });
+  eq('知らない伝え方は黒板に戻す', [E.normChannel('fax'), E.normChannel(''), E.normChannel('broadcast')], ['board', 'board', 'broadcast']);
+  eq('科目名は10字まで・空なら「授業」', [E.normSubject('来月の発表会の準備と片づけ'), E.normSubject(''), E.normSubject(null), E.normSubject('読書会')], ['来月の発表会の準備と', '授業', '授業', '読書会']);
+  eq('科目名の選択肢は5つ（ゼミ・授業・雑務・手伝い・その他）', E.SUBJECTS, ['ゼミ', '授業', '雑務', '手伝い', 'その他']);
+  eq('伝え方は3つ（黒板＝その場で説明・お便り＝文字で配る・放送＝口や Zoom で伝えた）', E.CHANNELS.map((c) => c.label + '＝' + c.desc), ['黒板＝その場で説明', 'お便り＝文字で配る', '放送＝口や Zoom で伝えた']);
+  eq('時限・科目・伝え方の書き方「2限 手伝い（お便り）」', [E.lessonLabel({ subject: '手伝い', channel: 'letter' }, 2), E.lessonLabel({}, 1)], ['2限 手伝い（お便り）', '1限 授業（黒板）']);
+}
+{
+  // 時限＝その日の中で出した順（並べ替えはしない）。配列の順ではなく、出した時刻の順
+  const bs = [
+    { id: 'c', createdAt: at(18, 15) }, { id: 'a', createdAt: at(18, 9) }, { id: 'y', createdAt: at(17, 20) },
+    { id: 'b', createdAt: at(18, 11) }, { id: 'd', createdAt: at(19, 0, 5) }, { id: 'e', createdAt: at(18, 15) }
+  ];
+  const per = E.periods(bs);
+  eq('時限はその日の中で出した順（10/18: 9時→1限・11時→2限・15時→3限、同じ時刻なら先に保存したほう）', [per.a, per.b, per.c, per.e], [1, 2, 3, 4]);
+  eq('日が変わると1限から（10/17 の夜・10/19 の0時5分はそれぞれ1限）', [per.y, per.d], [1, 1]);
+  eq('その日の頼み（出した順）', E.dayList(bs, '2026-10-18').map((b) => b.id), ['a', 'b', 'c', 'e']);
+  eq('時間割で行き来できる日は、頼みのある日と今日（古い順）', E.dayKeys(bs, '2026-10-21'), ['2026-10-17', '2026-10-18', '2026-10-19', '2026-10-21']);
+  eq('今日に頼みがあっても、日は重ならない', E.dayKeys(bs, '2026-10-18'), ['2026-10-17', '2026-10-18', '2026-10-19']);
+}
+{
+  const f = E.readBoard(SAMPLE);
+  const pickV = (v) => ({ voices: v.voices, bubbles: v.bubbles, ask: v.ask, chips: v.chips, blur: v.blur, face: v.face, clock: v.clock });
+  eq('お便り: にじみ・「？」の吹き出し・心の声・聞く一言は、黒板と同じ決まり', pickV(E.studentView(f, FIRST, { channel: 'letter' })), pickV(E.studentView(f, FIRST, { channel: 'board' })));
+  eq('伝え方を渡さないときは黒板（今までどおり）', pickV(E.studentView(f, FIRST)), pickV(E.studentView(f, FIRST, { channel: 'board' })));
+  // 2026-10-18 調整: 始めたばかりの生徒（Q1 A）への放送は「慣れていない生徒に放送」の決まりが重なるので、放送だけの決まりは中ほど（Q1 B）と慣れた生徒（Q1 C）で見る
+  const MID = { q1: 'B', q2: 'D', q3: 'D', q4: 'D', q5: 'D' };
+  const vc = E.studentView(f, MID, { channel: 'broadcast' }), vu = E.studentView(f, USED, { channel: 'broadcast' });
+  eq('放送: にじみは強め（黒板の1.5倍。中ほどの生徒 2.4→3.6・慣れた生徒 1.5→2.3）', [vc.blur, vu.blur, vc.faded, vc.channel], [3.6, 2.3, true, 'broadcast']);
+  eq('放送: 心の声のいちばん上は「さっき何て言ってた…？ メモしてないと忘れるかも」（強い印はつけない）', [vc.voices[0].text, vc.voices[0].strong], ['さっき何て言ってた…？ メモしてないと忘れるかも', false]);
+  eq('放送: 本人に聞くなら「さっき放送で言ったこと、何をいつまでにって受け取った？」', [vc.ask.text, vu.ask.text], ['さっき放送で言ったこと、何をいつまでにって受け取った？', 'さっき放送で言ったこと、何をいつまでにって受け取った？']);
+  eq('放送: 足すとよいものの先頭は「要点をお便りでも送る」（押すと要点の下書きでシートを開く）', vc.chips[0], { key: 'broadcast', text: '要点をお便りでも送る', act: 'letter' });
+  ok('放送: ほかの足すものは今までどおり黒板の最後にひな形を入れる（act＝add）', vc.chips.slice(1).every((c) => c.act === 'add') && vc.chips.length <= 5, J(vc.chips));
+  const vl = E.studentView(f, MID, { channel: 'broadcast', letterCopy: true });
+  ok('放送: あとからのお便りがもうあれば「要点をお便りでも送る」は出さない（聞く一言は同じ）', !vl.chips.some((c) => c.act === 'letter') && vl.ask.text === vc.ask.text, J(vl.chips));
+  const vt = E.studentView(E.readBoard('また雑。直しておいて'), { q1: 'B', q2: 'E', q3: 'C', q4: 'E', q5: 'B' }, { channel: 'broadcast' });
+  eq('放送: 責める言葉や重い不足があっても、聞く一言は放送のもの', vt.ask.key, 'broadcast');
+  // 2026-10-18 調整: そろった文（GOOD）は用事が5つの長い文なので、放送だと「いくつ頼まれたっけ」が出る。前向きの声はお便りで確かめる
+  const vg = E.studentView(E.readBoard(GOOD), FIRST, { channel: 'letter' });
+  eq('お便り: そろった文なら、心の声は前向きの2つ（お便りは黒板と同じ決まり）', [vg.voices.length, vg.voices.every((x) => x.tone === 'pos')], [2, true]);
+  let allOk = true, bad = '';
+  CASES.concat([{ t: GOOD }]).forEach((c) => [FIRST, USED, UNKNOWN, { q1: 'B', q2: 'E', q3: 'E', q4: 'E', q5: 'B' }].forEach((a) => ['letter', 'broadcast'].forEach((ch) => {
+    const v = E.studentView(E.readBoard(c.t), a, { channel: ch });
+    const fine = v.voices.length >= 2 && v.voices.length <= 4 && v.voices.every((x) => /かも$/.test(x.text)) && /？$/.test(v.ask.text) && v.chips.length <= 5;
+    if (!fine && allOk) { allOk = false; bad = ch + ' ' + c.t + ' ' + J(v.voices) + ' ' + v.ask.text; }
+  })));
+  ok('全部の例文×4種の生徒×お便り・放送で: 心の声は2〜4個・全部「〜かも」・聞く一言は「？」・足すものは5つまで', allOk, bad);
+}
+{
+  // その日この生徒に降ってきた頼み（ほかの時限も含む）から足す心の声
+  const B = (id, ch, text, targets, h) => ({ id: id, channel: ch, text: text, targets: targets || ['s'], createdAt: at(18, h || 9) });
+  // 2026-10-18 調整: dayVoices（心の声だけ）を dayView（見ている頼みを渡す・心の声と足すとよいもの）に置き換えた
+  const keys = (list, cur, sid, all) => E.dayView(list, cur, sid || 's', all).voices.map((x) => x.key);
+  const one = [B('a', 'board', '資料を作って')];
+  eq('頼みが1つ（黒板だけ）→ 足す心の声も足すものもなし', E.dayView(one, one[0], 's'), { voices: [], chips: [] });
+  const three = [B('a', 'board', '資料を作って', ['s'], 9), B('b', 'letter', '印刷を手伝って', ['s'], 10), B('c', 'broadcast', '片づけお願い', ['s'], 11)];
+  eq('1限（黒板）を見る: 放送だけ → 3本以上 → 黒板とお便り', keys(three, three[0]), ['castOnly', 'many', 'boardLetter']);
+  eq('… 文言（黒板とお便りは「見返すのを忘れる」に）', E.dayView(three, three[0], 's').voices.map((x) => x.text),
+    ['放送で聞いたことは、忘れるかも', '今日は頼みごとが多くて、どれから手をつけるか迷うかも', '黒板のほうに気を取られて、お便りを見返すのを忘れるかも']);
+  eq('… 足すとよいもの: 今日の順番・お便りも見てね（見ているのが黒板のときだけ）', E.dayView(three, three[0], 's').chips.map((x) => x.text),
+    ['今日の順番：先に◯◯、◯◯は明日でいいよ', 'お便りも見てね（何を・いつまでが書いてある）']);
+  eq('3限（放送）を見る: 見ている放送は「放送だけ」に数えない → 3本以上 → 割り込み → 黒板とお便り', keys(three, three[2]), ['many', 'interrupt', 'boardLetter']);
+  eq('… 見ているのが放送なら「お便りも見てね」は出さない（今日の順番・区切り）', E.dayView(three, three[2], 's').chips.map((x) => x.key), ['many', 'interrupt']);
+  eq('2限（お便り）を見る: 4つ重なったら3つまで（黒板とお便りは出さない）', keys(three, three[1]), ['castOnly', 'many', 'interrupt']);
+  eq('同じ日に黒板とお便り（2本）・2限のお便りを見る → 割り込み・黒板とお便り', keys(three.slice(0, 2), three[1]), ['interrupt', 'boardLetter']);
+  eq('… 1限の黒板を見る → 黒板とお便りだけ（足すものは「お便りも見てね」）', [keys(three.slice(0, 2), three[0]), E.dayView(three.slice(0, 2), three[0], 's').chips.map((x) => x.key)], [['boardLetter'], ['boardLetter']]);
+  const copy = three.concat([B('d', 'letter', ' 片づけお願い\n', ['s'], 12)]);
+  ok('放送と同じ文のお便り（前の版の書き写し・空白の違いは同じ文）があれば、「放送は忘れる」は出ない', keys(copy, copy[0]).indexOf('castOnly') < 0, J(keys(copy, copy[0])));
+  const fromCast = three.concat([{ id: 'd', channel: 'letter', text: '何を：片づけ\nいつまで：今日', fromCast: 'c', targets: ['s'], createdAt: at(18, 12) }]);
+  ok('fromCast がその放送のお便り（要点）があれば、文が違ってもお便りあり（「放送は忘れる」は出ない）', keys(fromCast, fromCast[0]).indexOf('castOnly') < 0 && E.hasLetterCopy(fromCast, three[2], 's'), J(keys(fromCast, fromCast[0])));
+  const other = three.concat([B('d', 'letter', '片づけお願い', ['t'], 12)]);
+  ok('… 同じ文のお便りがほかの生徒あてなら、この生徒には「放送は忘れる」が残る', keys(other, other[0]).indexOf('castOnly') >= 0);
+  const later = [B('a', 'board', '資料を作って', ['s'], 9), B('c', 'broadcast', '片づけお願い', ['s'], 11)], all = later.concat([{ id: 'z', channel: 'letter', text: '片づけお願い', targets: ['s'], createdAt: at(19, 9) }]);
+  ok('… 次の日に同じ文のお便りを送っても、「放送は忘れる」は消える（全部の頼みから探す）', keys(later, later[0], 's', all).indexOf('castOnly') < 0 && keys(later, later[0]).indexOf('castOnly') >= 0, J(keys(later, later[0], 's', all)));
+  const notMine = [B('a', 'board', 'A', ['s'], 9), B('b', 'board', 'B', ['t'], 10), B('c', 'letter', 'C', ['t'], 11)];
+  eq('ほかの生徒あての頼みは数えない（この生徒には黒板1本だけ）', E.dayView(notMine, notMine[0], 's'), { voices: [], chips: [] });
+  const done = [B('a', 'board', '資料を作って', ['s'], 9), B('b', 'letter', '印刷を手伝って\nいまの作業は、区切りのいいところまででいいよ\nお便りも見てね', ['s'], 10)];
+  eq('足すとよいものは、見ている頼みにもう書いてあれば出さない（心の声は残る）', [keys(done, done[1]), E.dayView(done, done[1], 's').chips], [['interrupt', 'boardLetter'], []]);
+  eq('伝え方の内訳と、放送だけで終わった頼み', E.channelCounts(three), { board: 1, letter: 1, broadcast: 1, castOnly: 1 });
+  eq('… 同じ文のお便りを足すと、放送だけで終わった頼みは 0', E.channelCounts(copy), { board: 1, letter: 2, broadcast: 1, castOnly: 0 });
+  eq('… fromCast がその放送のお便り（要点）でも 0', E.channelCounts(fromCast), { board: 1, letter: 2, broadcast: 1, castOnly: 0 });
+  eq('… 古いデータ（伝え方なし）は黒板に数える', E.channelCounts([{ text: 'a' }, { text: 'b' }]), { board: 2, letter: 0, broadcast: 0, castOnly: 0 });
+  ok('同じ文かどうかは、前後と途中の空白の違いを無視する', E.sameText(' 片づけ  お願い\n', '片づけ お願い') && !E.sameText('片づけお願い', '片づけをお願い'));
+}
+{
+  // 書き出し：時限・科目・伝え方
+  const t = at(18, 9);
+  const data = {
+    students: [{ id: 's', name: '生徒S', answers: FIRST, notes: {}, history: [] }],
+    boards: [
+      { id: 'b1', text: SAMPLE, channel: 'board', subject: '授業', createdAt: t, targets: ['s'], firstTime: {}, results: {} },
+      { id: 'b2', text: '来週の準備で、資料の印刷を手伝ってもらえると助かります', channel: 'letter', subject: '手伝い', createdAt: t + 1, targets: ['s'], firstTime: {}, results: {} },
+      { id: 'b3', text: 'あとで部屋の片づけ、お願いね', channel: 'broadcast', subject: '雑務', createdAt: t + 2, targets: ['s'], firstTime: { s: true }, results: { s: { kind: 'asked', submitted: true } } },
+      { id: 'b0', text: '去年の資料を見て', createdAt: at(17, 18), targets: ['s'], firstTime: {}, results: {} }
+    ]
+  };
+  const md = E.exportMarkdown(data, t);
+  ['- 伝え方の内訳: 黒板 2・お便り 1・放送 1（放送だけで終わった頼み 1）', '- 頼みごと: 4 件', '- 1日の頼み: いちばん多い日 3 本（2026-10-18）',
+    '  - 2026-10-18 1限 授業（黒板）「これ、簡単にまとめておいて。なるはやで！」',
+    '  - 2026-10-18 2限 手伝い（お便り）「来週の準備で', '  - 2026-10-18 3限 雑務（放送）「あとで部屋の片づけ、お願いね」（初めての作業） → 提出: 途中で聞いてきた',
+    '  - 2026-10-17 1限 授業（黒板）「去年の資料を見て」']
+    .forEach((line) => ok('書き出しに「' + line.trim().slice(0, 34) + '」', md.indexOf(line) >= 0, md));
+}
+
+/* ================= I. 第1段の調整（2026-10-18）：放送の用事・慣れていない生徒・お便りの言葉・割り込み・1日の頼み ================= */
+section('I. 第1段の調整（用事の数・放送の多い／長い／慣れていない生徒・お便りの急ぎ言葉・割り込み・いちばん多い日）');
+{
+  eq('用事の数: 1文なら1つ', E.errandCount('あとで部屋の片づけ、お願いね'), 1);
+  eq('用事の数: 文の途中の足し言葉（ついでに・それと）を足す。「お願いします」だけの文は数えない', E.errandCount('資料を印刷して、ついでに部屋も片づけて、それと鍵も返しておいて。お願いします'), 3);
+  eq('用事の数: 文の数を足す。文の頭の足し言葉（あと、・それから）は数えない', E.errandCount('資料を印刷して。あと、部屋も片づけて。それから鍵も返して。'), 3);
+  eq('用事の数: 改行と！？でも区切る', E.errandCount('印刷して！\n片づけて？\n返して'), 3);
+  eq('用事の数: 挨拶・お礼だけの文（よろしく・ありがとう・助かります）は数えない', [E.errandCount('印刷して。よろしく！'), E.errandCount('よろしくお願いします。ありがとう！助かります'), E.errandCount('印刷して。いつも助かってるよ、ありがとう')], [1, 0, 1]);
+  eq('用事の数: 足し言葉の言い方（あとは・あわせて・加えて・もう一つ・ほかに）', E.errandCount('印刷して、あとは片づけ、あわせて鍵、加えて掃除、もう一つ買い物、ほかに連絡'), 6);
+  eq('用事の数: 「あとで」は足し言葉ではない・空の文は0', [E.errandCount('あとで印刷して'), E.errandCount('')], [1, 0]);
+}
+{
+  const MID = { q1: 'B', q2: 'D', q3: 'D', q4: 'D', q5: 'D' }, w = (v, k) => (v.issues.find((x) => x.key === k) || {}).w;
+  const many = E.readBoard('資料を印刷して、ついでに部屋も片づけて、それと鍵も返しておいて');
+  const vm = E.studentView(many, MID, { channel: 'broadcast' });
+  eq('放送で用事3つ以上: 心の声「いくつ頼まれたっけ…どれか抜けてるかも」（重み6）・聞く一言「いくつあったか覚えてる？」', [w(vm, 'castMany'), vm.voices.map((x) => x.key).slice(0, 2), vm.ask.text],
+    [6, ['broadcast', 'castMany'], '放送で頼んだこと、いくつあったか覚えてる？']);
+  eq('… 文字はさらにうすく、にじみは ×1.8（中ほどの生徒 2.4→4.3）', [vm.fadeMore, vm.blur, vm.errands], [true, 4.3, 3]);
+  eq('… お便りや黒板なら、用事が多くてもこの声は出ない', [E.studentView(many, MID, { channel: 'letter' }).issues.some((x) => x.key === 'castMany'), E.studentView(many, MID).fadeMore], [false, false]);
+  const longT = '来月の発表会で使う資料を、去年のものを見本にしてA4 2枚くらいにまとめておいてもらえると、とても助かるので、どうぞよろしくお願いね';
+  ok('（前提）長い文は60字以上で、用事は3つ未満', Array.from(longT.replace(/\s+/g, '')).length >= 60 && E.errandCount(longT) < 3, String(Array.from(longT).length));
+  const vlg = E.studentView(E.readBoard(longT), USED, { channel: 'broadcast' });
+  eq('放送で60字以上（用事3つ未満）: 心の声「長くて、途中から覚えきれないかも」（重み5）・さらにうすく・にじみ ×1.8（1.5→2.7）', [w(vlg, 'castLong'), vlg.voices.some((x) => x.text === '長くて、途中から覚えきれないかも'), vlg.fadeMore, vlg.blur], [5, true, true, 2.7]);
+  ok('… 用事3つ以上のときは「長くて」は出さない（「いくつ頼まれたっけ」のほう）', !E.studentView(E.readBoard(longT + '。ついでに鍵も返して。それと掃除も'), USED, { channel: 'broadcast' }).issues.some((x) => x.key === 'castLong'));
+  const f = E.readBoard(SAMPLE), vn = E.studentView(f, FIRST, { channel: 'broadcast' });
+  eq('慣れていない生徒（Q1 A）に放送: 心の声「聞いたけど、やり方が分からないままかも」（重み6.5・赤い枠なし）・聞く一言「やり方で、分からないところある？」',
+    [w(vn, 'castNovice'), vn.voices.find((x) => x.key === 'castNovice').strong, vn.ask.text], [6.5, false, 'やり方で、分からないところある？']);
+  eq('… にじみ ×1.8（3.6→6.5）。黒板やお便りなら、この声は出ない', [vn.blur, E.studentView(f, FIRST, { channel: 'letter' }).issues.some((x) => x.key === 'castNovice')], [6.5, false]);
+  const vf = E.studentView(f, USED, { channel: 'broadcast', firstTime: true });
+  ok('「初めての作業」にした慣れた生徒にも、同じ「慣れていない生徒に放送」の声', vf.issues.some((x) => x.key === 'castNovice') && vf.ask.text === 'やり方で、分からないところある？');
+  const vb = E.studentView(many, FIRST, { channel: 'broadcast' });
+  eq('用事が多い放送×慣れていない生徒: にじみ ×2.1（3.6→7.6）・聞く一言は「やり方」が先（心の声は重みの順で4つまで）', [vb.blur, vb.ask.text, vb.voices[0].key, vb.voices.some((x) => x.key === 'castNovice'), w(vb, 'castMany')],
+    [7.6, 'やり方で、分からないところある？', 'broadcast', true, 6]);
+}
+{
+  const w = (v, k) => (v.issues.find((x) => x.key === k) || {}).w;
+  const urgent = ['なるはやで', '大至急で', '急ぎで', '急いで', '今すぐ', 'さすがに', 'いい加減'];
+  ok('お便りの急ぎ・気持ちの言葉（なるはや・至急・大至急・急ぎで・急いで・今すぐ・さすがに・いい加減）で「どのくらい急ぎ？ 怒ってる…？」（重み3.5）',
+    urgent.every((u) => w(E.studentView(E.readBoard('資料を直して。' + u), USED, { channel: 'letter' }), 'letterTone') === 3.5), J(urgent));
+  ok('… 黒板と放送では出ない', !E.studentView(E.readBoard('至急直して'), USED, { channel: 'board' }).issues.some((x) => x.key === 'letterTone') &&
+    !E.studentView(E.readBoard('至急直して'), USED, { channel: 'broadcast' }).issues.some((x) => x.key === 'letterTone'));
+  const vq = E.studentView(E.readBoard(GOOD + '。なるはやで！'), USED, { channel: 'letter' });
+  eq('… ほかの声が少ないときは出る（そろった文＋「なるはや」: 心の声の先頭と聞く一言）', [vq.voices[0].text, vq.ask.text], ['これ、どのくらい急ぎ？ 怒ってる…？って迷うかも', 'お便りの書き方、きつく読めなかった？']);
+  const vs = E.studentView(E.readBoard('至急、資料を直して'), FIRST, { channel: 'letter' });
+  ok('… ほかの声が多いときは出ない（4つまでに入らない）', !vs.voices.some((x) => x.text.indexOf('怒ってる') >= 0) && vs.voices.length === 4, J(vs.voices));
+}
+{
+  // 割り込み：前の時限の頼みが、見ている頼みを出す前に「締め」も「提出」もしていない
+  const mk = (r, closedAt) => [
+    { id: 'p', channel: 'board', text: '資料を作って', targets: ['s'], createdAt: at(18, 9), closedAt: closedAt || 0, results: r ? { s: r } : {} },
+    { id: 'c', channel: 'broadcast', text: '片づけお願い', targets: ['s'], createdAt: at(18, 11), results: {} }];
+  const has = (list) => E.dayView(list, list[1], 's').voices.some((x) => x.key === 'interrupt');
+  ok('割り込み: 前の時限の頼みがまだ提出されていない → 「さっきの続き、どこまでやったっけ…ってなるかも」', has(mk()) && E.dayView(mk(), mk()[1], 's').voices.find((x) => x.key === 'interrupt').text === 'さっきの続き、どこまでやったっけ…ってなるかも');
+  ok('… 足すとよいもの「いまの作業は、区切りのいいところまででいいよ」', E.dayView(mk(), mk()[1], 's').chips.some((x) => x.text === 'いまの作業は、区切りのいいところまででいいよ'));
+  eq('… 見ている頼みを出す前に提出済み（提出の at が前）→ 出ない／出した後に提出（at が後）→ 出る', [has(mk({ kind: 'asExpected', submitted: true, at: at(18, 10) })), has(mk({ kind: 'asExpected', submitted: true, at: at(18, 12) }))], [false, true]);
+  eq('… 選んだだけ（提出の前）は提出に数えない → 出る', has(mk({ kind: 'asExpected', submitted: false, at: at(18, 10) })), true);
+  eq('… 見ている頼みを出す前に締めた → 出ない／出した後に締めた（未提出のまま）→ 出る', [has(mk(null, at(18, 10))), has(mk(null, at(18, 15)))], [false, true]);
+  const two = mk();
+  eq('… 後の時限の頼みからは数えない（1限を見ると出ない）', E.dayView(two, two[0], 's').voices.some((x) => x.key === 'interrupt'), false);
+  const otherS = mk(); otherS[0].targets = ['t'];
+  eq('… 前の頼みがほかの生徒あてなら出ない', has(otherS), false);
+  const notCur = mk(); notCur[1].targets = ['t'];
+  eq('… 見ている頼みがこの生徒あてでなければ出ない', has(notCur), false);
+}
+{
+  const bs = [{ createdAt: at(17, 9) }, { createdAt: at(17, 10) }, { createdAt: at(18, 9) }, { createdAt: at(18, 10) }, { createdAt: at(18, 11) }, { createdAt: at(19, 9) }];
+  eq('1日の頼み: いちばん多い日（10/18 の3本）', E.busiestDay(bs), { key: '2026-10-18', n: 3 });
+  eq('… 同じ数なら新しい日', E.busiestDay(bs.slice(0, 2).concat([{ createdAt: at(19, 9) }, { createdAt: at(19, 10) }])), { key: '2026-10-19', n: 2 });
+  eq('… 頼みがなければ出さない', E.busiestDay([]), null);
+}
+
 console.log('\n' + (fails.length ? '通らなかった: ' + fails.length + ' 件 ／ 通った: ' + pass + ' 件' : 'すべて通った: ' + pass + ' 件'));
 if (fails.length) { fails.forEach((f) => console.log('  - ' + f)); process.exit(1); }
